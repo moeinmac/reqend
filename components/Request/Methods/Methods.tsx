@@ -10,6 +10,7 @@ const Methods = () => {
 
   return (
     <Select
+      name="method"
       value={method}
       onValueChange={(value: keyof typeof methodsColor) => {
         console.log(value, "value");

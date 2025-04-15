@@ -1,5 +1,3 @@
-"use client";
-
 import Request from "@/components/Request/Request";
 import Sidebar from "@/components/Sidebar/Sidebar";
 
