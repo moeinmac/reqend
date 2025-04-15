@@ -1,11 +1,11 @@
 import { Hero } from "@/components/hero";
 
-const Home = () => {
+const Landing = () => {
   return (
     <div>
       <Hero
         title="Open Source Postman Alternative"
-        subtitle="monitor your endpoint's heartbeat with ReqEnd . free and open source postman alternative for you API's . enjoy!"
+        subtitle="monitor your endpoint's heartbeat with reQend . free and open source postman alternative for you API's . enjoy!"
         actions={[
           {
             label: "Contact Me",
@@ -14,7 +14,7 @@ const Home = () => {
           },
           {
             label: "Start Free",
-            href: "app",
+            href: "home",
             variant: "default",
           },
         ]}
@@ -26,4 +26,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Landing;
