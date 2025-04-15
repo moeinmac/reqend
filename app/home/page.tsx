@@ -1,10 +1,12 @@
 "use client";
 
-import InputReq from "@/components/InputReq/InputReq";
+import InputReq from "@/components/Request/InputReq/InputReq";
+import Sidebar from "@/components/Sidebar/Sidebar";
 
 const Home = () => {
   return (
-    <div>
+    <div className="grid grid-cols-8">
+      <Sidebar />
       <InputReq />
     </div>
   );
