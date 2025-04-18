@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, Bookmark, Clock, Download, Upload, Users } from "lucide-react";
+import Params from "./Params/Params";
 
 const Options = () => {
   return (
@@ -9,44 +10,19 @@ const Options = () => {
       <CardHeader>
         <CardTitle>Request Options</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-6">
         <Tabs defaultValue="overview">
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Params</TabsTrigger>
-            <TabsTrigger value="saved">Authentication</TabsTrigger>
-            <TabsTrigger value="groups">Headers</TabsTrigger>
-            <TabsTrigger value="comments">Body</TabsTrigger>
-            <TabsTrigger value="backup">Setting</TabsTrigger>
+          <TabsList className="mb-2">
+            <TabsTrigger value="params">Params</TabsTrigger>
+            <TabsTrigger value="authentication">Authentication</TabsTrigger>
+            <TabsTrigger value="headers">Headers</TabsTrigger>
+            <TabsTrigger value="body">Body</TabsTrigger>
+            <TabsTrigger value="setting">Setting</TabsTrigger>
           </TabsList>
-          <TabsContent value="overview">
-            <div className="grid gap-4">
-              <div>
-                <h3 className="font-medium">Account Overview</h3>
-                <p className="text-muted-foreground">View your account details and activity.</p>
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="size-5 text-muted-foreground" />
-                    <span>Signed in 2 hours ago</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="size-5 text-muted-foreground" />
-                    <span>Uploaded a file 4 days ago</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+          <TabsContent value="params">
+            <Params />
           </TabsContent>
-          <TabsContent value="saved">
+          <TabsContent value="authentication">
             <div className="grid gap-4">
               <div>
                 <h3 className="font-medium">Saved Items</h3>
@@ -83,7 +59,7 @@ const Options = () => {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="groups">
+          <TabsContent value="headers">
             <div className="grid gap-4">
               <div>
                 <h3 className="font-medium">Groups</h3>
@@ -120,7 +96,7 @@ const Options = () => {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="comments">
+          <TabsContent value="body">
             <div className="grid gap-4">
               <div className="border-b pb-4">
                 <h3 className="font-medium">Comments</h3>
@@ -148,7 +124,7 @@ const Options = () => {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="backup">
+          <TabsContent value="setting">
             <div className="grid gap-4">
               <div>
                 <h3 className="font-medium">Backup & Restore</h3>

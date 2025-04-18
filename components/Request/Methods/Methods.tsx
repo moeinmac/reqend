@@ -6,19 +6,10 @@ import { useState } from "react";
 
 const Methods = () => {
   const [method, setMethod] = useState<keyof typeof methodsColor>("get");
-  console.log(`text-[${methodsColor[method]}]`);
 
   return (
-    <Select
-      name="method"
-      value={method}
-      onValueChange={(value: keyof typeof methodsColor) => {
-        console.log(value, "value");
-
-        setMethod(value);
-      }}
-    >
-      <SelectTrigger className={`w-[105px] py-6`} style={{ color: `${methodsColor[method]}` }}>
+    <Select name="method" value={method} onValueChange={(value: keyof typeof methodsColor) => setMethod(value)}>
+      <SelectTrigger className={"w-[105px] py-6"} style={{ color: `${methodsColor[method]}` }}>
         <SelectValue placeholder="GET" />
       </SelectTrigger>
       <SelectContent>
