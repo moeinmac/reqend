@@ -10,20 +10,21 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
-import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { paramsColumns } from "@/constant/paramsColumns";
-
-const data: any[] = [];
+import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
+import { Params as PR } from "@/db/models.type";
+import { useState } from "react";
 
 const Params = () => {
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [data, setData] = useState<PR[]>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
+    defaultColumn,
     data,
     columns: paramsColumns,
     getCoreRowModel: getCoreRowModel(),
@@ -35,6 +36,22 @@ const Params = () => {
     state: {
       columnVisibility,
       rowSelection,
+    },
+    meta: {
+      updateData: (rowIndex, columnId, value) => {
+        // Skip page index reset until after next rerender
+        setData((old) =>
+          old.map((row, index) => {
+            if (index === rowIndex) {
+              return {
+                ...old[rowIndex]!,
+                [columnId]: value,
+              };
+            }
+            return row;
+          })
+        );
+      },
     },
   });
 
