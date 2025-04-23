@@ -1,4 +1,4 @@
-import { JSONFilePreset } from "lowdb/node";
+import { LocalStoragePreset } from "lowdb/browser";
 import { Body, Params, Request } from "./models.type";
 
 export interface DataBase {
@@ -13,4 +13,4 @@ const defaultData: DataBase = {
   request: [],
 };
 
-export const db = await JSONFilePreset("db.json", defaultData);
+export const db = typeof window !== "undefined" ? LocalStoragePreset("db", defaultData) : undefined;

@@ -11,7 +11,7 @@ const Options = () => {
         <CardTitle>Request Options</CardTitle>
       </CardHeader>
       <CardContent className="px-6">
-        <Tabs defaultValue="overview">
+        <Tabs defaultValue="params">
           <TabsList className="mb-2">
             <TabsTrigger value="params">Params</TabsTrigger>
             <TabsTrigger value="authentication">Authentication</TabsTrigger>

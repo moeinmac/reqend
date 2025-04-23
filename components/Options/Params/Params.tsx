@@ -16,12 +16,20 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
 import { Params as PR } from "@/db/models.type";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { db } from "@/db";
+import { addNewParams, writeParams } from "@/db/dal/crud-params";
 
 const Params = () => {
   const [data, setData] = useState<PR[]>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  useEffect(() => {
+    setData(db!.data.params ?? []);
+  }, []);
+
+  const addNewParamHandler = () => setData([addNewParams()]);
 
   const table = useReactTable({
     defaultColumn,
@@ -39,18 +47,19 @@ const Params = () => {
     },
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        // Skip page index reset until after next rerender
-        setData((old) =>
-          old.map((row, index) => {
+        setData((prevData) => {
+          const newData = prevData.map((row, index) => {
             if (index === rowIndex) {
               return {
-                ...old[rowIndex]!,
+                ...prevData[rowIndex],
                 [columnId]: value,
               };
             }
             return row;
-          })
-        );
+          });
+          writeParams(newData);
+          return newData;
+        });
       },
     },
   });
@@ -58,6 +67,13 @@ const Params = () => {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
+        <Button
+          className="cursor-pointer"
+          disabled={data.length > 0 && data[data.length - 1].key === ""}
+          onClick={addNewParamHandler}
+        >
+          Add Param
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
