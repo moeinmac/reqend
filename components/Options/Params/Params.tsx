@@ -18,7 +18,7 @@ import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
 import { Params as PR } from "@/db/models.type";
 import { useEffect, useState } from "react";
 import { db } from "@/db";
-import { addNewParams, writeParams } from "@/db/dal/crud-params";
+import { addNewParams, removeParam, writeParams } from "@/db/dal/crud-params";
 
 const Params = () => {
   const [data, setData] = useState<PR[]>([]);
@@ -29,7 +29,7 @@ const Params = () => {
     setData(db!.data.params ?? []);
   }, []);
 
-  const addNewParamHandler = () => setData([addNewParams()]);
+  const addNewParamHandler = () => (data.length === 0 ? setData([addNewParams()]) : setData((old) => [...old, addNewParams()]));
 
   const table = useReactTable({
     defaultColumn,
@@ -60,6 +60,11 @@ const Params = () => {
           writeParams(newData);
           return newData;
         });
+      },
+      deleteRow: (rowIndex) => {
+        const thisRow = table.getRow(`${rowIndex}`);
+        const paramsAfterDelete = removeParam(thisRow.original.id);
+        setData(paramsAfterDelete);
       },
     },
   });

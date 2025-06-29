@@ -18,3 +18,10 @@ export const addNewParams = () => {
   db!.write();
   return newRow;
 };
+
+export const removeParam = (id: string) => {
+  const paramsAfterDelete = db!.data.params.filter((p) => p.id !== id);
+  db!.data.params = paramsAfterDelete;
+  db!.write();
+  return paramsAfterDelete;
+};
