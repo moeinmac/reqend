@@ -31,6 +31,7 @@ export interface Request {
   body: Body;
   auth: any;
   method: Method;
+  name: string;
 }
 
 export type CollectionItem = Request;

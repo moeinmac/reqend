@@ -20,7 +20,7 @@ const Methods = () => {
           <SelectItem value="post">POST</SelectItem>
           <SelectItem value="put">PUT</SelectItem>
           <SelectItem value="patch">PATCH</SelectItem>
-          <SelectItem value="delete">DETELE</SelectItem>
+          <SelectItem value="delete">DELETE</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

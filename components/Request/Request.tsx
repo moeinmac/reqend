@@ -5,10 +5,12 @@ import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
 import Options from "../Options/Options";
+import RequestTabs from "./Tabs/RequestTabs";
 
 const Request: FC = () => {
   return (
     <div className="col-span-4 mt-10 flex flex-col gap-4 ">
+      <RequestTabs />
       <form className="flex items-center gap-2">
         <Methods />
         <InputReq />
