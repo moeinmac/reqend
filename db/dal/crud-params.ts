@@ -13,6 +13,7 @@ export const addNewParams = () => {
     key: "",
     value: "",
     id: ID(),
+    selected: false,
   };
   db!.data.params.push(newRow);
   db!.write();
