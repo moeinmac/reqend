@@ -2,6 +2,7 @@
 
 import { FC } from "react";
 import { Button } from "../ui/button";
+import Collection from "../Collection/Collection";
 
 const Sidebar: FC = () => {
   return (
@@ -12,6 +13,7 @@ const Sidebar: FC = () => {
           New Collection
         </Button>
       </div>
+      <Collection />
     </div>
   );
 };
