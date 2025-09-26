@@ -62,10 +62,10 @@ const Collection: FC = () => {
     <Tree
       className="p-2 overflow-hidden rounded-md bg-background"
       initialSelectedId="7"
-      initialExpandedItems={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]}
+      initialExpandedItems={["root", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]}
       elements={ELEMENTS}
     >
-      <Folder element="src" value="1">
+      <Folder element="Collection Name" value="root">
         <Folder value="2" element="app">
           <File value="3">
             <p>layout.tsx</p>

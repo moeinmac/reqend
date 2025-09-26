@@ -2,11 +2,13 @@
 
 import React, { createContext, forwardRef, useCallback, useContext, useEffect, useState } from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { FileIcon, FolderIcon, FolderOpenIcon } from "lucide-react";
+import { FileIcon, FolderIcon, FolderOpenIcon, FolderOpenDotIcon, FolderRootIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "./input";
+import TreeItem from "./tree-item";
 
 type TreeViewElement = {
   id: string;
@@ -170,7 +172,7 @@ const Folder = forwardRef<HTMLDivElement, FolderProps & React.HTMLAttributes<HTM
     return (
       <AccordionPrimitive.Item {...props} value={value} className="relative overflow-hidden h-full ">
         <AccordionPrimitive.Trigger
-          className={cn(`flex items-center gap-1 text-sm rounded-md`, className, {
+          className={cn(`flex items-center gap-1 text-md rounded-md`, className, {
             "bg-muted rounded-md": isSelect && isSelectable,
             "cursor-pointer": isSelectable,
             "cursor-not-allowed opacity-50": !isSelectable,
@@ -178,15 +180,25 @@ const Folder = forwardRef<HTMLDivElement, FolderProps & React.HTMLAttributes<HTM
           disabled={!isSelectable}
           onClick={() => handleExpand(value)}
         >
-          {expandedItems?.includes(value) ? openIcon ?? <FolderOpenIcon className="size-4" /> : closeIcon ?? <FolderIcon className="size-4" />}
-          <span>{element}</span>
+          {expandedItems?.includes(value) ? (
+            openIcon ?? value === "root" ? (
+              <FolderOpenDotIcon className="size-5" />
+            ) : (
+              <FolderOpenIcon className="size-5" />
+            )
+          ) : closeIcon ?? value === "root" ? (
+            <FolderRootIcon className="size-5" />
+          ) : (
+            <FolderIcon className="size-5" />
+          )}
+          <TreeItem value={element} />
         </AccordionPrimitive.Trigger>
-        <AccordionPrimitive.Content className="text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down relative overflow-hidden h-full">
+        <AccordionPrimitive.Content className="text-md data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down relative overflow-hidden h-full">
           {element && indicator && <TreeIndicator aria-hidden="true" />}
           <AccordionPrimitive.Root
             dir={direction}
             type="multiple"
-            className="flex flex-col gap-1 py-1 ml-5 rtl:mr-5 "
+            className="flex flex-col gap-1 py-1 ml-6 rtl:mr-6 "
             defaultValue={expandedItems}
             value={expandedItems}
             onValueChange={(value) => {
@@ -224,7 +236,7 @@ const File = forwardRef<
         disabled={!isSelectable}
         aria-label="File"
         className={cn(
-          "flex items-center gap-1 cursor-pointer text-sm pr-1 rtl:pl-1 rtl:pr-0 rounded-md  duration-200 ease-in-out",
+          "flex items-center gap-1 cursor-pointer text-md pr-1 py-1 rtl:pl-1 rtl:pr-0 rounded-md  duration-200 ease-in-out",
           {
             "bg-muted": isSelected && isSelectable,
           },
@@ -233,7 +245,7 @@ const File = forwardRef<
         )}
         onClick={() => selectItem(value)}
       >
-        {fileIcon ?? <FileIcon className="size-4" />}
+        {fileIcon ?? <FileIcon className={cn(isSelected ? "size-5 rtl:pr-1 pl-1 rtl:pl-0" : "size-4")} />}
         {children}
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Item>

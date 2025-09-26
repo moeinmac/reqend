@@ -72,11 +72,7 @@ const Params = () => {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Button
-          className="cursor-pointer"
-          disabled={data.length > 0 && data[data.length - 1].key === ""}
-          onClick={addNewParamHandler}
-        >
+        <Button className="cursor-pointer" disabled={data.length > 0 && data[data.length - 1].key === ""} onClick={addNewParamHandler}>
           Add Param
         </Button>
         <DropdownMenu>
