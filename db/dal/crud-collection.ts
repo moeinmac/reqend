@@ -1,6 +1,7 @@
 import { v4 } from "uuid";
 import { Collection, FolderItem } from "../models.type";
 import { getItem, setItem } from "../db";
+import { newFolderRecursive } from "@/lib/newFolderRecursive";
 
 export const newCollectionHandler = async (name: string) => {
   const newCollection: Collection = {
@@ -15,27 +16,32 @@ export const newCollectionHandler = async (name: string) => {
   return newCollection;
 };
 
-interface NewFolderInput {
+export interface NewFolderInput {
   collectionId: string;
   folderName: string;
   targetId: string;
-  position: "next" | "below";
 }
-export const newFolderHandler = async ({ collectionId, folderName, position, targetId }: NewFolderInput) => {
-  const thisCollection = await getItem<Collection>("collection", collectionId);
+
+export const newFolderHandler = async (input: NewFolderInput) => {
+  const thisCollection = await getItem<Collection>("collection", input.collectionId);
   if (!thisCollection) return;
-  if (collectionId === targetId) {
+  if (input.collectionId === input.targetId) {
     const newFolder: FolderItem = {
       id: v4(),
       items: [],
-      name: folderName,
+      name: input.folderName,
       type: "folder",
     };
     thisCollection.items.unshift(newFolder);
-    await setItem<Collection>("collection", collectionId, thisCollection);
+    await setItem<Collection>("collection", input.collectionId, thisCollection);
     return;
   }
-  // thisCollection.items.forEach((colItem) => {
-  //   if (colItem.type === "request") return;
-  // });
+  const newItems = newFolderRecursive(thisCollection.items, input);
+  await setItem<Collection>("collection", input.collectionId, {
+    createdAt: thisCollection.createdAt,
+    id: thisCollection.id,
+    items: newItems,
+    modifiedAt: thisCollection.modifiedAt,
+    name: thisCollection.name,
+  });
 };

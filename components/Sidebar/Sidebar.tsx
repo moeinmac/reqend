@@ -1,9 +1,9 @@
 "use client";
 
-import { FC } from "react";
-import { Button } from "../ui/button";
-import Collection from "../Collection/Collection";
 import { newCollectionHandler, newFolderHandler } from "@/db/dal/crud-collection";
+import { FC } from "react";
+import Collection from "../Collection/Collection";
+import { Button } from "../ui/button";
 
 const Sidebar: FC = () => {
   return (
@@ -20,7 +20,6 @@ const Sidebar: FC = () => {
             await newFolderHandler({
               collectionId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
               folderName: "this",
-              position: "below",
               targetId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
             })
           }
