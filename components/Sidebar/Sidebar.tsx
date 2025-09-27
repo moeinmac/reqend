@@ -4,6 +4,7 @@ import { newCollectionHandler, newFolderHandler } from "@/db/dal/crud-collection
 import { FC } from "react";
 import Collection from "../Collection/Collection";
 import { Button } from "../ui/button";
+import { folderTreeGenerator, temp } from "@/lib/folderTreeGenerator";
 
 const Sidebar: FC = () => {
   return (
@@ -17,11 +18,15 @@ const Sidebar: FC = () => {
           size={"xs"}
           variant={"secondary"}
           onClick={async () =>
-            await newFolderHandler({
-              collectionId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
-              folderName: "this",
-              targetId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
-            })
+            // await newFolderHandler({
+            //   collectionId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
+            //   folderName: "this",
+            //   targetId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
+            // })
+            {
+              const tree = folderTreeGenerator(temp);
+              console.log(tree);
+            }
           }
         >
           New Folder
