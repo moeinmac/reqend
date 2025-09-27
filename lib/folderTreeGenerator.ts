@@ -30,14 +30,28 @@ export const temp: Collection = {
   items: [
     {
       id: "56569940-be4d-4ecc-bf31-4dd39d25a25e",
-      items: [],
+      items: [
+        {
+          id: "56569940-be4d-4ecc-bf31-4dd39d25a56t",
+          items: [
+            {
+              type: "request",
+              id: "12378955-be4d-4ecc-bf31-4dd39d25a25r",
+              method: "patch",
+              name: "update user",
+            },
+          ],
+          type: "folder",
+          name: "users",
+        },
+      ],
       name: "not root",
       type: "folder",
     },
     {
       id: "93564c32-dc8c-4fce-b09a-9a168784548a",
-      items: [],
-      name: "boot",
+      items: [{ id: "56633467-fr34-4ecc-bf31-4dd39d25a25e", type: "request", method: "get", name: "get blogs" }],
+      name: "blog",
       type: "folder",
     },
     {

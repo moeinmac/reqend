@@ -1,19 +1,28 @@
 "use client";
 
-import { newCollectionHandler, newFolderHandler } from "@/db/dal/crud-collection";
+import { folderTreeGenerator, temp } from "@/lib/folderTreeGenerator";
+import { PackagePlus } from "lucide-react";
 import { FC } from "react";
 import Collection from "../Collection/Collection";
 import { Button } from "../ui/button";
-import { folderTreeGenerator, temp } from "@/lib/folderTreeGenerator";
-
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 const Sidebar: FC = () => {
   return (
     <div className="col-span-2 p-4">
       <div className="flex items-center gap-4">
         <h3 className="font-bold">Collections</h3>
-        <Button size={"xs"} variant={"secondary"} onClick={async () => await newCollectionHandler("moein")}>
-          New Collection
-        </Button>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="link" size={"icon"}>
+              <PackagePlus />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>New Collection</p>
+          </TooltipContent>
+        </Tooltip>
+
         <Button
           size={"xs"}
           variant={"secondary"}
