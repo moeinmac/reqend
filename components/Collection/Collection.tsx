@@ -1,9 +1,9 @@
 import { FC } from "react";
-import { File, Folder, Tree } from "../ui/file-tree";
+import { File, Folder, Tree, TreeViewElement } from "../ui/file-tree";
 
-const ELEMENTS = [
+const ELEMENTS: TreeViewElement[] = [
   {
-    id: "1",
+    id: "root",
     isSelectable: true,
     name: "src",
     children: [
@@ -19,7 +19,7 @@ const ELEMENTS = [
           },
           {
             id: "4",
-            isSelectable: true,
+            isSelectable: false,
             name: "page.tsx",
           },
         ],

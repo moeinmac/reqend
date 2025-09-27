@@ -30,6 +30,7 @@ export interface RequestPrimary {
   id: string;
   name: string;
   method: Method;
+  type: "request";
 }
 
 export interface Request extends RequestPrimary {
@@ -43,6 +44,7 @@ export interface FolderItem {
   id: string;
   name: string;
   items: (RequestPrimary | FolderItem)[];
+  type: "folder";
 }
 
 export type CollectionItem = RequestPrimary | FolderItem;
