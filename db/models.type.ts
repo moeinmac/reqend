@@ -1,8 +1,13 @@
+export type StorageName = "collection" | "request";
+
+export type Method = "get" | "post" | "patch" | "put" | "delete";
+
 export interface Params {
   id: string;
   key: string;
   value: string;
   description: string;
+  selected: boolean;
 }
 
 export interface TheJSON {
@@ -17,12 +22,37 @@ export interface FormDataBody {
 
 export interface Body {
   id: string;
-  body: TheJSON | FormDataBody[];
+  type: "none" | "json" | "text" | "form-data" | "urlencoded" | "binary";
+  content: string | FormDataBody | TheJSON;
 }
 
-export interface Request {
+export interface RequestPrimary {
   id: string;
-  url: string;
-  params: Params["id"][];
-  body: Body["id"][];
+  name: string;
+  method: Method;
+  type: "request";
 }
+
+export interface Request extends RequestPrimary {
+  url: string;
+  params: Params[];
+  body: Body;
+  auth: any;
+}
+
+export interface FolderItem {
+  id: string;
+  name: string;
+  items: (RequestPrimary | FolderItem)[];
+  type: "folder";
+}
+
+export type CollectionItem = RequestPrimary | FolderItem;
+
+export type Collection = {
+  id: string;
+  name: string;
+  createdAt: string;
+  modifiedAt: string;
+  items: CollectionItem[];
+};
