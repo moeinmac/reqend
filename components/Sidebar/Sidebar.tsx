@@ -1,39 +1,33 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { FC } from "react";
-import Collection from "../Collection/Collection";
-import { Button } from "../ui/button";
-
-const NewCollection = dynamic(() => import("../Collection/NewCollection"), {
-  ssr: false,
-  loading: () => <p>loading..</p>,
-});
+import { FC, useEffect, useState } from "react";
+import CollectionWrapper from "../Collection/CollectionWrapper";
+import NewCollection from "../Collection/NewCollection";
+import { getAllItems } from "@/db/db";
+import { Collection } from "@/db/models.type";
 
 const Sidebar: FC = () => {
+  const [collections, setCollection] = useState<Collection[]>([]);
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const allCollections = await getAllItems<Collection>("collection");
+      if (allCollections) setCollection(allCollections);
+    };
+    fetchCollections();
+  }, []);
+
+  const onNewCollectionHandler = (newCollection: Collection) => setCollection((prev) => [newCollection, ...prev]);
   return (
     <div className="col-span-2 p-4">
       <div className="flex items-center gap-4">
         <h3 className="font-bold">Collections</h3>
-
-        <NewCollection />
-
-        <Button
-          size={"xs"}
-          variant={"secondary"}
-          onClick={async () =>
-            // await newFolderHandler({
-            //   collectionId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
-            //   folderName: "this",
-            //   targetId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
-            // })
-            {}
-          }
-        >
-          New Folder
-        </Button>
+        <NewCollection onNewCollection={onNewCollectionHandler} />
       </div>
-      <Collection />
+      <div className="flex flex-col gap-3">
+        {collections.map((collection) => (
+          <CollectionWrapper data={collection} key={collection.id} />
+        ))}
+      </div>
     </div>
   );
 };

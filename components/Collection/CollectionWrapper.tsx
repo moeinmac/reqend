@@ -1,10 +1,10 @@
-import { FC } from "react";
-import { Globe, Folder, FolderOpen, File, Download } from "lucide-react";
-import TreeView from "../tree-view";
-import { Collection as CollectionType } from "@/db/models.type";
+import { type Collection } from "@/db/models.type";
 import { collectionToTree } from "@/lib/collectionToTree";
+import { File, Folder, FolderOpen, Globe } from "lucide-react";
+import { FC } from "react";
+import TreeView from "../tree-view";
 
-const testCollection: CollectionType = {
+const testCollection: Collection = {
   id: "col-1",
   name: "API Collection",
   createdAt: new Date().toISOString(),
@@ -77,10 +77,14 @@ const customIconMap = {
   put: <File className="h-4 w-4 text-orange-500" />,
 };
 
-const Collection: FC = () => {
+interface CollectionWrapperProps {
+  data: Collection;
+}
+
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data }) => {
   return (
     <TreeView
-      data={collectionToTree(testCollection)}
+      data={collectionToTree(data)}
       iconMap={customIconMap}
       onMove={(sourceId, targetId, position, newTree) => {
         console.log({ sourceId, targetId, position, newTree });
@@ -103,4 +107,4 @@ const Collection: FC = () => {
   );
 };
 
-export default Collection;
+export default CollectionWrapper;

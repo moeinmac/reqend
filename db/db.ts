@@ -47,3 +47,13 @@ export const clear = async (storageName: StorageName): Promise<void> => {
     console.error("Storage clear error:", err);
   }
 };
+
+export const getAllItems = async <T>(storageName: StorageName) => {
+  try {
+    const items: T[] = [];
+    await storage(storageName).iterate<T, void>((value) => items.unshift(value));
+    return items;
+  } catch (err) {
+    console.error("Storage clear error:", err);
+  }
+};

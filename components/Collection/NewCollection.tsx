@@ -6,8 +6,13 @@ import { PackagePlus } from "lucide-react";
 import { FC, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Collection } from "@/db/models.type";
 
-const NewCollection: FC = () => {
+interface NewCollectionProps {
+  onNewCollection: (newCollection: Collection) => void;
+}
+
+const NewCollection: FC<NewCollectionProps> = ({ onNewCollection }) => {
   const [collectionInput, setCollectionInput] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   return (
@@ -42,7 +47,10 @@ const NewCollection: FC = () => {
             onClick={async () => {
               const result = await newCollectionHandler(collectionInput);
               setOpen(false);
-              if (result) toast.success(`New collection '${collectionInput}' created successfully!`);
+              if (result) {
+                onNewCollection(result);
+                toast.success(`New collection '${collectionInput}' created successfully!`);
+              }
             }}
           >
             Create
