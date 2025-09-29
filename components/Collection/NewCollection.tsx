@@ -1,41 +1,34 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { newCollectionHandler } from "@/db/dal/crud-collection";
 import { PackagePlus } from "lucide-react";
-import { FC } from "react";
+import { FC, useState } from "react";
+import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const NewCollection: FC = () => {
+  const [collectionInput, setCollectionInput] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
   return (
-    <Dialog>
-      <DialogTrigger>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="link" size={"icon"}>
-              <PackagePlus />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>New Collection</p>
-          </TooltipContent>
-        </Tooltip>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="link" size={"icon"} onClick={() => setOpen(true)}>
+            <PackagePlus />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>New Collection</p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>New Collection</DialogTitle>
           <DialogDescription>Easily create your own collection and manage them.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
-          <Input type="text" placeholder="Collection Name" />
+          <Input value={collectionInput} onChange={(e) => setCollectionInput(e.target.value)} type="text" placeholder="Collection Name" />
         </div>
         <DialogFooter>
           <DialogClose asChild>
@@ -43,7 +36,15 @@ const NewCollection: FC = () => {
               Cancel
             </Button>
           </DialogClose>
-          <Button type="submit" size={"sm"}>
+          <Button
+            type="submit"
+            size={"sm"}
+            onClick={async () => {
+              const result = await newCollectionHandler(collectionInput);
+              setOpen(false);
+              if (result) toast.success(`New collection '${collectionInput}' created successfully!`);
+            }}
+          >
             Create
           </Button>
         </DialogFooter>

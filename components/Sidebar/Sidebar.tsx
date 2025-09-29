@@ -1,11 +1,15 @@
 "use client";
 
-import { PackagePlus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { FC } from "react";
 import Collection from "../Collection/Collection";
 import { Button } from "../ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import NewCollection from "../Collection/NewCollection";
+
+const NewCollection = dynamic(() => import("../Collection/NewCollection"), {
+  ssr: false,
+  loading: () => <p>loading..</p>,
+});
+
 const Sidebar: FC = () => {
   return (
     <div className="col-span-2 p-4">
