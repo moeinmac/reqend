@@ -85,6 +85,20 @@ const Collection: FC = () => {
       onMove={(sourceId, targetId, position, newTree) => {
         console.log({ sourceId, targetId, position, newTree });
       }}
+      menuItems={[
+        {
+          id: "01",
+          label: "New Folder",
+          action: (item) => {
+            console.log(item);
+          },
+        },
+        {
+          id: "02",
+          label: "New Request",
+          action: (item) => {},
+        },
+      ]}
     />
   );
 };

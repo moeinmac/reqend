@@ -5,22 +5,14 @@ import { FC } from "react";
 import Collection from "../Collection/Collection";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import NewCollection from "../Collection/NewCollection";
 const Sidebar: FC = () => {
   return (
     <div className="col-span-2 p-4">
       <div className="flex items-center gap-4">
         <h3 className="font-bold">Collections</h3>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="link" size={"icon"}>
-              <PackagePlus />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>New Collection</p>
-          </TooltipContent>
-        </Tooltip>
+        <NewCollection />
 
         <Button
           size={"xs"}

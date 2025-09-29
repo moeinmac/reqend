@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Folder, Box, ChevronRight, FolderOpen, FolderDot, FolderOpenDot } from "lucide-react";
+import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 
 export interface TreeViewItem {
@@ -15,11 +16,19 @@ export interface TreeViewIconMap {
   [key: string]: React.ReactNode | undefined;
 }
 
+export interface TreeViewMenuItem {
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  action: (item: TreeViewItem) => void;
+}
+
 export interface TreeViewProps {
   className?: string;
   data: TreeViewItem[];
   getIcon?: (item: TreeViewItem, depth: number) => React.ReactNode;
   iconMap?: TreeViewIconMap;
+  menuItems?: TreeViewMenuItem[];
   /**
    * Called when an item was moved via drag & drop.
    * sourceId: id of dragged item
@@ -96,6 +105,7 @@ function TreeItemComponent({
   onDropItem,
   expandedIds,
   onToggleExpand,
+  menuItems,
 }: {
   item: TreeViewItem;
   depth?: number;
@@ -104,6 +114,7 @@ function TreeItemComponent({
   onDropItem: (targetId: string | null, position: "inside" | "before" | "after", e: React.DragEvent, targetItem: TreeViewItem) => void;
   expandedIds: Set<string>;
   onToggleExpand: (id: string) => void;
+  menuItems?: TreeViewMenuItem[];
 }) {
   const itemRef = useRef<HTMLDivElement>(null);
   const isFolder = Boolean(item.children && item.children.length > 0);
@@ -154,55 +165,68 @@ function TreeItemComponent({
   };
 
   return (
-    <div>
-      <div
-        ref={itemRef}
-        data-tree-item
-        data-id={item.id}
-        data-depth={depth}
-        draggable
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onClick={handleToggle}
-        className={"select-none cursor-pointer text-foreground px-1"}
-        style={{ paddingLeft: `${depth * 20}px` }}
-      >
-        <div className="flex items-center h-8 gap-2">
-          {isFolder ? (
-            <button type="button" onClick={handleToggle} className="h-6 w-6 flex items-center justify-center" aria-expanded={isOpen}>
-              <ChevronRight className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
-            </button>
-          ) : (
-            <div className="h-6 w-6" />
-          )}
-
-          {renderIcon(isFolder, isOpen)}
-          <span className="flex-1">{item.name} </span>
-        </div>
-      </div>
-
-      {isFolder && isOpen && (
+    <ContextMenu>
+      <ContextMenuTrigger>
         <div>
-          {item.children?.map((child) => (
-            <TreeItemComponent
-              key={child.id}
-              item={child}
-              depth={depth + 1}
-              getIcon={getIcon}
-              iconMap={iconMap}
-              onDropItem={onDropItem}
-              expandedIds={expandedIds}
-              onToggleExpand={onToggleExpand}
-            />
-          ))}
+          <div
+            ref={itemRef}
+            data-tree-item
+            data-id={item.id}
+            data-depth={depth}
+            draggable
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={handleToggle}
+            className={"select-none cursor-pointer text-foreground px-1"}
+            style={{ paddingLeft: `${depth * 20}px` }}
+          >
+            <div className="flex items-center h-8 gap-2">
+              {isFolder ? (
+                <button type="button" onClick={handleToggle} className="h-6 w-6 flex items-center justify-center" aria-expanded={isOpen}>
+                  <ChevronRight className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
+                </button>
+              ) : (
+                <div className="h-6 w-6" />
+              )}
+
+              {renderIcon(isFolder, isOpen)}
+              <span className="flex-1">{item.name} </span>
+            </div>
+          </div>
+
+          {isFolder && isOpen && (
+            <div>
+              {item.children?.map((child) => (
+                <TreeItemComponent
+                  key={child.id}
+                  item={child}
+                  depth={depth + 1}
+                  getIcon={getIcon}
+                  iconMap={iconMap}
+                  onDropItem={onDropItem}
+                  expandedIds={expandedIds}
+                  onToggleExpand={onToggleExpand}
+                  menuItems={menuItems}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        {menuItems?.map((mi) => (
+          <ContextMenuItem key={mi.id} onClick={() => mi.action(item)}>
+            {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
+            {mi.label}
+          </ContextMenuItem>
+        ))}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
-export default function TreeView({ className, data, iconMap, getIcon, onMove }: TreeViewProps) {
+export default function TreeView({ className, data, iconMap, getIcon, onMove, menuItems }: TreeViewProps) {
   const [treeData, setTreeData] = useState<TreeViewItem[]>(data);
   useEffect(() => setTreeData(data), [data]);
 
@@ -273,8 +297,8 @@ export default function TreeView({ className, data, iconMap, getIcon, onMove }: 
 
   return (
     <div className="flex gap-4">
-      <div className={cn("bg-background p-6 rounded-xl border max-w-2xl space-y-4 w-[600px] relative shadow-lg", className)}>
-        <div className="rounded-lg bg-card relative select-none" onDragOver={handleRootDragOver} onDrop={handleRootDrop}>
+      <div className={cn("bg-background p-3 rounded-xl border max-w-2xl space-y-4 w-[600px] relative shadow-lg", className)}>
+        <div className="rounded-lg relative select-none" onDragOver={handleRootDragOver} onDrop={handleRootDrop}>
           {treeData.map((item) => (
             <TreeItemComponent
               key={item.id}
@@ -285,6 +309,7 @@ export default function TreeView({ className, data, iconMap, getIcon, onMove }: 
               onDropItem={handleDropItem}
               expandedIds={expandedIds}
               onToggleExpand={toggleExpand}
+              menuItems={menuItems}
             />
           ))}
         </div>
