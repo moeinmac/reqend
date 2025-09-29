@@ -1,12 +1,10 @@
 "use client";
 
-import { folderTreeGenerator, temp } from "@/lib/folderTreeGenerator";
 import { PackagePlus } from "lucide-react";
 import { FC } from "react";
 import Collection from "../Collection/Collection";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import Demo from "./Demo";
 const Sidebar: FC = () => {
   return (
     <div className="col-span-2 p-4">
@@ -33,17 +31,13 @@ const Sidebar: FC = () => {
             //   folderName: "this",
             //   targetId: "002cfefc-8d21-4dae-a01d-c38c11e531ef",
             // })
-            {
-              const tree = folderTreeGenerator(temp);
-              console.log(tree);
-            }
+            {}
           }
         >
           New Folder
         </Button>
       </div>
-      {/* <Collection />     */}
-      <Demo />
+      <Collection />
     </div>
   );
 };

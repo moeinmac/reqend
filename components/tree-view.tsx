@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Folder, Box, ChevronRight, FolderOpen } from "lucide-react";
+import { Folder, Box, ChevronRight, FolderOpen, FolderDot, FolderOpenDot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TreeViewItem {
@@ -111,6 +111,8 @@ function TreeItemComponent({
 
   const renderIcon = (isFolder: boolean, isOpen: boolean) => {
     if (getIcon) return getIcon(item, depth);
+    if (item.type === "root")
+      return isOpen ? <FolderOpenDot className="h-4 w-4 text-primary/80" /> : <FolderDot className="h-4 w-4 text-primary/80" />;
     if (isFolder) return isOpen ? <FolderOpen className="h-4 w-4 text-primary/80" /> : <Folder className="h-4 w-4 text-primary/80" />;
     return iconMap[item.type] || iconMap.folder || defaultIconMap.folder;
   };
