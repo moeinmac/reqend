@@ -38,13 +38,11 @@ const NewFolder: FC<NewFolderProps> = ({ onNewFolder, open, setOpen, newFolderIn
             size={"sm"}
             onClick={async () => {
               const updatedCollection = await newFolderHandler({ ...newFolderInput, folderName });
-              console.log(updatedCollection);
-
               setOpen(false);
               if (updatedCollection) {
                 setFolderName("");
                 onNewFolder(updatedCollection);
-                // toast.success(`New folder '${folderName}' created successfully!`);
+                toast.success(`New folder '${folderName}' created successfully!`);
               }
             }}
           >
