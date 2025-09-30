@@ -1,8 +1,9 @@
 import { type Collection } from "@/db/models.type";
 import { collectionToTree } from "@/lib/collectionToTree";
 import { File, Folder, FolderOpen, Globe } from "lucide-react";
-import { FC } from "react";
-import TreeView from "../tree-view";
+import { FC, useState } from "react";
+import TreeView, { TreeViewItem } from "../tree-view";
+import NewFolder from "./NewFolder";
 
 const testCollection: Collection = {
   id: "col-1",
@@ -78,32 +79,51 @@ const customIconMap = {
 };
 
 interface CollectionWrapperProps {
-  data: Collection;
+  data: TreeViewItem[];
+  onNewFolder: (newCollection: Collection) => void;
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data }) => {
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
   return (
-    <TreeView
-      data={collectionToTree(data)}
-      iconMap={customIconMap}
-      onMove={(sourceId, targetId, position, newTree) => {
-        console.log({ sourceId, targetId, position, newTree });
-      }}
-      menuItems={[
-        {
-          id: "01",
-          label: "New Folder",
-          action: (item) => {
-            console.log(item);
+    <>
+      <TreeView
+        data={data}
+        iconMap={customIconMap}
+        onMove={(sourceId, targetId, position, newTree) => {
+          console.log({ sourceId, targetId, position, newTree });
+        }}
+        menuItems={[
+          {
+            id: "01",
+            label: "New Folder",
+            action: (item) => {
+              console.log(item);
+
+              setTargetItem(item);
+              setOpen(true);
+            },
           },
-        },
-        {
-          id: "02",
-          label: "New Request",
-          action: (item) => {},
-        },
-      ]}
-    />
+          {
+            id: "02",
+            label: "New Request",
+            action: (item) => {},
+          },
+        ]}
+      />
+      {targetItem && (
+        <NewFolder
+          newFolderInput={{
+            collectionId: data[0].id,
+            targetId: targetItem.id,
+          }}
+          onNewFolder={onNewFolder}
+          open={open}
+          setOpen={(newOpen) => setOpen(newOpen)}
+        />
+      )}
+    </>
   );
 };
 

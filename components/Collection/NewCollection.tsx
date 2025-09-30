@@ -49,6 +49,7 @@ const NewCollection: FC<NewCollectionProps> = ({ onNewCollection }) => {
               setOpen(false);
               if (result) {
                 onNewCollection(result);
+                setCollectionInput("");
                 toast.success(`New collection '${collectionInput}' created successfully!`);
               }
             }}

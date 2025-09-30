@@ -157,10 +157,8 @@ function TreeItemComponent({
 
   const handleToggle = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!isFolder) {
-      console.log(item, depth);
-      return;
-    }
+    if (!isFolder) return;
+
     onToggleExpand(item.id);
   };
 

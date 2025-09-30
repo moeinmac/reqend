@@ -37,11 +37,13 @@ export const newFolderHandler = async (input: NewFolderInput) => {
     return;
   }
   const newItems = newFolderRecursive(thisCollection.items, input);
-  await setItem<Collection>("collection", input.collectionId, {
+  const newCollection: Collection = {
     createdAt: thisCollection.createdAt,
     id: thisCollection.id,
     items: newItems,
-    modifiedAt: thisCollection.modifiedAt,
+    modifiedAt: new Date().toISOString(),
     name: thisCollection.name,
-  });
+  };
+  await setItem<Collection>("collection", input.collectionId, newCollection);
+  return newCollection;
 };
