@@ -163,7 +163,7 @@ function TreeItemComponent({
   };
 
   return (
-    <ContextMenu>
+    <ContextMenu modal={false}>
       <ContextMenuTrigger>
         <div>
           <div

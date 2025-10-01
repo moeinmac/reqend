@@ -1,75 +1,9 @@
 import { type Collection } from "@/db/models.type";
-import { collectionToTree } from "@/lib/collectionToTree";
 import { File, Folder, FolderOpen, Globe } from "lucide-react";
 import { FC, useState } from "react";
 import TreeView, { TreeViewItem } from "../tree-view";
 import NewFolder from "./NewFolder";
-
-const testCollection: Collection = {
-  id: "col-1",
-  name: "API Collection",
-  createdAt: new Date().toISOString(),
-  modifiedAt: new Date().toISOString(),
-  items: [
-    {
-      id: "folder-1",
-      name: "Users",
-      type: "folder",
-      items: [
-        {
-          id: "req-1",
-          name: "Get user",
-          type: "request",
-          method: "get",
-        },
-        {
-          id: "req-2",
-          name: "Create user",
-          type: "request",
-          method: "post",
-        },
-        {
-          id: "subfolder-1",
-          name: "Profile",
-          type: "folder",
-          items: [
-            {
-              id: "req-3",
-              name: "Update profile",
-              type: "request",
-              method: "patch",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "folder-2",
-      name: "Admin",
-      type: "folder",
-      items: [
-        {
-          id: "req-4",
-          name: "Replace settings",
-          type: "request",
-          method: "put",
-        },
-        {
-          id: "req-5",
-          name: "Delete account",
-          type: "request",
-          method: "delete",
-        },
-      ],
-    },
-    {
-      id: "req-root-1",
-      name: "Healthcheck",
-      type: "request",
-      method: "get",
-    },
-  ],
-};
+import { collectionToTree } from "@/lib/collectionToTree";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -79,7 +13,7 @@ const customIconMap = {
 };
 
 interface CollectionWrapperProps {
-  data: TreeViewItem[];
+  data: Collection;
   onNewFolder: (newCollection: Collection) => void;
 }
 
@@ -89,7 +23,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) =>
   return (
     <>
       <TreeView
-        data={data}
+        data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={(sourceId, targetId, position, newTree) => {
           console.log({ sourceId, targetId, position, newTree });
@@ -100,7 +34,6 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) =>
             label: "New Folder",
             action: (item) => {
               console.log(item);
-
               setTargetItem(item);
               setOpen(true);
             },
@@ -115,12 +48,12 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) =>
       {targetItem && (
         <NewFolder
           newFolderInput={{
-            collectionId: data[0].id,
+            collectionId: data.id,
             targetId: targetItem.id,
           }}
           onNewFolder={onNewFolder}
           open={open}
-          setOpen={(newOpen) => setOpen(newOpen)}
+          setOpen={setOpen}
         />
       )}
     </>
