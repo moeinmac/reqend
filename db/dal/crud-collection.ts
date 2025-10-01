@@ -22,9 +22,9 @@ export interface NewFolderInput {
   targetId: string;
 }
 
-export const newFolderHandler = async (input: NewFolderInput) => {
+export const newFolderHandler = async (input: NewFolderInput): Promise<Collection | undefined> => {
   const thisCollection = await getItem<Collection>("collection", input.collectionId);
-  if (!thisCollection) return;
+  if (!thisCollection) return undefined;
   if (input.collectionId === input.targetId) {
     const newFolder: FolderItem = {
       id: v4(),
@@ -34,7 +34,7 @@ export const newFolderHandler = async (input: NewFolderInput) => {
     };
     thisCollection.items.unshift(newFolder);
     await setItem<Collection>("collection", input.collectionId, thisCollection);
-    return;
+    return thisCollection;
   }
   const newItems = newFolderRecursive(thisCollection.items, input);
   const newCollection: Collection = {

@@ -162,8 +162,10 @@ function TreeItemComponent({
     onToggleExpand(item.id);
   };
 
+  const [modal, setModal] = useState(true);
+
   return (
-    <ContextMenu modal={false}>
+    <ContextMenu modal={modal}>
       <ContextMenuTrigger>
         <div>
           <div
@@ -212,9 +214,15 @@ function TreeItemComponent({
           )}
         </div>
       </ContextMenuTrigger>
-      <ContextMenuContent>
+      <ContextMenuContent sticky="always">
         {menuItems?.map((mi) => (
-          <ContextMenuItem key={mi.id} onClick={() => mi.action(item)}>
+          <ContextMenuItem
+            key={mi.id}
+            onClick={() => {
+              mi.action(item);
+              setModal(false);
+            }}
+          >
             {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
             {mi.label}
           </ContextMenuItem>
