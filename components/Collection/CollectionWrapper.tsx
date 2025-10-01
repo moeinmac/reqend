@@ -4,6 +4,7 @@ import { FC, useState } from "react";
 import TreeView, { TreeViewItem } from "../tree-view";
 import NewFolder from "./NewFolder";
 import { collectionToTree } from "@/lib/collectionToTree";
+import { treeToCollection } from "@/lib/treeToCollection";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -15,9 +16,10 @@ const customIconMap = {
 interface CollectionWrapperProps {
   data: Collection;
   onNewFolder: (newCollection: Collection) => void;
+  onMove: (collection: Collection) => void;
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) => {
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
 
@@ -29,12 +31,10 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) =>
   return (
     <>
       <TreeView
-      openFolderDialog={openFolderDialog}
+        openFolderDialog={openFolderDialog}
         data={collectionToTree(data)}
         iconMap={customIconMap}
-        onMove={(sourceId, targetId, position, newTree) => {
-          console.log({ sourceId, targetId, position, newTree });
-        }}
+        onMove={(_, __, ___, newTree) => onMove(treeToCollection(newTree, data.createdAt))}
         menuItems={[
           {
             id: "01",

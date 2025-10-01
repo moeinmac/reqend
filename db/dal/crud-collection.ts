@@ -50,4 +50,5 @@ export const newFolderHandler = async (input: NewFolderInput): Promise<Collectio
 
 export const draggedCollectionHandler = async (draggedCollection: Collection) => {
   await setItem<Collection>("collection", draggedCollection.id, draggedCollection);
+  return draggedCollection;
 };
