@@ -5,7 +5,7 @@ import { Collection } from "@/db/models.type";
 import { FC, useEffect, useState } from "react";
 import CollectionWrapper from "../Collection/CollectionWrapper";
 import NewCollection from "../Collection/NewCollection";
-import { draggedCollectionHandler } from "@/db/dal/crud-collection";
+import { draggedCollectionHandler, removeCollectionHandler } from "@/db/dal/crud-collection";
 
 const Sidebar: FC = () => {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -27,6 +27,11 @@ const Sidebar: FC = () => {
     onUpdateCollectionHandler(collection);
   };
 
+  const onRemoveHandler = async (collectionId: string) => {
+    await removeCollectionHandler(collectionId);
+    setCollections((prev) => prev.filter((col) => col.id !== collectionId));
+  };
+
   return (
     <div className="col-span-2 p-4">
       <div className="flex items-center gap-4">
@@ -35,7 +40,13 @@ const Sidebar: FC = () => {
       </div>
       <div className="flex flex-col gap-3">
         {collections.map((collection) => (
-          <CollectionWrapper data={collection} key={collection.id} onNewFolder={onUpdateCollectionHandler} onMove={onMoveHandler} />
+          <CollectionWrapper
+            data={collection}
+            key={collection.id}
+            onNewFolder={onUpdateCollectionHandler}
+            onMove={onMoveHandler}
+            onRemoveCollection={onRemoveHandler}
+          />
         ))}
       </div>
     </div>

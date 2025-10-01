@@ -17,9 +17,10 @@ interface CollectionWrapperProps {
   data: Collection;
   onNewFolder: (newCollection: Collection) => void;
   onMove: (collection: Collection) => void;
+  onRemoveCollection: (collectionId: string) => void;
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove }) => {
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove , onRemoveCollection }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
 
@@ -32,6 +33,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
     <>
       <TreeView
         openFolderDialog={openFolderDialog}
+        onRemoveCollection={onRemoveCollection}
         data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={(_, __, ___, newTree) => onMove(treeToCollection(newTree, data.createdAt))}

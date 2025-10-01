@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Collection, FolderItem } from "../models.type";
-import { getItem, setItem } from "../db";
+import { getItem, removeItem, setItem } from "../db";
 import { newFolderRecursive } from "@/lib/newFolderRecursive";
 
 export const newCollectionHandler = async (name: string) => {
@@ -51,4 +51,8 @@ export const newFolderHandler = async (input: NewFolderInput): Promise<Collectio
 export const draggedCollectionHandler = async (draggedCollection: Collection) => {
   await setItem<Collection>("collection", draggedCollection.id, draggedCollection);
   return draggedCollection;
+};
+
+export const removeCollectionHandler = async (collectionId: string) => {
+  await removeItem("collection", collectionId);
 };

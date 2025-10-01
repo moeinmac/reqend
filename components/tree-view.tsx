@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Folder, Box, ChevronRight, FolderOpen, FolderDot, FolderOpenDot, Package, FolderPlus, FilePlus } from "lucide-react";
+import { Folder, Box, ChevronRight, FolderOpen, FolderDot, FolderOpenDot, Package, FolderPlus, FilePlus, PackageX } from "lucide-react";
 import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
@@ -41,6 +41,7 @@ export interface TreeViewProps {
    */
   onMove?: (sourceId: string, targetId: string | null, position: "inside" | "before" | "after", newTree: TreeViewItem[]) => void;
   openFolderDialog: (item: TreeViewItem) => void;
+  onRemoveCollection: (collectionId: string) => void;
 }
 
 const defaultIconMap: TreeViewIconMap = {
@@ -236,7 +237,7 @@ function TreeItemComponent({
   );
 }
 
-export default function TreeView({ className, data, iconMap, getIcon, onMove, menuItems, openFolderDialog }: TreeViewProps) {
+export default function TreeView({ className, data, iconMap, getIcon, onMove, menuItems, openFolderDialog, onRemoveCollection }: TreeViewProps) {
   const [treeData, setTreeData] = useState<TreeViewItem[]>(data);
   useEffect(() => setTreeData(data), [data]);
 
@@ -333,6 +334,16 @@ export default function TreeView({ className, data, iconMap, getIcon, onMove, me
               </TooltipTrigger>
               <TooltipContent>
                 <p>New Request</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"link"} size={"xs"} onClick={() => onRemoveCollection(treeData[0].id)}>
+                  <PackageX className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Remove Collection</p>
               </TooltipContent>
             </Tooltip>
           </div>
