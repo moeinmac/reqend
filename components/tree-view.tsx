@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Folder, Box, ChevronRight, FolderOpen, FolderDot, FolderOpenDot } from "lucide-react";
+import { Folder, Box, ChevronRight, FolderOpen, FolderDot, FolderOpenDot, Package, FolderPlus, FilePlus } from "lucide-react";
+import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export interface TreeViewItem {
   id: string;
@@ -37,6 +40,7 @@ export interface TreeViewProps {
    * newTree: the updated tree data
    */
   onMove?: (sourceId: string, targetId: string | null, position: "inside" | "before" | "after", newTree: TreeViewItem[]) => void;
+  openFolderDialog: (item: TreeViewItem) => void;
 }
 
 const defaultIconMap: TreeViewIconMap = {
@@ -232,7 +236,7 @@ function TreeItemComponent({
   );
 }
 
-export default function TreeView({ className, data, iconMap, getIcon, onMove, menuItems }: TreeViewProps) {
+export default function TreeView({ className, data, iconMap, getIcon, onMove, menuItems, openFolderDialog }: TreeViewProps) {
   const [treeData, setTreeData] = useState<TreeViewItem[]>(data);
   useEffect(() => setTreeData(data), [data]);
 
@@ -301,11 +305,40 @@ export default function TreeView({ className, data, iconMap, getIcon, onMove, me
     onMove?.(sourceId, null, "inside", newTree);
   };
 
+  const children = treeData[0].children ?? [];
+
   return (
     <div className="flex gap-4">
-      <div className={cn("bg-background p-3 rounded-xl border max-w-2xl space-y-4 w-[600px] relative shadow-lg", className)}>
-        <div className="rounded-lg relative select-none" onDragOver={handleRootDragOver} onDrop={handleRootDrop}>
-          {treeData.map((item) => (
+      <div className={cn("bg-background p-3 rounded-lg border max-w-2xl space-y-4 w-[600px] relative shadow-lg", className)}>
+        <div className={cn("flex items-center justify-between", children.length === 0 && "mb-0")}>
+          <h3 className="flex items-center gap-2">
+            <Package className="w-5 h-5" /> {treeData[0].name}
+          </h3>
+          <div className="flex items-center gap-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"link"} size={"xs"} onClick={() => openFolderDialog(treeData[0])}>
+                  <FolderPlus className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>New Folder</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"link"} size={"xs"}>
+                  <FilePlus className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>New Request</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+        <div className="rounded-md relative select-none" onDragOver={handleRootDragOver} onDrop={handleRootDrop}>
+          {children.map((item) => (
             <TreeItemComponent
               key={item.id}
               item={item}

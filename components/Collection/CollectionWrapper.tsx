@@ -20,9 +20,16 @@ interface CollectionWrapperProps {
 const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
+
+  const openFolderDialog = (item: TreeViewItem) => {
+    setTargetItem(item);
+    setOpen(true);
+  };
+
   return (
     <>
       <TreeView
+      openFolderDialog={openFolderDialog}
         data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={(sourceId, targetId, position, newTree) => {
@@ -32,11 +39,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) =>
           {
             id: "01",
             label: "New Folder",
-            action: (item) => {
-              console.log(item);
-              setTargetItem(item);
-              setOpen(true);
-            },
+            action: openFolderDialog,
           },
           {
             id: "02",
