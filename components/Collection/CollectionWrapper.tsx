@@ -33,24 +33,29 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
   return (
     <>
       <TreeView
-        openFolderDialog={openFolderDialog}
-        onRemoveCollection={onRemoveCollection}
         data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={(_, __, ___, newTree) => onMove(treeToCollection(newTree, data.createdAt))}
         menuItems={[
           {
+            id: "00",
+            label: "Remove Collection",
+            action: (item) => onRemoveCollection(item.id),
+            type: ["collection"],
+            shortcut: "⌘C",
+          },
+          {
             id: "01",
             label: "New Folder",
             action: openFolderDialog,
-            type: "folder",
+            type: ["folder", "request", "collection"],
             shortcut: "⌘R",
           },
           {
             id: "02",
             label: "New Request",
             action: (item) => {},
-            type: "all",
+            type: ["folder", "request"],
             shortcut: "⌘N",
           },
         ]}

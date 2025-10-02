@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { findAndRemove } from "@/lib/tree/findAndRemove";
 import { insertAt } from "@/lib/tree/insertAt";
 import { cn } from "@/lib/utils";
-import { FilePlus, FolderPlus, Package, PackageX } from "lucide-react";
+import { Package } from "lucide-react";
 import React, { FC, useEffect, useMemo, useState } from "react";
+import { CollectionMenu } from "../Collection/CollectionMenu";
 import { TreeItem, type TreeViewMenuItem } from "./TreeItem";
 
 export interface TreeViewItem {
@@ -27,11 +26,9 @@ export interface TreeViewProps {
   iconMap?: TreeViewIconMap;
   menuItems?: TreeViewMenuItem[];
   onMove?: (sourceId: string, targetId: string | null, position: "inside" | "before" | "after", newTree: TreeViewItem[]) => void;
-  openFolderDialog: (item: TreeViewItem) => void;
-  onRemoveCollection: (collectionId: string) => void;
 }
 
-export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems, openFolderDialog, onRemoveCollection }) => {
+export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems }) => {
   const [treeData, setTreeData] = useState<TreeViewItem[]>(data);
   useEffect(() => setTreeData(data), [data]);
 
@@ -110,36 +107,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
             <Package className="w-5 h-5" /> {treeData[0].name}
           </h3>
           <div className="flex items-center gap-0">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"link"} size={"xs"} onClick={() => openFolderDialog(treeData[0])}>
-                  <FolderPlus className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>New Folder</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"link"} size={"xs"}>
-                  <FilePlus className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>New Request</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"link"} size={"xs"} onClick={() => onRemoveCollection(treeData[0].id)}>
-                  <PackageX className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Remove Collection</p>
-              </TooltipContent>
-            </Tooltip>
+            <CollectionMenu menuItems={menuItems ?? []} item={treeData[0]} />
           </div>
         </div>
         <div className="rounded-md relative select-none" onDragOver={handleRootDragOver} onDrop={handleRootDrop}>
