@@ -1,21 +1,24 @@
 "use client";
 
 import { FC } from "react";
+import Options from "../Options/Options";
 import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
-import Options from "../Options/Options";
-import RequestTabs from "./Tabs/RequestTabs";
+import { RequestPrimary } from "@/db/models.type";
 
-const Request: FC = () => {
+interface RequestProps {
+  id: RequestPrimary["id"];
+}
+
+const Request: FC<RequestProps> = ({ id }) => {
   return (
-    <div className="col-span-4 mt-10 flex flex-col gap-4 ">
-      <RequestTabs />
-      <form className="flex items-center gap-2">
+    <div className="flex flex-col gap-4 ">
+      <div className="flex items-center gap-2">
         <Methods />
         <InputReq />
         <SendButton />
-      </form>
+      </div>
       <Options />
     </div>
   );
