@@ -1,17 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { newCollectionHandler, newFolderHandler, NewFolderInput } from "@/db/dal/crud-collection";
-import { PackagePlus } from "lucide-react";
-import { FC, useState } from "react";
-import { toast } from "sonner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { newFolderHandler, NewFolderInput } from "@/db/dal/crud-collection";
 import { Collection } from "@/db/models.type";
+import { Dispatch, FC, SetStateAction, useState } from "react";
+import { toast } from "sonner";
 
 interface NewFolderProps {
   onNewFolder: (newCollection: Collection) => void;
   open: boolean;
-  setOpen: (newOpen: boolean) => void;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   newFolderInput: Omit<NewFolderInput, "folderName">;
 }
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
-import CollectionWrapper from "../Collection/CollectionWrapper";
-import NewCollection from "../Collection/NewCollection";
 import { getAllItems } from "@/db/db";
 import { Collection } from "@/db/models.type";
-import { collectionToTree } from "@/lib/collectionToTree";
+import { FC, useEffect, useState } from "react";
+import CollectionWrapper from "../Collection/CollectionWrapper";
+import { draggedCollectionHandler, removeCollectionHandler } from "@/db/dal/crud-collection";
+import MutateCollection from "../Collection/MutateCollection";
 
 const Sidebar: FC = () => {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -18,22 +18,36 @@ const Sidebar: FC = () => {
     fetchCollections();
   }, []);
 
-  console.log(collections, "collections");
-
   const onNewCollectionHandler = (newCollection: Collection) => setCollections((prev) => [newCollection, ...prev]);
-  const onNewFolderHandler = async () => {
-    const allCollections = await getAllItems<Collection>("collection");
-    if (allCollections) setCollections(allCollections);
+  const onUpdateCollectionHandler = (collection: Collection) =>
+    setCollections((prev) => prev.map((col) => (col.id === collection.id ? collection : col)));
+
+  const onMoveHandler = async (collection: Collection) => {
+    await draggedCollectionHandler(collection);
+    onUpdateCollectionHandler(collection);
   };
+
+  const onRemoveHandler = async (collectionId: string) => {
+    await removeCollectionHandler(collectionId);
+    setCollections((prev) => prev.filter((col) => col.id !== collectionId));
+  };
+
   return (
     <div className="col-span-2 p-4">
       <div className="flex items-center gap-4">
         <h3 className="font-bold">Collections</h3>
-        <NewCollection onNewCollection={onNewCollectionHandler} />
+        <MutateCollection mode="new" onNewCollection={onNewCollectionHandler} />
       </div>
       <div className="flex flex-col gap-3">
         {collections.map((collection) => (
-          <CollectionWrapper data={collectionToTree(collection)} key={collection.id} onNewFolder={onNewFolderHandler} />
+          <CollectionWrapper
+            data={collection}
+            key={collection.id}
+            onNewFolder={onUpdateCollectionHandler}
+            onMove={onMoveHandler}
+            onRemoveCollection={onRemoveHandler}
+            onRenameCollection={onUpdateCollectionHandler}
+          />
         ))}
       </div>
     </div>

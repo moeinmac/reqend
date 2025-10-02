@@ -1,126 +1,102 @@
 import { type Collection } from "@/db/models.type";
-import { collectionToTree } from "@/lib/collectionToTree";
+import { collectionToTree } from "@/lib/tree/collectionToTree";
+import { treeToCollection } from "@/lib/tree/treeToCollection";
 import { File, Folder, FolderOpen, Globe } from "lucide-react";
 import { FC, useState } from "react";
-import TreeView, { TreeViewItem } from "../tree-view";
+import { TreeView, TreeViewItem } from "../TreeView/TreeView";
 import NewFolder from "./NewFolder";
-
-const testCollection: Collection = {
-  id: "col-1",
-  name: "API Collection",
-  createdAt: new Date().toISOString(),
-  modifiedAt: new Date().toISOString(),
-  items: [
-    {
-      id: "folder-1",
-      name: "Users",
-      type: "folder",
-      items: [
-        {
-          id: "req-1",
-          name: "Get user",
-          type: "request",
-          method: "get",
-        },
-        {
-          id: "req-2",
-          name: "Create user",
-          type: "request",
-          method: "post",
-        },
-        {
-          id: "subfolder-1",
-          name: "Profile",
-          type: "folder",
-          items: [
-            {
-              id: "req-3",
-              name: "Update profile",
-              type: "request",
-              method: "patch",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "folder-2",
-      name: "Admin",
-      type: "folder",
-      items: [
-        {
-          id: "req-4",
-          name: "Replace settings",
-          type: "request",
-          method: "put",
-        },
-        {
-          id: "req-5",
-          name: "Delete account",
-          type: "request",
-          method: "delete",
-        },
-      ],
-    },
-    {
-      id: "req-root-1",
-      name: "Healthcheck",
-      type: "request",
-      method: "get",
-    },
-  ],
-};
+import MutateCollection from "./MutateCollection";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
   patch: <Folder className="h-4 w-4 text-blue-500" />,
   post: <FolderOpen className="h-4 w-4 text-green-500" />,
   put: <File className="h-4 w-4 text-orange-500" />,
+  folder: <Folder className="h-4 w-4 text-primary/80" />,
 };
 
 interface CollectionWrapperProps {
-  data: TreeViewItem[];
+  data: Collection;
   onNewFolder: (newCollection: Collection) => void;
+  onMove: (collection: Collection) => void;
+  onRemoveCollection: (collectionId: string) => void;
+  onRenameCollection: (collection: Collection) => void;
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder }) => {
-  const [open, setOpen] = useState<boolean>(false);
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove, onRemoveCollection, onRenameCollection }) => {
+  const [openFolder, setOpenFolder] = useState<boolean>(false);
+  const [openCollection, setOpenCollection] = useState<boolean>(false);
+
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
+
+  const openFolderDialog = (item: TreeViewItem) => {
+    setTargetItem(item);
+    setOpenFolder(true);
+  };
+
+  const openCollectionDialog = (item: TreeViewItem) => {
+    setTargetItem(item);
+    setOpenCollection(true);
+  };
+
   return (
     <>
       <TreeView
-        data={data}
+        data={collectionToTree(data)}
         iconMap={customIconMap}
-        onMove={(sourceId, targetId, position, newTree) => {
-          console.log({ sourceId, targetId, position, newTree });
-        }}
+        onMove={(_, __, ___, newTree) => onMove(treeToCollection(newTree, data.createdAt))}
         menuItems={[
           {
+            id: "00",
+            label: "Rename Collection",
+            action: openCollectionDialog,
+            type: ["collection"],
+            shortcut: "⌘Q",
+          },
+          {
             id: "01",
-            label: "New Folder",
-            action: (item) => {
-              console.log(item);
-
-              setTargetItem(item);
-              setOpen(true);
-            },
+            label: "Remove Collection",
+            action: (item) => onRemoveCollection(item.id),
+            type: ["collection"],
+            shortcut: "⌘C",
+            separator: true,
           },
           {
             id: "02",
+            label: "New Folder",
+            action: openFolderDialog,
+            type: ["folder", "request", "collection"],
+            shortcut: "⌘R",
+          },
+          {
+            id: "03",
             label: "New Request",
             action: (item) => {},
+            type: ["folder", "request"],
+            shortcut: "⌘N",
           },
         ]}
       />
       {targetItem && (
         <NewFolder
           newFolderInput={{
-            collectionId: data[0].id,
+            collectionId: data.id,
             targetId: targetItem.id,
           }}
           onNewFolder={onNewFolder}
-          open={open}
-          setOpen={(newOpen) => setOpen(newOpen)}
+          open={openFolder}
+          setOpen={setOpenFolder}
+        />
+      )}
+
+      {targetItem && (
+        <MutateCollection
+          mode="edit"
+          collectionId={targetItem.id}
+          value={targetItem.name}
+          open={openCollection}
+          setOpen={setOpenCollection}
+          onEditCollection={onRenameCollection}
         />
       )}
     </>

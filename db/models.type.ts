@@ -1,4 +1,4 @@
-export type StorageName = "collection" | "request";
+export type StorageName = "collection" | "request" | "activeReq";
 
 export type Method = "get" | "post" | "patch" | "put" | "delete";
 
@@ -56,3 +56,7 @@ export type Collection = {
   modifiedAt: string;
   items: CollectionItem[];
 };
+
+export interface ActiveRequest extends RequestPrimary {
+  collectionId?: string;
+}

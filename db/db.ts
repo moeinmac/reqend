@@ -13,7 +13,14 @@ const requestStorage = localForage.createInstance({
   driver: [localForage.INDEXEDDB, localForage.LOCALSTORAGE],
 });
 
-const storage = (storageName: StorageName) => (storageName === "collection" ? collectionStorage : requestStorage);
+const activeRequestStorage = localForage.createInstance({
+  name: "reqend",
+  storeName: "activeReq",
+  driver: [localForage.INDEXEDDB, localForage.LOCALSTORAGE],
+});
+
+const storage = (storageName: StorageName) =>
+  storageName === "collection" ? collectionStorage : storageName === "activeReq" ? activeRequestStorage : requestStorage;
 
 export const getItem = async <T>(storageName: StorageName, key: string): Promise<T | null> => {
   try {

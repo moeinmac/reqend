@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Collection, FolderItem } from "../models.type";
-import { getItem, setItem } from "../db";
+import { getItem, removeItem, setItem } from "../db";
 import { newFolderRecursive } from "@/lib/newFolderRecursive";
 
 export const newCollectionHandler = async (name: string) => {
@@ -22,9 +22,9 @@ export interface NewFolderInput {
   targetId: string;
 }
 
-export const newFolderHandler = async (input: NewFolderInput) => {
+export const newFolderHandler = async (input: NewFolderInput): Promise<Collection | undefined> => {
   const thisCollection = await getItem<Collection>("collection", input.collectionId);
-  if (!thisCollection) return;
+  if (!thisCollection) return undefined;
   if (input.collectionId === input.targetId) {
     const newFolder: FolderItem = {
       id: v4(),
@@ -34,7 +34,7 @@ export const newFolderHandler = async (input: NewFolderInput) => {
     };
     thisCollection.items.unshift(newFolder);
     await setItem<Collection>("collection", input.collectionId, thisCollection);
-    return;
+    return thisCollection;
   }
   const newItems = newFolderRecursive(thisCollection.items, input);
   const newCollection: Collection = {
@@ -46,4 +46,25 @@ export const newFolderHandler = async (input: NewFolderInput) => {
   };
   await setItem<Collection>("collection", input.collectionId, newCollection);
   return newCollection;
+};
+
+export const draggedCollectionHandler = async (draggedCollection: Collection) => {
+  await setItem<Collection>("collection", draggedCollection.id, draggedCollection);
+  return draggedCollection;
+};
+
+export const removeCollectionHandler = async (collectionId: string) => {
+  await removeItem("collection", collectionId);
+};
+
+export const renameCollectionHandler = async (collectionId: string, newName: string) => {
+  const collection = await getItem<Collection>("collection", collectionId);
+  if (collection) {
+    const newCollection: Collection = {
+      ...collection,
+      name: newName,
+    };
+    await setItem<Collection>("collection", collectionId, newCollection);
+    return newCollection;
+  }
 };

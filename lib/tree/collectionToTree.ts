@@ -1,4 +1,4 @@
-import { TreeViewItem } from "@/components/tree-view";
+import { TreeViewItem } from "@/components/TreeView/TreeView";
 import { Collection, CollectionItem, FolderItem, RequestPrimary } from "@/db/models.type";
 
 export const collectionToTree = (collection: Collection): TreeViewItem[] => {
