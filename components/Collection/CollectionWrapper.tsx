@@ -59,6 +59,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
             action: (item) => onRemoveCollection(item.id),
             type: ["collection"],
             shortcut: "⌘C",
+            separator: true,
           },
           {
             id: "02",

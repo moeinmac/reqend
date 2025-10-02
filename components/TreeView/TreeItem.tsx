@@ -13,6 +13,7 @@ export interface TreeViewMenuItem {
   label: string;
   icon?: React.ReactNode;
   shortcut?: string;
+  separator?: true;
   type: ("folder" | "request" | "collection")[];
   action: (item: TreeViewItem) => void;
 }
@@ -136,11 +137,14 @@ export const TreeItem: FC<TreeItemProps> = ({
       <ContextMenuContent className="w-56">
         {menuItems?.map((mi) =>
           mi.type.includes(itemType) ? (
-            <ContextMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
-              {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
-              {mi.label}
-              {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
-            </ContextMenuItem>
+            <>
+              <ContextMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
+                {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
+                {mi.label}
+                {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
+              </ContextMenuItem>
+              {/* {mi.separator && <ContextMenuIt} */}
+            </>
           ) : null
         )}
       </ContextMenuContent>
