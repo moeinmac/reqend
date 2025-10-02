@@ -46,6 +46,7 @@ const Sidebar: FC = () => {
             onNewFolder={onUpdateCollectionHandler}
             onMove={onMoveHandler}
             onRemoveCollection={onRemoveHandler}
+            onRenameCollection={onUpdateCollectionHandler}
           />
         ))}
       </div>
