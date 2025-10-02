@@ -11,6 +11,7 @@ const customIconMap = {
   patch: <Folder className="h-4 w-4 text-blue-500" />,
   post: <FolderOpen className="h-4 w-4 text-green-500" />,
   put: <File className="h-4 w-4 text-orange-500" />,
+  folder: <Folder className="h-4 w-4 text-primary/80" />,
 };
 
 interface CollectionWrapperProps {
@@ -42,13 +43,15 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
             id: "01",
             label: "New Folder",
             action: openFolderDialog,
-            icon: <FolderPlus />,
+            type: "folder",
+            shortcut: "⌘R",
           },
           {
             id: "02",
             label: "New Request",
             action: (item) => {},
-            icon: <FilePen />,
+            type: "all",
+            shortcut: "⌘N",
           },
         ]}
       />

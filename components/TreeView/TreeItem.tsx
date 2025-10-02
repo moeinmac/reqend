@@ -1,13 +1,21 @@
-import { FC, useRef } from "react";
-import { TreeViewIconMap, TreeViewItem, TreeViewMenuItem } from "./TreeView";
-import { Box, ChevronRight, Folder, FolderOpen } from "lucide-react";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../ui/context-menu";
 import { cn } from "@/lib/utils";
+import { Box, ChevronRight, Folder, FolderOpen } from "lucide-react";
+import { FC, useRef } from "react";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
+import { TreeViewIconMap, TreeViewItem } from "./TreeView";
 
 const defaultIconMap: TreeViewIconMap = {
-  file: <Box className="h-4 w-4 text-red-600" />,
   folder: <Folder className="h-4 w-4 text-primary/80" />,
 };
+
+export interface TreeViewMenuItem {
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  shortcut?: string;
+  type: "folder" | "request" | "all";
+  action: (item: TreeViewItem) => void;
+}
 
 interface TreeItemProps {
   item: TreeViewItem;
@@ -33,11 +41,12 @@ export const TreeItem: FC<TreeItemProps> = ({
   const itemRef = useRef<HTMLDivElement>(null);
   const isFolder = Boolean(item.children && item.children.length > 0);
   const isOpen = expandedIds.has(item.id);
+  const itemType = isFolder ? "folder" : "request";
 
   const renderIcon = (isFolder: boolean, isOpen: boolean) => {
     if (getIcon) return getIcon(item, depth);
     if (isFolder) return isOpen ? <FolderOpen className="h-4 w-4 text-primary/80" /> : <Folder className="h-4 w-4 text-primary/80" />;
-    return iconMap[item.type] || iconMap.folder || defaultIconMap.folder;
+    return iconMap[item.type];
   };
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -125,12 +134,15 @@ export const TreeItem: FC<TreeItemProps> = ({
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent style={{ width: "200px" }}>
-        {menuItems?.map((mi) => (
-          <ContextMenuItem key={mi.id} onClick={() => mi.action(item)}>
-            {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
-            {mi.label}
-          </ContextMenuItem>
-        ))}
+        {menuItems?.map((mi) =>
+          mi.type === itemType || mi.type === "all" ? (
+            <ContextMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
+              {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
+              {mi.label}
+              {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
+            </ContextMenuItem>
+          ) : null
+        )}
       </ContextMenuContent>
     </ContextMenu>
   );

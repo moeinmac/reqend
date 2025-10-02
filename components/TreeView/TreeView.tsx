@@ -7,7 +7,7 @@ import { insertAt } from "@/lib/tree/insertAt";
 import { cn } from "@/lib/utils";
 import { FilePlus, FolderPlus, Package, PackageX } from "lucide-react";
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { TreeItem } from "./TreeItem";
+import { TreeItem, type TreeViewMenuItem } from "./TreeItem";
 
 export interface TreeViewItem {
   id: string;
@@ -18,13 +18,6 @@ export interface TreeViewItem {
 
 export interface TreeViewIconMap {
   [key: string]: React.ReactNode | undefined;
-}
-
-export interface TreeViewMenuItem {
-  id: string;
-  label: string;
-  icon?: React.ReactNode;
-  action: (item: TreeViewItem) => void;
 }
 
 export interface TreeViewProps {
