@@ -56,3 +56,15 @@ export const draggedCollectionHandler = async (draggedCollection: Collection) =>
 export const removeCollectionHandler = async (collectionId: string) => {
   await removeItem("collection", collectionId);
 };
+
+export const renameCollectionHandler = async (collectionId: string, newName: string) => {
+  const collection = await getItem<Collection>("collection", collectionId);
+  if (collection) {
+    const newCollection: Collection = {
+      ...collection,
+      name: newName,
+    };
+    await setItem<Collection>("collection", collectionId, newCollection);
+    return newCollection;
+  }
+};

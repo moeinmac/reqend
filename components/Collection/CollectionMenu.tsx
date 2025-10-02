@@ -12,7 +12,7 @@ interface CollectionMenuProps {
 
 export const CollectionMenu: FC<CollectionMenuProps> = ({ menuItems, item }) => {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button size={"xs"} variant="link">
           <EllipsisVertical className="w-4 h-4" />

@@ -4,8 +4,8 @@ import { getAllItems } from "@/db/db";
 import { Collection } from "@/db/models.type";
 import { FC, useEffect, useState } from "react";
 import CollectionWrapper from "../Collection/CollectionWrapper";
-import NewCollection from "../Collection/NewCollection";
 import { draggedCollectionHandler, removeCollectionHandler } from "@/db/dal/crud-collection";
+import MutateCollection from "../Collection/MutateCollection";
 
 const Sidebar: FC = () => {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -36,7 +36,7 @@ const Sidebar: FC = () => {
     <div className="col-span-2 p-4">
       <div className="flex items-center gap-4">
         <h3 className="font-bold">Collections</h3>
-        <NewCollection onNewCollection={onNewCollectionHandler} />
+        <MutateCollection mode="new" onNewCollection={onNewCollectionHandler} />
       </div>
       <div className="flex flex-col gap-3">
         {collections.map((collection) => (

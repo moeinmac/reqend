@@ -1,10 +1,10 @@
 import { type Collection } from "@/db/models.type";
 import { collectionToTree } from "@/lib/tree/collectionToTree";
 import { treeToCollection } from "@/lib/tree/treeToCollection";
-import { File, FilePen, Folder, FolderOpen, FolderPlus, Globe } from "lucide-react";
+import { File, Folder, FolderOpen, Globe } from "lucide-react";
 import { FC, useState } from "react";
-import NewFolder from "./NewFolder";
 import { TreeView, TreeViewItem } from "../TreeView/TreeView";
+import NewFolder from "./NewFolder";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -22,12 +22,14 @@ interface CollectionWrapperProps {
 }
 
 const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove, onRemoveCollection }) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [openFolder, setOpenFolder] = useState<boolean>(false);
+  const [openCollection, setOpenCollection] = useState<boolean>(false);
+  
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
 
   const openFolderDialog = (item: TreeViewItem) => {
     setTargetItem(item);
-    setOpen(true);
+    setOpenFolder(true);
   };
 
   return (
@@ -67,8 +69,8 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
             targetId: targetItem.id,
           }}
           onNewFolder={onNewFolder}
-          open={open}
-          setOpen={setOpen}
+          open={openFolder}
+          setOpen={setOpenFolder}
         />
       )}
     </>
