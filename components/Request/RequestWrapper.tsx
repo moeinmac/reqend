@@ -5,6 +5,8 @@ import { ActiveRequest } from "@/db/models.type";
 import { FC, useEffect, useState } from "react";
 import Request from "./Request";
 import RequestTabs from "./Tabs/RequestTabs";
+import Loading from "../ui/loading";
+import { Spinner } from "../ui/spinner";
 
 const RequestWrapper: FC = () => {
   const [activeRequests, setActiveRequest] = useState<ActiveRequest[] | null>(null);
@@ -19,8 +21,8 @@ const RequestWrapper: FC = () => {
 
   return (
     <div className="col-span-4 mt-10 flex flex-col gap-4 ">
-      <RequestTabs />
-      <Request id="" />
+      <Loading />
+      {/* <Request id="" /> */}
     </div>
   );
 };
