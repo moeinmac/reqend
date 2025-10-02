@@ -1,10 +1,10 @@
 import { type Collection } from "@/db/models.type";
-import { File, Folder, FolderOpen, Globe } from "lucide-react";
+import { collectionToTree } from "@/lib/tree/collectionToTree";
+import { treeToCollection } from "@/lib/tree/treeToCollection";
+import { File, FilePen, Folder, FolderOpen, FolderPlus, Globe } from "lucide-react";
 import { FC, useState } from "react";
-import TreeView, { TreeViewItem } from "../tree-view";
 import NewFolder from "./NewFolder";
-import { collectionToTree } from "@/lib/collectionToTree";
-import { treeToCollection } from "@/lib/treeToCollection";
+import { TreeView, TreeViewItem } from "../TreeView/TreeView";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -20,7 +20,7 @@ interface CollectionWrapperProps {
   onRemoveCollection: (collectionId: string) => void;
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove , onRemoveCollection }) => {
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove, onRemoveCollection }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
 
@@ -42,11 +42,13 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
             id: "01",
             label: "New Folder",
             action: openFolderDialog,
+            icon: <FolderPlus />,
           },
           {
             id: "02",
             label: "New Request",
             action: (item) => {},
+            icon: <FilePen />,
           },
         ]}
       />
