@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header";
 import { BackgroundPaths } from "@/components/ui/background-paths";
 
 const Landing = () => {

@@ -1,15 +1,11 @@
 "use client";
 
-import { getAllActiveRequest } from "@/db/dal/crud-activeReq";
-import { ActiveRequest } from "@/db/models.type";
-import { FC, useEffect, useState } from "react";
-import Request from "./Request";
-import RequestTabs from "./Tabs/RequestTabs";
-import Loading from "../ui/loading";
-import { Spinner } from "../ui/spinner";
 import { useActiveReqStore } from "@/store/useActiceReqStore";
+import { FC, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
+import Loading from "../ui/loading";
 import NoActiveRequest from "./NoActiveRequest";
+import RequestTabs from "./Tabs/RequestTabs";
 
 const RequestWrapper: FC = () => {
   const activeRequests = useActiveReqStore((state) => state.activeRequests);
@@ -30,7 +26,18 @@ const RequestWrapper: FC = () => {
 
   return (
     <div className="col-span-4 mt-10 flex flex-col gap-4 ">
-      {loading ? <Loading /> : activeRequests.length > 0 ? <Request id="" /> : <NoActiveRequest />}
+      {loading ? (
+        <Loading />
+      ) : activeRequests.length > 0 ? (
+        <RequestTabs
+          tabs={[
+            { id: "sdfsdfsd", type: "request", method: "get", name: "sss" },
+            { id: "ddddd", type: "request", method: "get", name: "rrrr" },
+          ]}
+        />
+      ) : (
+        <NoActiveRequest />
+      )}
     </div>
   );
 };

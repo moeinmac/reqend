@@ -1,53 +1,41 @@
-import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy } from "lucide-react";
+import { ActiveRequest } from "@/db/models.type";
+import { Plus } from "lucide-react";
+import { FC, useState } from "react";
+import Request from "../Request";
 
-const tabs = [
-  {
-    name: "pnpm",
-    value: "pnpm",
-    content: "pnpm dlx shadcn@latest add tabs",
-  },
-  {
-    name: "npm",
-    value: "npm",
-    content: "npx shadcn@latest add tabs",
-  },
-  {
-    name: "yarn",
-    value: "yarn",
-    content: "npx shadcn@latest add tabs",
-  },
-  {
-    name: "bun",
-    value: "bun",
-    content: "bunx --bun shadcn@latest add tabs",
-  },
-];
-const RequestTabs: FC = () => {
+interface RequestTabsProps {
+  tabs: ActiveRequest[];
+  onAddTab?: () => void;
+}
+
+const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
+  const [tab, setTab] = useState<ActiveRequest["id"]>(tabs[0]?.id || "");
+
   return (
-    <Tabs defaultValue={tabs[0].value} className="max-w-xs w-full">
-      <TabsList className="p-0 h-auto bg-background gap-1">
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.value}
-            value={tab.value}
-            className="border border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
-          >
-            <code className="text-[13px]">{tab.name}</code>
-          </TabsTrigger>
-        ))}
-      </TabsList>
+    <Tabs value={tab} onValueChange={(value) => setTab(value)} className="w-full">
+      <div className="flex items-center gap-2 mb-4">
+        <TabsList className="p-0 h-auto bg-background gap-1">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className="border px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
+            >
+              <code className="text-[13px]">{tab.name}</code>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <Button variant={"outline"} size={"sm"} className="px-4 py-2">
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
 
       {tabs.map((tab) => (
-        <TabsContent key={tab.value} value={tab.value}>
-          <div className="h-10 flex items-center justify-between border gap-2 rounded-md pl-3 pr-1.5">
-            <code className="text-[13px]">{tab.content}</code>
-            <Button size="icon" variant="secondary" className="h-7 w-7">
-              <Copy className="h-3.5! w-3.5!" />
-            </Button>
-          </div>
+        <TabsContent key={tab.id} value={tab.id}>
+          <Request id={tab.id} />
         </TabsContent>
       ))}
     </Tabs>
