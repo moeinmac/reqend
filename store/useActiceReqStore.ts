@@ -1,3 +1,4 @@
+import { addTempActiveRequest } from "@/db/dal/crud-activeReq";
 import { getAllItems } from "@/db/db";
 import { ActiveRequest } from "@/db/models.type";
 import { create } from "zustand";
@@ -9,6 +10,7 @@ export interface ActiveReqStore {
   add: (activeReq: ActiveRequest) => void;
   update: (updated: ActiveRequest) => void;
   remove: (reqId: string) => void;
+  addTemp: () => Promise<void>;
   loading: boolean;
 }
 
@@ -23,6 +25,12 @@ export const useActiveReqStore = create<ActiveReqStore>()(
           state.activeRequests = allReqs;
           state.loading = false;
         });
+    },
+    addTemp: async () => {
+      const tempReq = await addTempActiveRequest();
+      set((state) => {
+        state.activeRequests.push(tempReq);
+      });
     },
     add: (activeReq) =>
       set((state) => {

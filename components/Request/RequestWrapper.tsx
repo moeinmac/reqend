@@ -11,12 +11,9 @@ const RequestWrapper: FC = () => {
   const activeRequests = useActiveReqStore((state) => state.activeRequests);
   const loading = useActiveReqStore((state) => state.loading);
 
-  const { addActiveReq, fetchAllActiveReqs, removeActiveReq, updateActiveReq } = useActiveReqStore(
+  const { fetchAllActiveReqs } = useActiveReqStore(
     useShallow((state) => ({
       fetchAllActiveReqs: state.fetchAllActiveReqs,
-      addActiveReq: state.add,
-      removeActiveReq: state.remove,
-      updateActiveReq: state.update,
     }))
   );
 
@@ -26,18 +23,7 @@ const RequestWrapper: FC = () => {
 
   return (
     <div className="col-span-4 mt-10 flex flex-col gap-4 ">
-      {loading ? (
-        <Loading />
-      ) : activeRequests.length > 0 ? (
-        <RequestTabs
-          tabs={[
-            { id: "sdfsdfsd", type: "request", method: "get", name: "sss" },
-            { id: "ddddd", type: "request", method: "get", name: "rrrr" },
-          ]}
-        />
-      ) : (
-        <NoActiveRequest />
-      )}
+      {loading ? <Loading /> : activeRequests.length > 0 ? <RequestTabs tabs={activeRequests} /> : <NoActiveRequest />}
     </div>
   );
 };
