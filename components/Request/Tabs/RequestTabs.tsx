@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ActiveRequest } from "@/db/models.type";
-import { Plus } from "lucide-react";
-import { FC, useState } from "react";
+import { Dot, Plus, X } from "lucide-react";
+import { FC, use, useState } from "react";
 import Request from "../Request";
+import TabItem from "./TabItem";
 
 interface RequestTabsProps {
   tabs: ActiveRequest[];
@@ -18,13 +19,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
       <div className="flex items-center gap-2 mb-4">
         <TabsList className="p-0 h-auto bg-background gap-1">
           {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className="border px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
-            >
-              <code className="text-[13px]">{tab.name}</code>
-            </TabsTrigger>
+            <TabItem tab={tab} key={tab.id} />
           ))}
         </TabsList>
 
