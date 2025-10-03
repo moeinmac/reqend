@@ -7,22 +7,30 @@ import Request from "./Request";
 import RequestTabs from "./Tabs/RequestTabs";
 import Loading from "../ui/loading";
 import { Spinner } from "../ui/spinner";
+import { useActiveReqStore } from "@/store/useActiceReqStore";
+import { useShallow } from "zustand/react/shallow";
+import NoActiveRequest from "./NoActiveRequest";
 
 const RequestWrapper: FC = () => {
-  const [activeRequests, setActiveRequest] = useState<ActiveRequest[] | null>(null);
+  const activeRequests = useActiveReqStore((state) => state.activeRequests);
+  const loading = useActiveReqStore((state) => state.loading);
+
+  const { addActiveReq, fetchAllActiveReqs, removeActiveReq, updateActiveReq } = useActiveReqStore(
+    useShallow((state) => ({
+      fetchAllActiveReqs: state.fetchAllActiveReqs,
+      addActiveReq: state.add,
+      removeActiveReq: state.remove,
+      updateActiveReq: state.update,
+    }))
+  );
 
   useEffect(() => {
-    const fetchAllRequests = async () => {
-      const allRequests = await getAllActiveRequest();
-      if (allRequests) setActiveRequest(allRequests);
-    };
-    fetchAllRequests();
+    fetchAllActiveReqs();
   }, []);
 
   return (
     <div className="col-span-4 mt-10 flex flex-col gap-4 ">
-      <Loading />
-      {/* <Request id="" /> */}
+      {loading ? <Loading /> : activeRequests.length > 0 ? <Request id="" /> : <NoActiveRequest />}
     </div>
   );
 };

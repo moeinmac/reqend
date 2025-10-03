@@ -7,3 +7,5 @@ const NoActiveRequest: FC = () => {
     </div>
   );
 };
+
+export default NoActiveRequest;
