@@ -1,11 +1,9 @@
-"use client";
-
+import { RequestPrimary } from "@/db/models.type";
 import { FC } from "react";
 import Options from "../Options/Options";
 import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
-import { RequestPrimary } from "@/db/models.type";
 
 interface RequestProps {
   id: RequestPrimary["id"];

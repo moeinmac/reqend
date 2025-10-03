@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { setItem } from "../db";
+import { getItem, removeItem, setItem } from "../db";
 import { Request } from "../models.type";
 
 export const newRequestHandler = async (newReq: Omit<Request, "id"> & { id?: string }) => {
@@ -9,4 +9,13 @@ export const newRequestHandler = async (newReq: Omit<Request, "id"> & { id?: str
   };
   await setItem<Request>("request", newRequest.id, newRequest);
   return newRequest;
+};
+
+export const fetchRequestHandler = async (reqId: string) => {
+  const req = await getItem<Request>("request", reqId);
+  return req;
+};
+
+export const removeRequestHandler = async (reqId: string) => {
+  await removeItem("request", reqId);
 };
