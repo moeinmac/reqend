@@ -1,21 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import { ActiveRequest } from "@/db/models.type";
-import { Dot, Plus, X } from "lucide-react";
-import { FC, use, useState } from "react";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
+import { Plus } from "lucide-react";
+import { FC } from "react";
 import Request from "../Request";
 import TabItem from "./TabItem";
 
 interface RequestTabsProps {
   tabs: ActiveRequest[];
-  onAddTab?: () => void;
 }
 
 const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
-  const [tab, setTab] = useState<ActiveRequest["id"]>(tabs[0]?.id || "");
+  const addTempRequest = useActiveReqStore((state) => state.addTemp);
+  const activeReqId = useActiveReqStore((state) => state.activeReqId);
+  const setActiveReqId = useActiveReqStore((state) => state.setActiveReqId);
 
   return (
-    <Tabs value={tab} onValueChange={(value) => setTab(value)} className="w-full">
+    <Tabs value={activeReqId} onValueChange={(value) => setActiveReqId(value)} className="w-full">
       <div className="flex items-center gap-2 mb-4">
         <TabsList className="p-0 h-auto bg-background gap-1">
           {tabs.map((tab) => (
@@ -23,7 +25,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
           ))}
         </TabsList>
 
-        <Button variant={"outline"} size={"sm"} className="px-4 py-2">
+        <Button variant={"outline"} size={"sm"} className="px-4 py-2" onClick={async () => await addTempRequest()}>
           <Plus className="h-4 w-4" />
         </Button>
       </div>

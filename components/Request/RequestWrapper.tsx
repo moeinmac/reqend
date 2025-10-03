@@ -1,6 +1,6 @@
 "use client";
 
-import { useActiveReqStore } from "@/store/useActiceReqStore";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { FC, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import Loading from "../ui/loading";

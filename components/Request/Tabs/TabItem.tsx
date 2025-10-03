@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TabsTrigger } from "@/components/ui/tabs";
 import { ActiveRequest } from "@/db/models.type";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { Dot, X } from "lucide-react";
 import { FC, useState } from "react";
 
@@ -10,6 +11,8 @@ interface TabItemProps {
 
 const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
+
+  const removeActiveRequest = useActiveReqStore((state) => state.remove);
 
   return (
     <TabsTrigger
@@ -22,7 +25,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
       <code className="text-[13px]">{tab.name}</code>
       {!tab.collectionId && <Dot className="w-5 h-5 ml-2" />}
       {isHover && (
-        <Button variant={"outline"} size={"sm"} className="p-1 h-5 w-5">
+        <Button asChild variant={"outline"} size={"sm"} className="p-1 h-5 w-5" onClick={async () => await removeActiveRequest(tab.id)}>
           <X className="w-2 h-2" />
         </Button>
       )}

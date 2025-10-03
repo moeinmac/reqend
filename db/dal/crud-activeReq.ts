@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { getAllItems, getItem, setItem } from "../db";
+import { getAllItems, removeItem, setItem } from "../db";
 import { ActiveRequest } from "../models.type";
 
 export const getAllActiveRequest = async () => {
@@ -16,4 +16,8 @@ export const addTempActiveRequest = async () => {
   };
   await setItem<ActiveRequest>("activeReq", tempRequest.id, tempRequest);
   return tempRequest;
+};
+
+export const removeActiveRequest = async (reqId: string) => {
+  await removeItem("activeReq", reqId);
 };

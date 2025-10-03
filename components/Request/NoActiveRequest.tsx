@@ -4,7 +4,7 @@ import { Card } from "../ui/card";
 
 import newIdea from "@/app/assets/new.svg";
 import Image from "next/image";
-import { useActiveReqStore } from "@/store/useActiceReqStore";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
 
 const NoActiveRequest: FC = () => {
   const addTempRequest = useActiveReqStore((state) => state.addTemp);
