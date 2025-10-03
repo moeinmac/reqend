@@ -36,7 +36,7 @@ export interface RequestPrimary {
 export interface Request extends RequestPrimary {
   url: string;
   params: Params[];
-  body: Body;
+  body: Body | null;
   auth: any;
 }
 
