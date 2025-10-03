@@ -10,7 +10,7 @@ export interface ActiveReqStore {
   add: (activeReq: ActiveRequest) => void;
   update: (updated: ActiveRequest) => void;
   remove: (reqId: string) => Promise<void>;
-  addTemp: () => Promise<void>;
+  addTemp: () => Promise<{ id: string; name: string }>;
   loading: boolean;
   activeReqId: string;
   setActiveReqId: (id: string) => void;
@@ -40,6 +40,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
         state.activeRequests.push(tempReq);
         state.activeReqId = tempReq.id;
       });
+      return { id: tempReq.id, name: tempReq.name };
     },
     add: (activeReq) =>
       set((state) => {

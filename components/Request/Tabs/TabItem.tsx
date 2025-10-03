@@ -3,7 +3,7 @@ import { TabsTrigger } from "@/components/ui/tabs";
 import { ActiveRequest } from "@/db/models.type";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { Dot, X } from "lucide-react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface TabItemProps {
   tab: ActiveRequest;
@@ -13,6 +13,19 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
 
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        console.log("Save shortcut triggered");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <TabsTrigger

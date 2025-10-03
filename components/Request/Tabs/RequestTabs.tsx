@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { FC } from "react";
 import Request from "../Request";
 import TabItem from "./TabItem";
+import { newRequestHandler } from "@/db/dal/crud-request";
 
 interface RequestTabsProps {
   tabs: ActiveRequest[];
@@ -25,7 +26,24 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
           ))}
         </TabsList>
 
-        <Button variant={"outline"} size={"sm"} className="px-4 py-2" onClick={async () => await addTempRequest()}>
+        <Button
+          variant={"outline"}
+          size={"sm"}
+          className="px-4 py-2"
+          onClick={async () => {
+            const { id: tempReqId, name: tempReqName } = await addTempRequest();
+            await newRequestHandler({
+              id: tempReqId,
+              name: tempReqName,
+              method: "get",
+              url: "",
+              body: null,
+              params: [],
+              auth: null,
+              type: "request",
+            });
+          }}
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
