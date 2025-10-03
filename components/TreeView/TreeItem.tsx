@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Box, ChevronRight, Folder, FolderOpen } from "lucide-react";
-import { FC, useRef } from "react";
+import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
+import { ChevronRight, Folder, FolderOpen } from "lucide-react";
+import { FC, Fragment, useRef } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
 import { TreeViewIconMap, TreeViewItem } from "./TreeView";
 
@@ -137,14 +138,14 @@ export const TreeItem: FC<TreeItemProps> = ({
       <ContextMenuContent className="w-56">
         {menuItems?.map((mi) =>
           mi.type.includes(itemType) ? (
-            <>
+            <Fragment key={mi.id}>
               <ContextMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
                 {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
                 {mi.label}
                 {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
               </ContextMenuItem>
-              {/* {mi.separator && <ContextMenuIt} */}
-            </>
+              {mi.separator && <ContextMenuSeparator />}
+            </Fragment>
           ) : null
         )}
       </ContextMenuContent>
