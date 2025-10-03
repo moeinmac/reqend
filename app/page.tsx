@@ -1,4 +1,4 @@
-import { Hero } from "@/components/hero";
+import { Header } from "@/components/Header";
 import { BackgroundPaths } from "@/components/ui/background-paths";
 
 const Landing = () => {
@@ -23,6 +23,7 @@ const Landing = () => {
         subtitleClassName="text-lg md:text-xl max-w-[600px]"
         actionsClassName="mt-8"
       /> */}
+      <Header />
       <BackgroundPaths title="reQend" subTitle="Open Source Postman Alternative" />
     </div>
   );
