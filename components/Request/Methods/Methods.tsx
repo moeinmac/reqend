@@ -3,13 +3,15 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { methodsColor } from "@/constant/methodsColor";
 import { type Method } from "@/db/models.type";
+import { useRequestStore } from "@/store/useRequestStore";
 import { useState } from "react";
 
 const Methods = () => {
-  const [method, setMethod] = useState<Method>("get");
+  const method = useRequestStore((state) => state.request?.method) ?? "get";
+  const onChange = useRequestStore((state) => state.onChangeMethod);
 
   return (
-    <Select name="method" value={method} onValueChange={(value: Method) => setMethod(value)}>
+    <Select name="method" value={method} onValueChange={async (value: Method) => await onChange(value)}>
       <SelectTrigger className={"w-[105px] py-6"} style={{ color: `${methodsColor[method]}` }}>
         <SelectValue placeholder="GET" />
       </SelectTrigger>

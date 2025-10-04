@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { getItem, removeItem, setItem } from "../db";
-import type { Request } from "../models.type";
+import type { Method, Request } from "../models.type";
 
 export const newRequestHandler = async (newReq: Omit<Request, "id"> & { id?: string }) => {
   const newRequest: Request = {
@@ -24,6 +24,16 @@ export const updateRequestUrl = async (reqId: string, newUrl: string) => {
   const theRequest = await getItem<Request>("request", reqId);
   if (theRequest) {
     theRequest.url = newUrl;
+    await setItem("request", reqId, theRequest);
+    return theRequest;
+  }
+  return null;
+};
+
+export const updateRequestMethod = async (reqId: string, method: Method) => {
+  const theRequest = await getItem<Request>("request", reqId);
+  if (theRequest) {
+    theRequest.method = method;
     await setItem("request", reqId, theRequest);
     return theRequest;
   }

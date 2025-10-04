@@ -5,6 +5,7 @@ import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
 import { useRequestStore } from "@/store/useRequestStore";
+import Loading from "../ui/loading";
 
 interface RequestProps {
   id: RequestPrimary["id"];
@@ -17,6 +18,8 @@ const Request: FC<RequestProps> = ({ id }) => {
   useEffect(() => {
     if (!isFetched) fetchRequest(id);
   }, []);
+
+  if (!isFetched) return <Loading />;
 
   return (
     <div className="flex flex-col gap-4 ">
