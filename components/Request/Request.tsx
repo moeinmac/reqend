@@ -1,5 +1,5 @@
 import { RequestPrimary, Request as RequestType } from "@/db/models.type";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import Options from "../Options/Options";
 import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
@@ -11,7 +11,12 @@ interface RequestProps {
 }
 
 const Request: FC<RequestProps> = ({ id }) => {
-  const data = useRequestStore((state) => state.request);
+  const isFetched = useRequestStore((state) => state.fetched);
+  const fetchRequest = useRequestStore((state) => state.fetchRequest);
+
+  useEffect(() => {
+    if (!isFetched) fetchRequest(id);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 ">
