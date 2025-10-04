@@ -7,6 +7,7 @@ import { FC } from "react";
 import Request from "../Request";
 import TabItem from "./TabItem";
 import { newRequestHandler } from "@/db/dal/crud-request";
+import { useRequestStore } from "@/store/useRequestStore";
 
 interface RequestTabsProps {
   tabs: ActiveRequest[];
@@ -16,6 +17,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
   const addTempRequest = useActiveReqStore((state) => state.addTemp);
   const activeReqId = useActiveReqStore((state) => state.activeReqId);
   const setActiveReqId = useActiveReqStore((state) => state.setActiveReqId);
+  const fetchRequest = useRequestStore((state) => state.fetchRequest);
 
   return (
     <Tabs value={activeReqId} onValueChange={(value) => setActiveReqId(value)} className="w-full">
@@ -42,6 +44,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
               auth: null,
               type: "request",
             });
+            await fetchRequest(tempReqId);
           }}
         >
           <Plus className="h-4 w-4" />

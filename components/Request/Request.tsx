@@ -4,12 +4,16 @@ import Options from "../Options/Options";
 import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
+import { useRequestStore } from "@/store/useRequestStore";
 
 interface RequestProps {
   id: RequestPrimary["id"];
 }
 
 const Request: FC<RequestProps> = ({ id }) => {
+  const data = useRequestStore((state) => state.requests[id]);
+  console.log(data);
+
   return (
     <div className="flex flex-col gap-4 ">
       <div className="flex items-center gap-2">

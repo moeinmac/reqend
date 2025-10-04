@@ -6,9 +6,11 @@ import newIdea from "@/app/assets/new.svg";
 import Image from "next/image";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { newRequestHandler } from "@/db/dal/crud-request";
+import { useRequestStore } from "@/store/useRequestStore";
 
 const NoActiveRequest: FC = () => {
   const addTempRequest = useActiveReqStore((state) => state.addTemp);
+  const fetchRequest = useRequestStore((state) => state.fetchRequest);
   return (
     <Card className="flex flex-col gap-4 items-center justify-center p-10">
       <h1 className="text-3xl font-bold">No Active Requests</h1>
@@ -27,6 +29,7 @@ const NoActiveRequest: FC = () => {
               auth: null,
               type: "request",
             });
+            await fetchRequest(tempReqId);
           }}
           variant={"default"}
         >
