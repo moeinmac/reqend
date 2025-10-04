@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TabsTrigger } from "@/components/ui/tabs";
 import { fetchRequestHandler, removeRequestHandler } from "@/db/dal/crud-request";
-import { ActiveRequest } from "@/db/models.type";
+import { ActiveRequest, Request } from "@/db/models.type";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { useRequestStore } from "@/store/useRequestStore";
 import { Dot, X } from "lucide-react";
@@ -16,6 +16,8 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
 
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
 
+  const fetchRequest = useRequestStore((state) => state.fetchRequest);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
@@ -29,8 +31,6 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const fetchRequest = useRequestStore((state) => state.fetchRequest);
-
   return (
     <TabsTrigger
       key={tab.id}
@@ -38,7 +38,10 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       className="border px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
-      onClick={async () => await fetchRequest(tab.id)}
+      onClick={async () => {
+        const req = await fetchRequestHandler(tab.id);
+        await fetchRequest(tab.id);
+      }}
     >
       <code className="text-[13px]">{tab.name}</code>
       {!tab.collectionId && <Dot className="w-5 h-5 ml-2" />}

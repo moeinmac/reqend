@@ -1,4 +1,4 @@
-import { RequestPrimary } from "@/db/models.type";
+import { RequestPrimary, Request as RequestType } from "@/db/models.type";
 import { FC } from "react";
 import Options from "../Options/Options";
 import InputReq from "./InputReq/InputReq";
@@ -11,8 +11,7 @@ interface RequestProps {
 }
 
 const Request: FC<RequestProps> = ({ id }) => {
-  const data = useRequestStore((state) => state.requests[id]);
-  console.log(data);
+  const data = useRequestStore((state) => state.request);
 
   return (
     <div className="flex flex-col gap-4 ">

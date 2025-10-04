@@ -4,22 +4,25 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 export interface RequestStore {
-  requests: Record<string, Request>;
-  fetchRequest: (reqId: string) => Promise<Request | undefined>;
+  request: Request | null;
+  fetchRequest: (reqId: string) => Promise<RequestStore["request"]>;
+  removeRequest: () => void;
 }
 
 export const useRequestStore = create<RequestStore>()(
-  immer((set, get) => ({
-    requests: {},
+  immer((set) => ({
+    request: null,
     fetchRequest: async (reqId) => {
-      if (reqId in get().requests) return get().requests[reqId];
       const request = await fetchRequestHandler(reqId);
-      if (request) {
-        set((state) => {
-          state.requests = Object.assign({ [reqId]: request }, state.requests);
-        });
-        return request;
-      }
+      set((state) => {
+        state.request = request;
+      });
+      return request;
+    },
+    removeRequest: () => {
+      set((state) => {
+        state.request = null;
+      });
     },
   }))
 );

@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
-import { ActiveRequest } from "@/db/models.type";
+import { newRequestHandler } from "@/db/dal/crud-request";
+import { ActiveRequest, Request as RequestType } from "@/db/models.type";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { Plus } from "lucide-react";
-import { FC } from "react";
+import { FC, useState } from "react";
 import Request from "../Request";
 import TabItem from "./TabItem";
-import { newRequestHandler } from "@/db/dal/crud-request";
 import { useRequestStore } from "@/store/useRequestStore";
 
 interface RequestTabsProps {
@@ -34,7 +34,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
           className="px-4 py-2"
           onClick={async () => {
             const { id: tempReqId, name: tempReqName } = await addTempRequest();
-            await newRequestHandler({
+            const req = await newRequestHandler({
               id: tempReqId,
               name: tempReqName,
               method: "get",
