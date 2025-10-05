@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { TabsTrigger } from "@/components/ui/tabs";
 import { removeRequestHandler } from "@/db/dal/crud-request";
 import { ActiveRequest } from "@/db/models.type";
@@ -12,6 +13,8 @@ interface TabItemProps {
 
 const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
+  const [input, setInput] = useState<boolean>(false);
+  const [reqName, setReqName] = useState<string>(!tab.collectionId ? "" : tab.name);
 
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
 
@@ -36,7 +39,20 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
       onMouseLeave={() => setIsHover(false)}
       className="border px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
     >
-      <code className="text-[13px]">{tab.name}</code>
+      {!input && (
+        <code onDoubleClick={() => setInput(true)} className="text-[13px]">
+          {tab.name}
+        </code>
+      )}
+      {input && (
+        <Input
+          className="rounded-sm h-auto py-0"
+          onBlur={() => setInput(false)}
+          value={reqName}
+          autoFocus
+          onChange={(event) => setReqName(event.target.value)}
+        />
+      )}
       {!tab.collectionId && <Dot className="w-5 h-5 ml-2" />}
       {isHover && (
         <Button
