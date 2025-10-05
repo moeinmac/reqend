@@ -6,7 +6,6 @@ import { Plus } from "lucide-react";
 import { FC } from "react";
 import Request from "../Request";
 import TabItem from "./TabItem";
-import { newRequestHandler } from "@/db/dal/crud-request";
 
 interface RequestTabsProps {
   tabs: ActiveRequest[];
@@ -18,7 +17,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
   const setActiveReqId = useActiveReqStore((state) => state.setActiveReqId);
 
   return (
-    <Tabs value={activeReqId} onValueChange={(value) => setActiveReqId(value)} className="w-full">
+    <Tabs value={activeReqId} onValueChange={async (value) => setActiveReqId(value)} className="w-full">
       <div className="flex items-center gap-2 mb-4">
         <TabsList className="p-0 h-auto bg-background gap-1">
           {tabs.map((tab) => (
@@ -26,24 +25,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
           ))}
         </TabsList>
 
-        <Button
-          variant={"outline"}
-          size={"sm"}
-          className="px-4 py-2"
-          onClick={async () => {
-            const { id: tempReqId, name: tempReqName } = await addTempRequest();
-            await newRequestHandler({
-              id: tempReqId,
-              name: tempReqName,
-              method: "get",
-              url: "",
-              body: null,
-              params: [],
-              auth: null,
-              type: "request",
-            });
-          }}
-        >
+        <Button variant={"outline"} size={"sm"} className="px-4 py-2" onClick={async () => await addTempRequest()}>
           <Plus className="h-4 w-4" />
         </Button>
       </div>

@@ -3,6 +3,8 @@ import { getAllItems } from "@/db/db";
 import { ActiveRequest } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { useRequestStore } from "./useRequestStore";
+import { newRequestHandler } from "@/db/dal/crud-request";
 
 export interface ActiveReqStore {
   activeRequests: ActiveRequest[];
@@ -13,7 +15,7 @@ export interface ActiveReqStore {
   addTemp: () => Promise<{ id: string; name: string }>;
   loading: boolean;
   activeReqId: string;
-  setActiveReqId: (id: string) => void;
+  setActiveReqId: (id: string) => Promise<void>;
 }
 
 export const useActiveReqStore = create<ActiveReqStore>()(
@@ -21,10 +23,12 @@ export const useActiveReqStore = create<ActiveReqStore>()(
     activeRequests: [],
     loading: true,
     activeReqId: "",
-    setActiveReqId: (id: string) =>
+    setActiveReqId: async (id: string) => {
+      await useRequestStore.getState().fetchRequest(id);
       set((state) => {
         state.activeReqId = id;
-      }),
+      });
+    },
     fetchAllActiveReqs: async () => {
       const allReqs = await getAllItems<ActiveRequest>("activeReq");
       if (allReqs)
@@ -36,6 +40,17 @@ export const useActiveReqStore = create<ActiveReqStore>()(
     },
     addTemp: async () => {
       const tempReq = await addTempActiveRequest();
+      await newRequestHandler({
+        id: tempReq.id,
+        name: tempReq.name,
+        method: "get",
+        url: "",
+        body: null,
+        params: [],
+        auth: null,
+        type: "request",
+      });
+      await useRequestStore.getState().fetchRequest(tempReq.id);
       set((state) => {
         state.activeRequests.push(tempReq);
         state.activeReqId = tempReq.id;
@@ -54,6 +69,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
       }),
     remove: async (reqId) => {
       await removeActiveRequest(reqId);
+      useRequestStore.getState().removeRequest();
       set((state) => {
         state.activeRequests = state.activeRequests.filter((req) => req.id !== reqId);
         state.activeReqId = state.activeRequests.length > 0 ? state.activeRequests[state.activeRequests.length - 1].id : "";
