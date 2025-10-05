@@ -4,7 +4,6 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { methodsColor } from "@/constant/methodsColor";
 import { type Method } from "@/db/models.type";
 import { useRequestStore } from "@/store/useRequestStore";
-import { useState } from "react";
 
 const Methods = () => {
   const method = useRequestStore((state) => state.request?.method) ?? "get";

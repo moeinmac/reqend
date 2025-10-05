@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { TabsTrigger } from "@/components/ui/tabs";
-import { fetchRequestHandler, removeRequestHandler } from "@/db/dal/crud-request";
-import { ActiveRequest, Request } from "@/db/models.type";
+import { removeRequestHandler } from "@/db/dal/crud-request";
+import { ActiveRequest } from "@/db/models.type";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
-import { useRequestStore } from "@/store/useRequestStore";
 import { Dot, X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 
@@ -15,8 +14,6 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
 
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
-
-  const fetchRequest = useRequestStore((state) => state.fetchRequest);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,10 +35,6 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       className="border px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
-      onClick={async () => {
-        const req = await fetchRequestHandler(tab.id);
-        await fetchRequest(tab.id);
-      }}
     >
       <code className="text-[13px]">{tab.name}</code>
       {!tab.collectionId && <Dot className="w-5 h-5 ml-2" />}

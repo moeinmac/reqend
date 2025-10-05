@@ -27,7 +27,7 @@ export const useRequestStore = create<RequestStore>()(
     removeRequest: () => {
       set((state) => {
         state.request = null;
-        state.fetched = true;
+        state.fetched = false;
       });
     },
     onChangeUrl: async (newUrl) => {
