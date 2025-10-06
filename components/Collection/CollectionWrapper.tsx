@@ -6,6 +6,8 @@ import { FC, useState } from "react";
 import { TreeView, TreeViewItem } from "../TreeView/TreeView";
 import NewFolder from "./NewFolder";
 import MutateCollection from "./MutateCollection";
+import { useCollectionStore } from "@/store/useCollectionStore";
+import { useShallow } from "zustand/react/shallow";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -17,15 +19,18 @@ const customIconMap = {
 
 interface CollectionWrapperProps {
   data: Collection;
-  onNewFolder: (newCollection: Collection) => void;
-  onMove: (collection: Collection) => void;
-  onRemoveCollection: (collectionId: string) => void;
-  onRenameCollection: (collection: Collection) => void;
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMove, onRemoveCollection, onRenameCollection }) => {
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data }) => {
   const [openFolder, setOpenFolder] = useState<boolean>(false);
   const [openCollection, setOpenCollection] = useState<boolean>(false);
+
+  const { onRemoveCollection, onMoveCollection } = useCollectionStore(
+    useShallow((state) => ({
+      onRemoveCollection: state.removeCollection,
+      onMoveCollection: state.moveCollection,
+    }))
+  );
 
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
 
@@ -44,7 +49,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
       <TreeView
         data={collectionToTree(data)}
         iconMap={customIconMap}
-        onMove={(_, __, ___, newTree) => onMove(treeToCollection(newTree, data.createdAt))}
+        onMove={async (newTree) => onMoveCollection(treeToCollection(newTree, data.createdAt))}
         menuItems={[
           {
             id: "00",
@@ -83,21 +88,13 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, onNewFolder, onMo
             collectionId: data.id,
             targetId: targetItem.id,
           }}
-          onNewFolder={onNewFolder}
           open={openFolder}
           setOpen={setOpenFolder}
         />
       )}
 
       {targetItem && (
-        <MutateCollection
-          mode="edit"
-          collectionId={targetItem.id}
-          value={targetItem.name}
-          open={openCollection}
-          setOpen={setOpenCollection}
-          onEditCollection={onRenameCollection}
-        />
+        <MutateCollection mode="edit" collectionId={targetItem.id} value={targetItem.name} open={openCollection} setOpen={setOpenCollection} />
       )}
     </>
   );

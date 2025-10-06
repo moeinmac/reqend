@@ -25,7 +25,7 @@ export interface TreeViewProps {
   getIcon?: (item: TreeViewItem, depth: number) => React.ReactNode;
   iconMap?: TreeViewIconMap;
   menuItems?: TreeViewMenuItem[];
-  onMove?: (sourceId: string, targetId: string | null, position: "inside" | "before" | "after", newTree: TreeViewItem[]) => void;
+  onMove?: (newTree: TreeViewItem[], sourceId: string, targetId: string | null, position: "inside" | "before" | "after") => void;
 }
 
 export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems }) => {
@@ -76,7 +76,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
     // if dropped inside a folder, expand it so user sees the moved item
     if (position === "inside" && targetId) setExpandedIds((s) => new Set(s).add(targetId));
 
-    onMove?.(sourceId, targetId, position, newTree);
+    onMove?.(newTree, sourceId, targetId, position);
   };
 
   const handleRootDragOver = (e: React.DragEvent) => {
@@ -94,7 +94,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
 
     const newTree = insertAt(treeWithout, null, "inside", movingNode);
     setTreeData(newTree);
-    onMove?.(sourceId, null, "inside", newTree);
+    onMove?.(newTree, sourceId, null, "inside");
   };
 
   const children = treeData[0].children ?? [];

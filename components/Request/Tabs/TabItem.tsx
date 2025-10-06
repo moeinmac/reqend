@@ -63,7 +63,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
           onChange={(event) => setReqName(event.target.value)}
         />
       )}
-      {!tab.collectionId && <Dot className="w-5 h-5 ml-2" />}
+      {!tab.collectionId && !input && <Dot className="w-5 h-5 ml-2" />}
       {isHover && !input && (
         <Button
           asChild
