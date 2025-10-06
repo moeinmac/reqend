@@ -29,7 +29,7 @@ const Sidebar: FC<SidebarProps> = ({ mode }) => {
 
       <div className="flex flex-col gap-3">
         {collections.map((collection) => (
-          <CollectionWrapper data={collection} key={collection.id} />
+          <CollectionWrapper data={collection} key={collection.id} mode={mode} />
         ))}
       </div>
     </div>

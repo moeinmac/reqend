@@ -1,7 +1,8 @@
 import { v4 } from "uuid";
-import { Collection, FolderItem } from "../models.type";
+import { Collection, FolderItem, RequestPrimary } from "../models.type";
 import { getItem, removeItem, setItem } from "../db";
 import { newFolderRecursive } from "@/lib/newFolderRecursive";
+import { saveRequestRecursive } from "@/lib/saveRequestRecursive";
 
 export const newCollectionHandler = async (name: string) => {
   const newCollection: Collection = {
@@ -19,6 +20,12 @@ export const newCollectionHandler = async (name: string) => {
 export interface NewFolderInput {
   collectionId: string;
   folderName: string;
+  targetId: string;
+}
+
+export interface SaveRequestInput {
+  collectionId: string;
+  requestPrimary: RequestPrimary;
   targetId: string;
 }
 
@@ -67,4 +74,30 @@ export const renameCollectionHandler = async (collectionId: string, newName: str
     await setItem<Collection>("collection", collectionId, newCollection);
     return newCollection;
   }
+};
+
+export const saveRequestHandler = async (input: SaveRequestInput): Promise<Collection | undefined> => {
+  const thisCollection = await getItem<Collection>("collection", input.collectionId);
+  if (!thisCollection) return undefined;
+  if (input.collectionId === input.targetId) {
+    const newRequest: RequestPrimary = {
+      id: input.requestPrimary.id,
+      name: input.requestPrimary.name,
+      method: input.requestPrimary.method,
+      type: "request",
+    };
+    thisCollection.items.unshift(newRequest);
+    await setItem<Collection>("collection", input.collectionId, thisCollection);
+    return thisCollection;
+  }
+  const newItems = saveRequestRecursive(thisCollection.items, input);
+  const newCollection: Collection = {
+    createdAt: thisCollection.createdAt,
+    id: thisCollection.id,
+    items: newItems,
+    modifiedAt: new Date().toISOString(),
+    name: thisCollection.name,
+  };
+  await setItem<Collection>("collection", input.collectionId, newCollection);
+  return newCollection;
 };

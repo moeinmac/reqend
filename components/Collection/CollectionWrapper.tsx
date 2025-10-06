@@ -8,6 +8,7 @@ import NewFolder from "./NewFolder";
 import MutateCollection from "./MutateCollection";
 import { useCollectionStore } from "@/store/useCollectionStore";
 import { useShallow } from "zustand/react/shallow";
+import { TreeViewMenuItem } from "../TreeView/TreeItem";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -19,9 +20,10 @@ const customIconMap = {
 
 interface CollectionWrapperProps {
   data: Collection;
+  mode: "sidebar" | "treeview";
 }
 
-const CollectionWrapper: FC<CollectionWrapperProps> = ({ data }) => {
+const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
   const [openFolder, setOpenFolder] = useState<boolean>(false);
   const [openCollection, setOpenCollection] = useState<boolean>(false);
 
@@ -44,6 +46,45 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data }) => {
     setOpenCollection(true);
   };
 
+  let menuItems: TreeViewMenuItem[] = [
+    {
+      id: "03",
+      label: "New Request",
+      action: (item) => {},
+      type: ["folder", "request"],
+      shortcut: "⌘N",
+    },
+  ];
+
+  if (mode === "sidebar") {
+    menuItems = [
+      {
+        id: "00",
+        label: "Rename Collection",
+        action: openCollectionDialog,
+        type: ["collection"],
+        shortcut: "⌘Q",
+      },
+      {
+        id: "01",
+        label: "Remove Collection",
+        action: (item) => onRemoveCollection(item.id),
+        type: ["collection"],
+        shortcut: "⌘C",
+        separator: true,
+      },
+      ,
+      ...menuItems,
+      {
+        id: "03",
+        label: "New Request",
+        action: (item) => {},
+        type: ["folder", "request"],
+        shortcut: "⌘N",
+      },
+    ] as TreeViewMenuItem[];
+  }
+
   return (
     <>
       <TreeView
@@ -52,33 +93,11 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data }) => {
         onMove={async (newTree) => onMoveCollection(treeToCollection(newTree, data.createdAt))}
         menuItems={[
           {
-            id: "00",
-            label: "Rename Collection",
-            action: openCollectionDialog,
-            type: ["collection"],
-            shortcut: "⌘Q",
-          },
-          {
-            id: "01",
-            label: "Remove Collection",
-            action: (item) => onRemoveCollection(item.id),
-            type: ["collection"],
-            shortcut: "⌘C",
-            separator: true,
-          },
-          {
             id: "02",
             label: "New Folder",
             action: openFolderDialog,
             type: ["folder", "request", "collection"],
             shortcut: "⌘R",
-          },
-          {
-            id: "03",
-            label: "New Request",
-            action: (item) => {},
-            type: ["folder", "request"],
-            shortcut: "⌘N",
           },
         ]}
       />
