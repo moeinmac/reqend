@@ -39,3 +39,13 @@ export const updateRequestMethod = async (reqId: string, method: Method) => {
   }
   return null;
 };
+
+export const updateRequestNameHandler = async (reqId: string, newName: string) => {
+  const theReq = await getItem<Request>("request", reqId);
+  if (theReq) {
+    theReq.name = newName;
+    await setItem<Request>("request", theReq.id, theReq);
+    return theReq;
+  }
+  return null;
+};

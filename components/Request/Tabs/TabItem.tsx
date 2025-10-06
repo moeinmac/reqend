@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TabsTrigger } from "@/components/ui/tabs";
+import { DEFAULT_REQ_NAME } from "@/db/dal/crud-activeReq";
 import { removeRequestHandler } from "@/db/dal/crud-request";
 import { ActiveRequest } from "@/db/models.type";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
+import { useRequestStore } from "@/store/useRequestStore";
 import { Dot, X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 
@@ -14,9 +16,11 @@ interface TabItemProps {
 const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const [input, setInput] = useState<boolean>(false);
-  const [reqName, setReqName] = useState<string>(!tab.collectionId ? "" : tab.name);
+  const [reqName, setReqName] = useState<string>(!tab.collectionId && tab.name === DEFAULT_REQ_NAME ? "" : tab.name);
 
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
+  const updateActiveReqName = useActiveReqStore((state) => state.updateName);
+  const onChangeName = useRequestStore((state) => state.onChangeName);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,7 +41,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
       value={tab.id}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
-      className="border px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
+      className="border max-w-[208px] px-4 py-2 border-transparent data-[state=active]:border-border data-[state=active]:shadow-none"
     >
       {!input && (
         <code onDoubleClick={() => setInput(true)} className="text-[13px]">
@@ -47,14 +51,20 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
       {input && (
         <Input
           className="rounded-sm h-auto py-0"
-          onBlur={() => setInput(false)}
+          onBlur={async () => {
+            if (reqName.trim().length > 0 && reqName !== tab.name) {
+              await updateActiveReqName(tab.id, reqName);
+              await onChangeName(reqName);
+            }
+            setInput(false);
+          }}
           value={reqName}
           autoFocus
           onChange={(event) => setReqName(event.target.value)}
         />
       )}
       {!tab.collectionId && <Dot className="w-5 h-5 ml-2" />}
-      {isHover && (
+      {isHover && !input && (
         <Button
           asChild
           variant={"outline"}

@@ -1,4 +1,4 @@
-import { fetchRequestHandler, updateRequestMethod, updateRequestUrl } from "@/db/dal/crud-request";
+import { fetchRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
 import { Method, Request } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -10,6 +10,7 @@ export interface RequestStore {
   removeRequest: () => void;
   onChangeUrl: (newUrl: string) => Promise<void>;
   onChangeMethod: (newMethod: Method) => Promise<void>;
+  onChangeName: (newName: string) => Promise<void>;
 }
 
 export const useRequestStore = create<RequestStore>()(
@@ -40,6 +41,13 @@ export const useRequestStore = create<RequestStore>()(
     onChangeMethod: async (newMethod) => {
       if (!get().request) return;
       const req = await updateRequestMethod(get().request!.id, newMethod);
+      set((state) => {
+        state.request = req;
+      });
+    },
+    onChangeName: async (newName) => {
+      if (!get().request) return;
+      const req = await updateRequestNameHandler(get().request!.id, newName);
       set((state) => {
         state.request = req;
       });
