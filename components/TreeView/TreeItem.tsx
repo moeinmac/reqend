@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
 import { ChevronRight, Folder, FolderOpen } from "lucide-react";
-import { FC, Fragment, useRef } from "react";
+import { FC, Fragment, MouseEvent, useRef } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
 import { TreeViewIconMap, TreeViewItem } from "./TreeView";
+import { useEventHandler } from "@/hooks/useEventHandler";
 
 const defaultIconMap: TreeViewIconMap = {
   folder: <Folder className="h-4 w-4 text-primary/80" />,
@@ -80,13 +81,21 @@ export const TreeItem: FC<TreeItemProps> = ({
     onDropItem(item.id, position, e, item);
   };
 
-  const handleToggle = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
+  const handleToggle = (e: MouseEvent) => {
+    if (e) e.stopPropagation();
     if (!isFolder) return;
 
     onToggleExpand(item.id);
   };
 
+  const handleSaveRequest = () => {
+    console.log("save request");
+  };
+
+  const { clickHandler, doubleClickHandler } = useEventHandler({
+    onClick: handleToggle,
+    onDoubleClick: handleSaveRequest,
+  });
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger>
@@ -100,7 +109,8 @@ export const TreeItem: FC<TreeItemProps> = ({
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            onClick={handleToggle}
+            onClick={clickHandler}
+            onDoubleClick={doubleClickHandler}
             className={"select-none cursor-pointer text-foreground px-1"}
             style={{ paddingLeft: `${depth * 20}px` }}
           >
