@@ -5,6 +5,8 @@ import { FC, Fragment, MouseEvent, useRef } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
 import { TreeViewIconMap, TreeViewItem } from "./TreeView";
 import { useEventHandler } from "@/hooks/useEventHandler";
+import { useRequestStore } from "@/store/useRequestStore";
+import { useCollectionStore } from "@/store/useCollectionStore";
 
 const defaultIconMap: TreeViewIconMap = {
   folder: <Folder className="h-4 w-4 text-primary/80" />,
@@ -29,6 +31,7 @@ interface TreeItemProps {
   expandedIds: Set<string>;
   onToggleExpand: (id: string) => void;
   menuItems?: TreeViewMenuItem[];
+  onSaveRequest?: (item: TreeViewItem) => Promise<void>;
 }
 
 export const TreeItem: FC<TreeItemProps> = ({
@@ -40,13 +43,12 @@ export const TreeItem: FC<TreeItemProps> = ({
   expandedIds,
   onToggleExpand,
   menuItems,
+  onSaveRequest,
 }) => {
   const itemRef = useRef<HTMLDivElement>(null);
   const isFolder = Boolean(item.children && item.children.length > 0);
   const isOpen = expandedIds.has(item.id);
   const itemType = isFolder ? "folder" : "request";
-
-  console.log(item);
 
   const renderIcon = (isFolder: boolean, isOpen: boolean) => {
     if (getIcon) return getIcon(item, depth);
@@ -88,8 +90,8 @@ export const TreeItem: FC<TreeItemProps> = ({
     onToggleExpand(item.id);
   };
 
-  const handleSaveRequest = () => {
-    console.log("save request");
+  const handleSaveRequest = async () => {
+    if (onSaveRequest) await onSaveRequest(item);
   };
 
   const { clickHandler, doubleClickHandler } = useEventHandler({
@@ -141,6 +143,7 @@ export const TreeItem: FC<TreeItemProps> = ({
                   expandedIds={expandedIds}
                   onToggleExpand={onToggleExpand}
                   menuItems={menuItems}
+                  onSaveRequest={onSaveRequest}
                 />
               ))}
             </div>

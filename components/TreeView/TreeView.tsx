@@ -26,9 +26,10 @@ export interface TreeViewProps {
   iconMap?: TreeViewIconMap;
   menuItems?: TreeViewMenuItem[];
   onMove?: (newTree: TreeViewItem[], sourceId: string, targetId: string | null, position: "inside" | "before" | "after") => void;
+  onSaveRequest?: (item: TreeViewItem) => Promise<void>;
 }
 
-export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems }) => {
+export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems, onSaveRequest }) => {
   const [treeData, setTreeData] = useState<TreeViewItem[]>(data);
   useEffect(() => setTreeData(data), [data]);
 
@@ -122,6 +123,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
               expandedIds={expandedIds}
               onToggleExpand={toggleExpand}
               menuItems={menuItems}
+              onSaveRequest={onSaveRequest}
             />
           ))}
         </div>

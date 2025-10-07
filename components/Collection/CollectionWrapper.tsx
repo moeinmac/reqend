@@ -1,4 +1,4 @@
-import { type Collection } from "@/db/models.type";
+import { RequestPrimary, type Collection } from "@/db/models.type";
 import { collectionToTree } from "@/lib/tree/collectionToTree";
 import { treeToCollection } from "@/lib/tree/treeToCollection";
 import { File, Folder, FolderOpen, Globe } from "lucide-react";
@@ -9,6 +9,7 @@ import MutateCollection from "./MutateCollection";
 import { useCollectionStore } from "@/store/useCollectionStore";
 import { useShallow } from "zustand/react/shallow";
 import { TreeViewMenuItem } from "../TreeView/TreeItem";
+import { useRequestStore } from "@/store/useRequestStore";
 
 const customIconMap = {
   get: <Globe className="h-4 w-4 text-purple-500" />,
@@ -19,18 +20,21 @@ const customIconMap = {
 };
 
 interface CollectionWrapperProps {
-  data: Collection;
   mode: "sidebar" | "treeview";
+  data: Collection;
 }
 
 const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
+  const requestPrimary = useRequestStore((state) => state.request);
+
   const [openFolder, setOpenFolder] = useState<boolean>(false);
   const [openCollection, setOpenCollection] = useState<boolean>(false);
 
-  const { onRemoveCollection, onMoveCollection } = useCollectionStore(
+  const { onRemoveCollection, onMoveCollection, saveRequest } = useCollectionStore(
     useShallow((state) => ({
       onRemoveCollection: state.removeCollection,
       onMoveCollection: state.moveCollection,
+      saveRequest: state.saveRequest,
     }))
   );
 
@@ -85,9 +89,14 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     ] as TreeViewMenuItem[];
   }
 
+  const onSaveRequestHandler = async (item: TreeViewItem) => {
+    await saveRequest({ collectionId: data.id, targetId: item.id, requestPrimary: requestPrimary! });
+  };
+
   return (
     <>
       <TreeView
+        onSaveRequest={mode === "treeview" ? onSaveRequestHandler : undefined}
         data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={async (newTree) => onMoveCollection(treeToCollection(newTree, data.createdAt))}
