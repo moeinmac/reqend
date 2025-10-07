@@ -42,9 +42,10 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     }))
   );
 
-  const { onSaveActiveRequest } = useActiveReqStore(
+  const { onSaveActiveRequest, addTempRequest } = useActiveReqStore(
     useShallow((state) => ({
       onSaveActiveRequest: state.save,
+      addTempRequest: state.addTemp,
     }))
   );
 
@@ -86,7 +87,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     {
       id: "03",
       label: "New Request",
-      action: (item) => {},
+      action: () => addTempRequest(),
       type: ["folder", "request"],
       shortcut: "⌘N",
     },
