@@ -29,7 +29,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s" && !tab.collectionId) {
         e.preventDefault();
         setOpenSaveRequest(true);
       }
@@ -66,7 +66,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
             }}
             value={reqName}
             autoFocus
-            onChange={(event) => setReqName(event.target.value)}
+            onChange={(event) => reqName.length < 15 && setReqName(event.target.value)}
           />
         )}
         {!tab.collectionId && !input && <Dot className="w-5 h-5 ml-2" />}
@@ -81,7 +81,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
               if (!tab.collectionId) await removeRequestHandler(tab.id);
             }}
           >
-            <X className="w-2 h-2" />
+            <X className="ml-2 w-2 h-2" />
           </Button>
         )}
       </TabsTrigger>

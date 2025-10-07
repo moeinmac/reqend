@@ -50,8 +50,6 @@ export const TreeItem: FC<TreeItemProps> = ({
   const isOpen = expandedIds.has(item.id);
   const itemType = isFolder ? "folder" : "request";
 
-  console.log(item);
-
   const renderIcon = (isFolder: boolean, isOpen: boolean) => {
     if (getIcon) return getIcon(item, depth);
     if (isFolder) return isOpen ? <FolderOpen className="h-4 w-4 text-primary/80" /> : <Folder className="h-4 w-4 text-primary/80" />;

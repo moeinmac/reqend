@@ -104,7 +104,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
     <div className="flex gap-4">
       <div className={cn("bg-background p-3 rounded-lg border max-w-2xl space-y-4 w-full relative shadow-lg", className)}>
         <div className={cn("flex items-center justify-between", children.length === 0 && "mb-0")}>
-          <h3 className="flex items-center gap-2">
+          <h3 className={cn("flex items-center gap-2", onSaveRequest && "cursor-pointer")} onDoubleClick={async () => onSaveRequest?.(treeData[0])}>
             <Package className="w-5 h-5" /> {treeData[0].name}
           </h3>
           <div className="flex items-center gap-0">
