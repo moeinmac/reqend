@@ -1,4 +1,10 @@
-import { addTempActiveRequest, DEFAULT_REQ_METHOD, removeActiveRequest, updateActiveReqNameHandler } from "@/db/dal/crud-activeReq";
+import {
+  addTempActiveRequest,
+  DEFAULT_REQ_METHOD,
+  removeActiveRequest,
+  saveActiveReqHandler,
+  updateActiveReqNameHandler,
+} from "@/db/dal/crud-activeReq";
 import { newRequestHandler } from "@/db/dal/crud-request";
 import { getAllItems } from "@/db/db";
 import { ActiveRequest } from "@/db/models.type";
@@ -17,6 +23,7 @@ export interface ActiveReqStore {
   activeReqId: string;
   setActiveReqId: (id: string) => Promise<void>;
   updateName: (reqId: string, newName: string) => Promise<void>;
+  save: (reqId: string, collectionId: string) => Promise<ActiveRequest | null>;
 }
 
 export const useActiveReqStore = create<ActiveReqStore>()(
@@ -81,6 +88,15 @@ export const useActiveReqStore = create<ActiveReqStore>()(
       set((state) => {
         state.activeRequests = state.activeRequests.map((req) => (req.id === reqId ? { ...req, name: newName } : req));
       });
+    },
+    save: async (reqId, collectionId) => {
+      const savedReq = await saveActiveReqHandler(reqId, collectionId);
+      if (savedReq) {
+        set((state) => {
+          state.activeRequests = state.activeRequests.map((req) => (req.id === reqId ? { ...req, collectionId } : req));
+        });
+      }
+      return savedReq;
     },
   }))
 );

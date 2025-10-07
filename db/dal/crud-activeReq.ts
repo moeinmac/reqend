@@ -32,3 +32,12 @@ export const updateActiveReqNameHandler = async (reqId: string, newName: string)
     await setItem<ActiveRequest>("activeReq", theReq.id, theReq);
   }
 };
+
+export const saveActiveReqHandler = async (reqId: string, collectionId: string) => {
+  const theReq = await getItem<ActiveRequest>("activeReq", reqId);
+  if (theReq) {
+    theReq.collectionId = collectionId;
+    await setItem<ActiveRequest>("activeReq", theReq.id, theReq);
+  }
+  return theReq;
+};

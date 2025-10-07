@@ -1,21 +1,25 @@
-import { RequestPrimary, type Collection } from "@/db/models.type";
+import { type Collection } from "@/db/models.type";
 import { collectionToTree } from "@/lib/tree/collectionToTree";
 import { treeToCollection } from "@/lib/tree/treeToCollection";
-import { File, Folder, FolderOpen, Globe } from "lucide-react";
-import { FC, useState } from "react";
-import { TreeView, TreeViewItem } from "../TreeView/TreeView";
-import NewFolder from "./NewFolder";
-import MutateCollection from "./MutateCollection";
 import { useCollectionStore } from "@/store/useCollectionStore";
+import { useRequestStore } from "@/store/useRequestStore";
+import { Folder } from "lucide-react";
+import { FC, useActionState, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { TreeViewMenuItem } from "../TreeView/TreeItem";
-import { useRequestStore } from "@/store/useRequestStore";
+import { TreeView, TreeViewItem } from "../TreeView/TreeView";
+import MutateCollection from "./MutateCollection";
+import NewFolder from "./NewFolder";
+
+import { TbHttpDelete, TbHttpGet, TbHttpPatch, TbHttpPost, TbHttpPut } from "react-icons/tb";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
 
 const customIconMap = {
-  get: <Globe className="h-4 w-4 text-purple-500" />,
-  patch: <Folder className="h-4 w-4 text-blue-500" />,
-  post: <FolderOpen className="h-4 w-4 text-green-500" />,
-  put: <File className="h-4 w-4 text-orange-500" />,
+  get: <TbHttpGet className={`h-4 w-4 text-[#84a98c]`} />,
+  patch: <TbHttpPatch className={`h-4 w-4 text-[#ade8f4]`} />,
+  post: <TbHttpPost className={`h-4 w-4 text-[#ffbf69]`} />,
+  put: <TbHttpPut className={`h-4 w-4 text-[#ffafcc]`} />,
+  delete: <TbHttpDelete className={`h-4 w-4 text-[#bc4749]`} />,
   folder: <Folder className="h-4 w-4 text-primary/80" />,
 };
 
@@ -38,6 +42,12 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     }))
   );
 
+  const { onSaveActiveRequest } = useActiveReqStore(
+    useShallow((state) => ({
+      onSaveActiveRequest: state.save,
+    }))
+  );
+
   const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
 
   const openFolderDialog = (item: TreeViewItem) => {
@@ -50,7 +60,29 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     setOpenCollection(true);
   };
 
-  let menuItems: TreeViewMenuItem[] = [
+  const sidebarMenuItems: TreeViewMenuItem[] = [
+    {
+      id: "00",
+      label: "Rename Collection",
+      action: openCollectionDialog,
+      type: ["collection"],
+      shortcut: "⌘Q",
+    },
+    {
+      id: "01",
+      label: "Remove Collection",
+      action: (item) => onRemoveCollection(item.id),
+      type: ["collection"],
+      shortcut: "⌘C",
+      separator: true,
+    },
+    {
+      id: "02",
+      label: "New Folder",
+      action: openFolderDialog,
+      type: ["folder", "request", "collection"],
+      shortcut: "⌘R",
+    },
     {
       id: "03",
       label: "New Request",
@@ -60,37 +92,9 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     },
   ];
 
-  if (mode === "sidebar") {
-    menuItems = [
-      {
-        id: "00",
-        label: "Rename Collection",
-        action: openCollectionDialog,
-        type: ["collection"],
-        shortcut: "⌘Q",
-      },
-      {
-        id: "01",
-        label: "Remove Collection",
-        action: (item) => onRemoveCollection(item.id),
-        type: ["collection"],
-        shortcut: "⌘C",
-        separator: true,
-      },
-      ,
-      ...menuItems,
-      {
-        id: "03",
-        label: "New Request",
-        action: (item) => {},
-        type: ["folder", "request"],
-        shortcut: "⌘N",
-      },
-    ] as TreeViewMenuItem[];
-  }
-
   const onSaveRequestHandler = async (item: TreeViewItem) => {
     await saveRequest({ collectionId: data.id, targetId: item.id, requestPrimary: requestPrimary! });
+    await onSaveActiveRequest(requestPrimary!.id, data.id);
   };
 
   return (
@@ -100,15 +104,19 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
         data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={async (newTree) => onMoveCollection(treeToCollection(newTree, data.createdAt))}
-        menuItems={[
-          {
-            id: "02",
-            label: "New Folder",
-            action: openFolderDialog,
-            type: ["folder", "request", "collection"],
-            shortcut: "⌘R",
-          },
-        ]}
+        menuItems={
+          mode === "sidebar"
+            ? sidebarMenuItems
+            : [
+                {
+                  id: "02",
+                  label: "New Folder",
+                  action: openFolderDialog,
+                  type: ["folder", "request", "collection"],
+                  shortcut: "⌘R",
+                },
+              ]
+        }
       />
       {targetItem && (
         <NewFolder

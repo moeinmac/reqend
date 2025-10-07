@@ -1,8 +1,9 @@
 import Sidebar from "@/components/Sidebar/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { useRequestStore } from "@/store/useRequestStore";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 interface SaveRequestProps {
@@ -17,6 +18,16 @@ const SaveRequest: FC<SaveRequestProps> = ({ open, setOpen }) => {
       fetched: state.fetched,
     }))
   );
+
+  const { thisActiveReq } = useActiveReqStore(
+    useShallow((state) => ({
+      thisActiveReq: state.activeRequests.find((req) => req.id === state.activeReqId),
+    }))
+  );
+
+  useEffect(() => {
+    if (thisActiveReq?.collectionId) setOpen(false);
+  }, [thisActiveReq]);
 
   if (!fetched || !request)
     return (
