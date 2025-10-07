@@ -1,10 +1,16 @@
-import { addTempActiveRequest, removeActiveRequest } from "@/db/dal/crud-activeReq";
+import {
+  addTempActiveRequest,
+  DEFAULT_REQ_METHOD,
+  removeActiveRequest,
+  saveActiveReqHandler,
+  updateActiveReqNameHandler,
+} from "@/db/dal/crud-activeReq";
+import { newRequestHandler } from "@/db/dal/crud-request";
 import { getAllItems } from "@/db/db";
 import { ActiveRequest } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useRequestStore } from "./useRequestStore";
-import { newRequestHandler } from "@/db/dal/crud-request";
 
 export interface ActiveReqStore {
   activeRequests: ActiveRequest[];
@@ -16,6 +22,8 @@ export interface ActiveReqStore {
   loading: boolean;
   activeReqId: string;
   setActiveReqId: (id: string) => Promise<void>;
+  updateName: (reqId: string, newName: string) => Promise<void>;
+  save: (reqId: string, collectionId: string) => Promise<ActiveRequest | null>;
 }
 
 export const useActiveReqStore = create<ActiveReqStore>()(
@@ -43,7 +51,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
       await newRequestHandler({
         id: tempReq.id,
         name: tempReq.name,
-        method: "get",
+        method: DEFAULT_REQ_METHOD,
         url: "",
         body: null,
         params: [],
@@ -74,6 +82,21 @@ export const useActiveReqStore = create<ActiveReqStore>()(
         state.activeRequests = state.activeRequests.filter((req) => req.id !== reqId);
         state.activeReqId = state.activeRequests.length > 0 ? state.activeRequests[state.activeRequests.length - 1].id : "";
       });
+    },
+    updateName: async (reqId, newName) => {
+      await updateActiveReqNameHandler(reqId, newName);
+      set((state) => {
+        state.activeRequests = state.activeRequests.map((req) => (req.id === reqId ? { ...req, name: newName } : req));
+      });
+    },
+    save: async (reqId, collectionId) => {
+      const savedReq = await saveActiveReqHandler(reqId, collectionId);
+      if (savedReq) {
+        set((state) => {
+          state.activeRequests = state.activeRequests.map((req) => (req.id === reqId ? { ...req, collectionId } : req));
+        });
+      }
+      return savedReq;
     },
   }))
 );

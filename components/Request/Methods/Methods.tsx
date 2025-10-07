@@ -2,17 +2,23 @@
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { methodsColor } from "@/constant/methodsColor";
+import { DEFAULT_REQ_METHOD } from "@/db/dal/crud-activeReq";
 import { type Method } from "@/db/models.type";
 import { useRequestStore } from "@/store/useRequestStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Methods = () => {
-  const method = useRequestStore((state) => state.request?.method) ?? "get";
-  const onChange = useRequestStore((state) => state.onChangeMethod);
+  const { method, onChange } = useRequestStore(
+    useShallow((state) => ({
+      method: state.request?.method ?? DEFAULT_REQ_METHOD,
+      onChange: state.onChangeMethod,
+    }))
+  );
 
   return (
     <Select name="method" value={method} onValueChange={async (value: Method) => await onChange(value)}>
       <SelectTrigger className={"w-[105px] py-6"} style={{ color: `${methodsColor[method]}` }}>
-        <SelectValue placeholder="GET" />
+        <SelectValue />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

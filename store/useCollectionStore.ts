@@ -1,3 +1,13 @@
+import {
+  draggedCollectionHandler,
+  newCollectionHandler,
+  newFolderHandler,
+  NewFolderInput,
+  removeCollectionHandler,
+  renameCollectionHandler,
+  saveRequestHandler,
+  SaveRequestInput,
+} from "@/db/dal/crud-collection";
 import { getAllItems } from "@/db/db";
 import { Collection } from "@/db/models.type";
 import { create } from "zustand";
@@ -6,9 +16,13 @@ import { immer } from "zustand/middleware/immer";
 export interface CollectionStore {
   collections: Collection[];
   fetchAllCollections: () => Promise<void>;
-  addCollection: (collection: Collection) => void;
+  addCollection: (collectionName: string) => Promise<Collection | undefined>;
   updateCollection: (updatedCollection: Collection) => void;
-  removeCollection: (collectionId: string) => void;
+  removeCollection: (collectionId: string) => Promise<void>;
+  newFolder: (newFolderInput: NewFolderInput) => Promise<Collection | undefined>;
+  renameCollection: (collectionId: string, newName: string) => Promise<Collection | undefined>;
+  moveCollection: (draggedCollection: Collection) => Promise<void>;
+  saveRequest: (input: SaveRequestInput) => Promise<Collection | undefined>;
 }
 
 export const useCollectionStore = create<CollectionStore>()(
@@ -21,18 +35,56 @@ export const useCollectionStore = create<CollectionStore>()(
           state.collections = allCollections;
         });
     },
-    addCollection: (collection) =>
+    addCollection: async (collectionName) => {
+      const updatedCollection = await newCollectionHandler(collectionName);
       set((state) => {
-        state.collections.unshift(collection);
-      }),
+        state.collections.unshift(updatedCollection);
+      });
+      return updatedCollection;
+    },
 
     updateCollection: (updatedCollection) =>
       set((state) => {
         state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
       }),
-    removeCollection: (collectionId) =>
+
+    renameCollection: async (collectionId, newName) => {
+      const updatedCollection = await renameCollectionHandler(collectionId, newName);
+      if (updatedCollection)
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
+      return updatedCollection;
+    },
+
+    removeCollection: async (collectionId) => {
+      await removeCollectionHandler(collectionId);
       set((state) => {
-        state.collections = state.collections.filter((collection) => collection.id !== collectionId);
-      }),
+        state.collections = state.collections.filter((col) => col.id !== collectionId);
+      });
+    },
+    newFolder: async (newFolderInput) => {
+      const updatedCollection = await newFolderHandler(newFolderInput);
+      if (updatedCollection)
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
+      return updatedCollection;
+    },
+    moveCollection: async (draggedCollection) => {
+      const updatedCollection = await draggedCollectionHandler(draggedCollection);
+      if (updatedCollection)
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
+    },
+    saveRequest: async (input) => {
+      const updatedCollection = await saveRequestHandler(input);
+      if (updatedCollection)
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
+      return updatedCollection;
+    },
   }))
 );

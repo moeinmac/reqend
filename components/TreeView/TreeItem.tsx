@@ -1,9 +1,12 @@
 import { cn } from "@/lib/utils";
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
 import { ChevronRight, Folder, FolderOpen } from "lucide-react";
-import { FC, Fragment, useRef } from "react";
+import { FC, Fragment, MouseEvent, useRef } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
 import { TreeViewIconMap, TreeViewItem } from "./TreeView";
+import { useEventHandler } from "@/hooks/useEventHandler";
+import { useRequestStore } from "@/store/useRequestStore";
+import { useCollectionStore } from "@/store/useCollectionStore";
 
 const defaultIconMap: TreeViewIconMap = {
   folder: <Folder className="h-4 w-4 text-primary/80" />,
@@ -28,6 +31,7 @@ interface TreeItemProps {
   expandedIds: Set<string>;
   onToggleExpand: (id: string) => void;
   menuItems?: TreeViewMenuItem[];
+  onSaveRequest?: (item: TreeViewItem) => Promise<void>;
 }
 
 export const TreeItem: FC<TreeItemProps> = ({
@@ -39,6 +43,7 @@ export const TreeItem: FC<TreeItemProps> = ({
   expandedIds,
   onToggleExpand,
   menuItems,
+  onSaveRequest,
 }) => {
   const itemRef = useRef<HTMLDivElement>(null);
   const isFolder = Boolean(item.children && item.children.length > 0);
@@ -78,13 +83,21 @@ export const TreeItem: FC<TreeItemProps> = ({
     onDropItem(item.id, position, e, item);
   };
 
-  const handleToggle = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
+  const handleToggle = (e: MouseEvent) => {
+    if (e) e.stopPropagation();
     if (!isFolder) return;
 
     onToggleExpand(item.id);
   };
 
+  const handleSaveRequest = async () => {
+    if (onSaveRequest) await onSaveRequest(item);
+  };
+
+  const { clickHandler, doubleClickHandler } = useEventHandler({
+    onClick: handleToggle,
+    onDoubleClick: handleSaveRequest,
+  });
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger>
@@ -98,7 +111,8 @@ export const TreeItem: FC<TreeItemProps> = ({
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            onClick={handleToggle}
+            onClick={clickHandler}
+            onDoubleClick={doubleClickHandler}
             className={"select-none cursor-pointer text-foreground px-1"}
             style={{ paddingLeft: `${depth * 20}px` }}
           >
@@ -129,6 +143,7 @@ export const TreeItem: FC<TreeItemProps> = ({
                   expandedIds={expandedIds}
                   onToggleExpand={onToggleExpand}
                   menuItems={menuItems}
+                  onSaveRequest={onSaveRequest}
                 />
               ))}
             </div>

@@ -1,20 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { newCollectionHandler, renameCollectionHandler } from "@/db/dal/crud-collection";
-import { PackagePlus } from "lucide-react";
+import { useCollectionStore } from "@/store/useCollectionStore";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { toast } from "sonner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { Collection } from "@/db/models.type";
+import { useShallow } from "zustand/react/shallow";
 
 interface NewCollectionProps {
-  onNewCollection: (newCollection: Collection) => void;
   mode: "new";
 }
 
 interface EditCollectionProps {
-  onEditCollection: (updatedCollection: Collection) => void;
   value: string;
   collectionId: string;
   mode: "edit";
@@ -28,19 +24,20 @@ const MutateCollection: FC<MutateCollectionProps> = (props) => {
   const mode = props.mode;
   const [collectionInput, setCollectionInput] = useState<string>(mode === "new" ? "" : props.value);
   const [inlineOpen, setInlineOpen] = useState<boolean>(false);
+
+  const { onRenameCollection, onAddCollection } = useCollectionStore(
+    useShallow((state) => ({
+      onAddCollection: state.addCollection,
+      onRenameCollection: state.renameCollection,
+    }))
+  );
+
   return (
     <Dialog open={mode === "edit" ? props.open : inlineOpen} onOpenChange={mode === "edit" ? props.setOpen : setInlineOpen}>
       {mode === "new" && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="link" size={"icon"} onClick={() => setInlineOpen(true)}>
-              <PackagePlus />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>New Collection</p>
-          </TooltipContent>
-        </Tooltip>
+        <Button variant="secondary" size={"sm"} className="ml-auto" onClick={() => setInlineOpen(true)}>
+          New Collection
+        </Button>
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -62,13 +59,11 @@ const MutateCollection: FC<MutateCollectionProps> = (props) => {
             type="submit"
             size={"sm"}
             onClick={async () => {
-              const result =
-                mode === "edit" ? await renameCollectionHandler(props.collectionId, collectionInput) : await newCollectionHandler(collectionInput);
+              const result = mode === "edit" ? await onRenameCollection(props.collectionId, collectionInput) : await onAddCollection(collectionInput);
 
               mode === "edit" ? props.setOpen(false) : setInlineOpen(false);
 
               if (result) {
-                mode === "edit" ? props.onEditCollection(result) : props.onNewCollection(result);
                 setCollectionInput("");
                 toast.success(
                   `${mode === "edit" ? "Collection" : "New collection"} '${collectionInput}' ${mode === "edit" ? "edited" : "created"} successfully!`

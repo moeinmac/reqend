@@ -25,10 +25,11 @@ export interface TreeViewProps {
   getIcon?: (item: TreeViewItem, depth: number) => React.ReactNode;
   iconMap?: TreeViewIconMap;
   menuItems?: TreeViewMenuItem[];
-  onMove?: (sourceId: string, targetId: string | null, position: "inside" | "before" | "after", newTree: TreeViewItem[]) => void;
+  onMove?: (newTree: TreeViewItem[], sourceId: string, targetId: string | null, position: "inside" | "before" | "after") => void;
+  onSaveRequest?: (item: TreeViewItem) => Promise<void>;
 }
 
-export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems }) => {
+export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon, onMove, menuItems, onSaveRequest }) => {
   const [treeData, setTreeData] = useState<TreeViewItem[]>(data);
   useEffect(() => setTreeData(data), [data]);
 
@@ -76,7 +77,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
     // if dropped inside a folder, expand it so user sees the moved item
     if (position === "inside" && targetId) setExpandedIds((s) => new Set(s).add(targetId));
 
-    onMove?.(sourceId, targetId, position, newTree);
+    onMove?.(newTree, sourceId, targetId, position);
   };
 
   const handleRootDragOver = (e: React.DragEvent) => {
@@ -94,16 +95,16 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
 
     const newTree = insertAt(treeWithout, null, "inside", movingNode);
     setTreeData(newTree);
-    onMove?.(sourceId, null, "inside", newTree);
+    onMove?.(newTree, sourceId, null, "inside");
   };
 
   const children = treeData[0].children ?? [];
 
   return (
     <div className="flex gap-4">
-      <div className={cn("bg-background p-3 rounded-lg border max-w-2xl space-y-4 w-[600px] relative shadow-lg", className)}>
+      <div className={cn("bg-background p-3 rounded-lg border max-w-2xl space-y-4 w-full relative shadow-lg", className)}>
         <div className={cn("flex items-center justify-between", children.length === 0 && "mb-0")}>
-          <h3 className="flex items-center gap-2">
+          <h3 className={cn("flex items-center gap-2", onSaveRequest && "cursor-pointer")} onDoubleClick={async () => onSaveRequest?.(treeData[0])}>
             <Package className="w-5 h-5" /> {treeData[0].name}
           </h3>
           <div className="flex items-center gap-0">
@@ -122,6 +123,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
               expandedIds={expandedIds}
               onToggleExpand={toggleExpand}
               menuItems={menuItems}
+              onSaveRequest={onSaveRequest}
             />
           ))}
         </div>
