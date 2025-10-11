@@ -114,6 +114,7 @@ export const TreeView: FC<TreeViewProps> = ({ className, data, iconMap, getIcon,
         <div className="rounded-md relative select-none" onDragOver={handleRootDragOver} onDrop={handleRootDrop}>
           {children.map((item) => (
             <TreeItem
+              collectionId={treeData[0].id}
               key={item.id}
               item={item}
               depth={0}

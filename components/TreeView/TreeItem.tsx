@@ -7,6 +7,9 @@ import { TreeViewIconMap, TreeViewItem } from "./TreeView";
 import { useEventHandler } from "@/hooks/useEventHandler";
 import { useRequestStore } from "@/store/useRequestStore";
 import { useCollectionStore } from "@/store/useCollectionStore";
+import { useShallow } from "zustand/react/shallow";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
+import { Method } from "@/db/models.type";
 
 const defaultIconMap: TreeViewIconMap = {
   folder: <Folder className="h-4 w-4 text-primary/80" />,
@@ -32,6 +35,7 @@ interface TreeItemProps {
   onToggleExpand: (id: string) => void;
   menuItems?: TreeViewMenuItem[];
   onSaveRequest?: (item: TreeViewItem) => Promise<void>;
+  collectionId: string;
 }
 
 export const TreeItem: FC<TreeItemProps> = ({
@@ -44,11 +48,14 @@ export const TreeItem: FC<TreeItemProps> = ({
   onToggleExpand,
   menuItems,
   onSaveRequest,
+  collectionId,
 }) => {
   const itemRef = useRef<HTMLDivElement>(null);
   const isFolder = Boolean(item.children && item.children.length > 0);
   const isOpen = expandedIds.has(item.id);
   const itemType = isFolder ? "folder" : "request";
+
+  const addActiveReq = useShallow(useActiveReqStore((state) => state.add));
 
   const renderIcon = (isFolder: boolean, isOpen: boolean) => {
     if (getIcon) return getIcon(item, depth);
@@ -85,7 +92,7 @@ export const TreeItem: FC<TreeItemProps> = ({
 
   const handleToggle = (e: MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!isFolder) return;
+    if (!isFolder) addActiveReq({ id: item.id, collectionId, method: item.type as Method, name: item.name, type: "request" });
 
     onToggleExpand(item.id);
   };
@@ -144,6 +151,7 @@ export const TreeItem: FC<TreeItemProps> = ({
                   onToggleExpand={onToggleExpand}
                   menuItems={menuItems}
                   onSaveRequest={onSaveRequest}
+                  collectionId={collectionId}
                 />
               ))}
             </div>

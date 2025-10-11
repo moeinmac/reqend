@@ -15,7 +15,7 @@ import { useRequestStore } from "./useRequestStore";
 export interface ActiveReqStore {
   activeRequests: ActiveRequest[];
   fetchAllActiveReqs: () => Promise<void>;
-  add: (activeReq: ActiveRequest) => void;
+  add: (activeReq: ActiveRequest) => Promise<void>;
   update: (updated: ActiveRequest) => void;
   remove: (reqId: string) => Promise<void>;
   addTemp: () => Promise<{ id: string; name: string }>;
@@ -27,7 +27,7 @@ export interface ActiveReqStore {
 }
 
 export const useActiveReqStore = create<ActiveReqStore>()(
-  immer((set) => ({
+  immer((set, get) => ({
     activeRequests: [],
     loading: true,
     activeReqId: "",
@@ -65,11 +65,20 @@ export const useActiveReqStore = create<ActiveReqStore>()(
       });
       return { id: tempReq.id, name: tempReq.name };
     },
-    add: (activeReq) =>
-      set((state) => {
-        state.activeRequests.push(activeReq);
-        state.activeReqId = activeReq.id;
-      }),
+    add: async (activeReq) => {
+      const exist = get().activeRequests.find((req) => req.id === activeReq.id);
+      await useRequestStore.getState().fetchRequest(activeReq.id);
+      if (!exist) {
+        set((state) => {
+          state.activeRequests.push(activeReq);
+          state.activeReqId = activeReq.id;
+        });
+      } else {
+        set((state) => {
+          state.activeReqId = activeReq.id;
+        });
+      }
+    },
 
     update: (updated) =>
       set((state) => {
