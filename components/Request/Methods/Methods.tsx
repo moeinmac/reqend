@@ -4,19 +4,35 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { methodsColor } from "@/constant/methodsColor";
 import { DEFAULT_REQ_METHOD } from "@/db/dal/crud-activeReq";
 import { type Method } from "@/db/models.type";
+import { useCollectionStore } from "@/store/useCollectionStore";
 import { useRequestStore } from "@/store/useRequestStore";
+import { FC, use } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-const Methods = () => {
-  const { method, onChange } = useRequestStore(
+interface MethodsProps {
+  collectionId?: string;
+}
+
+const Methods: FC<MethodsProps> = ({ collectionId }) => {
+  const { method, onChange, requestId } = useRequestStore(
     useShallow((state) => ({
       method: state.request?.method ?? DEFAULT_REQ_METHOD,
       onChange: state.onChangeMethod,
+      requestId: state.request?.id,
     }))
   );
 
+  const updateRequestCollection = useCollectionStore((state) => state.updateRequestCollection);
+
   return (
-    <Select name="method" value={method} onValueChange={async (value: Method) => await onChange(value)}>
+    <Select
+      name="method"
+      value={method}
+      onValueChange={async (value: Method) => {
+        await onChange(value);
+        if (collectionId) await updateRequestCollection(collectionId, requestId!, { method: value });
+      }}
+    >
       <SelectTrigger className={"w-[105px] py-6"} style={{ color: `${methodsColor[method]}` }}>
         <SelectValue />
       </SelectTrigger>

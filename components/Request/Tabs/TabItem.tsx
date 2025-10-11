@@ -9,6 +9,7 @@ import { useRequestStore } from "@/store/useRequestStore";
 import { Dot, X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import SaveRequest from "../SaveRequest/SaveRequest";
+import { useCollectionStore } from "@/store/useCollectionStore";
 
 interface TabItemProps {
   tab: ActiveRequest;
@@ -26,6 +27,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
   const updateActiveReqName = useActiveReqStore((state) => state.updateName);
   const onChangeName = useRequestStore((state) => state.onChangeName);
+  const updateRequestCollection = useCollectionStore((state) => state.updateRequestCollection);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,6 +63,7 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
               if (reqName.trim().length > 0 && reqName !== tab.name) {
                 await updateActiveReqName(tab.id, reqName);
                 await onChangeName(reqName);
+                if (tab.collectionId) await updateRequestCollection(tab.collectionId!, tab.id, { name: reqName });
               }
               setInput(false);
             }}

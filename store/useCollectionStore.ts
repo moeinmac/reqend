@@ -5,8 +5,10 @@ import {
   NewFolderInput,
   removeCollectionHandler,
   renameCollectionHandler,
+  RequestUpdate,
   saveRequestHandler,
   SaveRequestInput,
+  updateRequestInCollection,
 } from "@/db/dal/crud-collection";
 import { getAllItems } from "@/db/db";
 import { Collection } from "@/db/models.type";
@@ -23,6 +25,7 @@ export interface CollectionStore {
   renameCollection: (collectionId: string, newName: string) => Promise<Collection | undefined>;
   moveCollection: (draggedCollection: Collection) => Promise<void>;
   saveRequest: (input: SaveRequestInput) => Promise<Collection | undefined>;
+  updateRequestCollection: (collectionId: string, requestId: string, updates: RequestUpdate) => Promise<false | Collection>;
 }
 
 export const useCollectionStore = create<CollectionStore>()(
@@ -34,6 +37,15 @@ export const useCollectionStore = create<CollectionStore>()(
         set((state) => {
           state.collections = allCollections;
         });
+    },
+    updateRequestCollection: async (collectionId, requestId, updates) => {
+      const updatedCollection = await updateRequestInCollection(collectionId, requestId, updates);
+      if (updatedCollection) {
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
+      }
+      return updatedCollection;
     },
     addCollection: async (collectionName) => {
       const updatedCollection = await newCollectionHandler(collectionName);
