@@ -1,8 +1,26 @@
 import { v4 } from "uuid";
-import { Collection, FolderItem, RequestPrimary } from "../models.type";
+import { Collection, CollectionItem, FolderItem, Method, RequestPrimary } from "../models.type";
 import { getItem, removeItem, setItem } from "../db";
 import { newFolderRecursive } from "@/lib/newFolderRecursive";
 import { saveRequestRecursive } from "@/lib/saveRequestRecursive";
+import { updateRequestRecursive } from "@/lib/updateRequestRecursive";
+
+export interface NewFolderInput {
+  collectionId: string;
+  folderName: string;
+  targetId: string;
+}
+
+export interface SaveRequestInput {
+  collectionId: string;
+  requestPrimary: RequestPrimary;
+  targetId: string;
+}
+
+export interface RequestUpdate {
+  name?: string;
+  method?: Method;
+}
 
 export const newCollectionHandler = async (name: string) => {
   const newCollection: Collection = {
@@ -16,18 +34,6 @@ export const newCollectionHandler = async (name: string) => {
   await setItem<Collection>("collection", newCollection.id, newCollection);
   return newCollection;
 };
-
-export interface NewFolderInput {
-  collectionId: string;
-  folderName: string;
-  targetId: string;
-}
-
-export interface SaveRequestInput {
-  collectionId: string;
-  requestPrimary: RequestPrimary;
-  targetId: string;
-}
 
 export const newFolderHandler = async (input: NewFolderInput): Promise<Collection | undefined> => {
   const thisCollection = await getItem<Collection>("collection", input.collectionId);
@@ -100,4 +106,14 @@ export const saveRequestHandler = async (input: SaveRequestInput): Promise<Colle
   };
   await setItem<Collection>("collection", input.collectionId, newCollection);
   return newCollection;
+};
+
+export const updateRequestInCollection = async (collectionId: string, requestId: string, updates: RequestUpdate): Promise<boolean> => {
+  if (!collectionId || !requestId || !updates || (updates.name === undefined && updates.method === undefined)) return false;
+  const collection = await getItem<Collection>("collection", collectionId);
+  if (!collection) return false;
+  if (!updateRequestRecursive(collection.items, requestId, updates)) return false;
+  collection.modifiedAt = new Date().toISOString();
+  await setItem("collection", collectionId, collection);
+  return true;
 };
