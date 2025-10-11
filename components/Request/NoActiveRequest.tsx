@@ -2,9 +2,11 @@ import { FC } from "react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 
-import newIdea from "@/app/assets/new.svg";
+import emptyBox from "@/app/assets/emptyBox.json";
+
+import Lottie from "lottie-react";
+
 import { useActiveReqStore } from "@/store/useActiveReqStore";
-import Image from "next/image";
 
 const NoActiveRequest: FC = () => {
   const addTempRequest = useActiveReqStore((state) => state.addTemp);
@@ -19,7 +21,7 @@ const NoActiveRequest: FC = () => {
         <Button variant={"outline"}>Create New Collection</Button>
       </div>
       <div className="w-80 2xl:w-96 relative aspect-square">
-        <Image src={newIdea} alt="new idea" fill />
+        <Lottie animationData={emptyBox} loop={false} />
       </div>
     </Card>
   );
