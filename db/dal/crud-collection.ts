@@ -108,12 +108,12 @@ export const saveRequestHandler = async (input: SaveRequestInput): Promise<Colle
   return newCollection;
 };
 
-export const updateRequestInCollection = async (collectionId: string, requestId: string, updates: RequestUpdate): Promise<boolean> => {
+export const updateRequestInCollection = async (collectionId: string, requestId: string, updates: RequestUpdate): Promise<false | Collection> => {
   if (!collectionId || !requestId || !updates || (updates.name === undefined && updates.method === undefined)) return false;
   const collection = await getItem<Collection>("collection", collectionId);
   if (!collection) return false;
   if (!updateRequestRecursive(collection.items, requestId, updates)) return false;
   collection.modifiedAt = new Date().toISOString();
   await setItem("collection", collectionId, collection);
-  return true;
+  return collection;
 };

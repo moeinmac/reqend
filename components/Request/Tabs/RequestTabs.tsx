@@ -32,7 +32,7 @@ const RequestTabs: FC<RequestTabsProps> = ({ tabs }) => {
 
       {tabs.map((tab) => (
         <TabsContent key={tab.id} value={tab.id}>
-          <Request id={tab.id} />
+          <Request id={tab.id} collectionId={tab.collectionId} />
         </TabsContent>
       ))}
     </Tabs>

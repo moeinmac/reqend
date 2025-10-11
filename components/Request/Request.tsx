@@ -1,4 +1,4 @@
-import { RequestPrimary } from "@/db/models.type";
+import { Collection, RequestPrimary } from "@/db/models.type";
 import { useRequestStore } from "@/store/useRequestStore";
 import { FC, useEffect } from "react";
 import Options from "../Options/Options";
@@ -9,9 +9,10 @@ import SendButton from "./SendButton/SendButton";
 
 interface RequestProps {
   id: RequestPrimary["id"];
+  collectionId?: Collection["id"];
 }
 
-const Request: FC<RequestProps> = ({ id }) => {
+const Request: FC<RequestProps> = ({ id, collectionId }) => {
   const isFetched = useRequestStore((state) => state.fetched);
   const fetchRequest = useRequestStore((state) => state.fetchRequest);
 
@@ -24,7 +25,7 @@ const Request: FC<RequestProps> = ({ id }) => {
   return (
     <div className="flex flex-col gap-4 ">
       <div className="flex items-center gap-2">
-        <Methods />
+        <Methods collectionId={collectionId} />
         <InputReq />
         <SendButton />
       </div>
