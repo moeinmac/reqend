@@ -2,13 +2,14 @@ import {
   draggedCollectionHandler,
   newCollectionHandler,
   newFolderHandler,
-  NewFolderInput,
+  MutateFolderInput,
   removeCollectionHandler,
   renameCollectionHandler,
   RequestUpdate,
   saveRequestHandler,
   SaveRequestInput,
   updateRequestInCollection,
+  renameFolderHandler,
 } from "@/db/dal/crud-collection";
 import { getAllItems } from "@/db/db";
 import { Collection } from "@/db/models.type";
@@ -21,7 +22,8 @@ export interface CollectionStore {
   addCollection: (collectionName: string) => Promise<Collection | undefined>;
   updateCollection: (updatedCollection: Collection) => void;
   removeCollection: (collectionId: string) => Promise<void>;
-  newFolder: (newFolderInput: NewFolderInput) => Promise<Collection | undefined>;
+  newFolder: (mutateFolderInput: MutateFolderInput) => Promise<Collection | undefined>;
+  renameFolder: (mutateFolderInput: MutateFolderInput) => Promise<Collection | undefined>;
   renameCollection: (collectionId: string, newName: string) => Promise<Collection | undefined>;
   moveCollection: (draggedCollection: Collection) => Promise<void>;
   saveRequest: (input: SaveRequestInput) => Promise<Collection | undefined>;
@@ -75,8 +77,16 @@ export const useCollectionStore = create<CollectionStore>()(
         state.collections = state.collections.filter((col) => col.id !== collectionId);
       });
     },
-    newFolder: async (newFolderInput) => {
-      const updatedCollection = await newFolderHandler(newFolderInput);
+    newFolder: async (MutateFolderInput) => {
+      const updatedCollection = await newFolderHandler(MutateFolderInput);
+      if (updatedCollection)
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
+      return updatedCollection;
+    },
+    renameFolder: async (mutateFolderInput) => {
+      const updatedCollection = await renameFolderHandler(mutateFolderInput);
       if (updatedCollection)
         set((state) => {
           state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));

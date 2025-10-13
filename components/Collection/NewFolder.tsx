@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { NewFolderInput } from "@/db/dal/crud-collection";
+import { MutateFolderInput } from "@/db/dal/crud-collection";
 import { useCollectionStore } from "@/store/useCollectionStore";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { toast } from "sonner";
@@ -9,10 +9,10 @@ import { toast } from "sonner";
 interface NewFolderProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  newFolderInput: Omit<NewFolderInput, "folderName">;
+  MutateFolderInput: Omit<MutateFolderInput, "folderName">;
 }
 
-const NewFolder: FC<NewFolderProps> = ({ open, setOpen, newFolderInput }) => {
+const NewFolder: FC<NewFolderProps> = ({ open, setOpen, MutateFolderInput }) => {
   const [folderName, setFolderName] = useState<string>("");
   const onNewFolderHandler = useCollectionStore((state) => state.newFolder);
   return (
@@ -35,7 +35,7 @@ const NewFolder: FC<NewFolderProps> = ({ open, setOpen, newFolderInput }) => {
             type="submit"
             size={"sm"}
             onClick={async () => {
-              const updatedCollection = await onNewFolderHandler({ ...newFolderInput, folderName });
+              const updatedCollection = await onNewFolderHandler({ ...MutateFolderInput, folderName });
               setOpen(false);
               if (updatedCollection) {
                 setFolderName("");

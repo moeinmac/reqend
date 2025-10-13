@@ -121,7 +121,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       />
       {targetItem && (
         <NewFolder
-          newFolderInput={{
+          MutateFolderInput={{
             collectionId: data.id,
             targetId: targetItem.id,
           }}

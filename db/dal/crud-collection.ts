@@ -1,11 +1,11 @@
-import { v4 } from "uuid";
-import { Collection, CollectionItem, FolderItem, Method, RequestPrimary } from "../models.type";
-import { getItem, removeItem, setItem } from "../db";
-import { newFolderRecursive } from "@/lib/newFolderRecursive";
+import { newFolderRecursive, renameFolderRecursive } from "@/lib/mutateFolderRecursive";
 import { saveRequestRecursive } from "@/lib/saveRequestRecursive";
 import { updateRequestRecursive } from "@/lib/updateRequestRecursive";
+import { v4 } from "uuid";
+import { getItem, removeItem, setItem } from "../db";
+import { Collection, FolderItem, Method, RequestPrimary } from "../models.type";
 
-export interface NewFolderInput {
+export interface MutateFolderInput {
   collectionId: string;
   folderName: string;
   targetId: string;
@@ -35,7 +35,7 @@ export const newCollectionHandler = async (name: string) => {
   return newCollection;
 };
 
-export const newFolderHandler = async (input: NewFolderInput): Promise<Collection | undefined> => {
+export const newFolderHandler = async (input: MutateFolderInput): Promise<Collection | undefined> => {
   const thisCollection = await getItem<Collection>("collection", input.collectionId);
   if (!thisCollection) return undefined;
   if (input.collectionId === input.targetId) {
@@ -50,6 +50,23 @@ export const newFolderHandler = async (input: NewFolderInput): Promise<Collectio
     return thisCollection;
   }
   const newItems = newFolderRecursive(thisCollection.items, input);
+  const newCollection: Collection = {
+    createdAt: thisCollection.createdAt,
+    id: thisCollection.id,
+    items: newItems,
+    modifiedAt: new Date().toISOString(),
+    name: thisCollection.name,
+  };
+  await setItem<Collection>("collection", input.collectionId, newCollection);
+  return newCollection;
+};
+
+export const renameFolderHandler = async (input: MutateFolderInput): Promise<Collection | undefined> => {
+  const thisCollection = await getItem<Collection>("collection", input.collectionId);
+  if (!thisCollection) return undefined;
+  if (input.collectionId === input.targetId) return undefined;
+
+  const newItems = renameFolderRecursive(thisCollection.items, input);
   const newCollection: Collection = {
     createdAt: thisCollection.createdAt,
     id: thisCollection.id,
