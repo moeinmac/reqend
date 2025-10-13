@@ -35,7 +35,7 @@ export const CollectionMenu: FC<CollectionMenuProps> = ({ menuItems, item }) => 
               {mi.label}
               {mi.shortcut && <DropdownMenuShortcut>{mi.shortcut}</DropdownMenuShortcut>}
             </DropdownMenuItem>
-            {mi.separator && index !== collectionMenuItems.length - 1 && <ContextMenuSeparator />}
+            {mi.separator && index !== collectionMenuItems.length - 1 && <DropdownMenuSeparator />}
           </Fragment>
         ))}
       </DropdownMenuContent>

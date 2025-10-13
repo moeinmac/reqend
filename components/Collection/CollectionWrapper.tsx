@@ -78,14 +78,6 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       separator: true,
     },
     {
-      id: "0222",
-      label: "dsdsa Collection",
-      action: (item) => onRemoveCollection(item.id),
-      type: ["collection"],
-      shortcut: "⌘C",
-      separator: true,
-    },
-    {
       id: "02",
       label: "New Folder",
       action: openFolderDialog,
@@ -96,7 +88,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       id: "03",
       label: "Rename Folder",
       action: openFolderDialog,
-      type: ["folder", "collection"],
+      type: ["folder"],
       shortcut: "⌘R",
       separator: true,
     },

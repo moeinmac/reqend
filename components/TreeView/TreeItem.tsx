@@ -1,15 +1,12 @@
+import { Method } from "@/db/models.type";
+import { useEventHandler } from "@/hooks/useEventHandler";
 import { cn } from "@/lib/utils";
-import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
+import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { ChevronRight, Folder, FolderOpen } from "lucide-react";
 import { FC, Fragment, MouseEvent, useRef } from "react";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
-import { TreeViewIconMap, TreeViewItem } from "./TreeView";
-import { useEventHandler } from "@/hooks/useEventHandler";
-import { useRequestStore } from "@/store/useRequestStore";
-import { useCollectionStore } from "@/store/useCollectionStore";
 import { useShallow } from "zustand/react/shallow";
-import { useActiveReqStore } from "@/store/useActiveReqStore";
-import { Method } from "@/db/models.type";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuShortcut, ContextMenuTrigger } from "../ui/context-menu";
+import { TreeViewIconMap, TreeViewItem } from "./TreeView";
 
 const defaultIconMap: TreeViewIconMap = {
   folder: <Folder className="h-4 w-4 text-primary/80" />,
@@ -53,7 +50,6 @@ export const TreeItem: FC<TreeItemProps> = ({
   const itemRef = useRef<HTMLDivElement>(null);
   const isFolder = Boolean(item.children && item.children.length > 0) || item.type === "folder";
   const isOpen = expandedIds.has(item.id);
-  console.log(item);
   const itemType = isFolder ? "folder" : "request";
 
   const addActiveReq = useShallow(useActiveReqStore((state) => state.add));
@@ -108,6 +104,8 @@ export const TreeItem: FC<TreeItemProps> = ({
   });
 
   const filterMenuItems = menuItems.filter((mi) => mi.type.includes(itemType));
+
+  console.log(filterMenuItems);
 
   return (
     <ContextMenu modal={false}>
@@ -170,7 +168,7 @@ export const TreeItem: FC<TreeItemProps> = ({
               {mi.label}
               {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
             </ContextMenuItem>
-            {mi.separator && filterMenuItems.length - 1 !== index && <ContextMenuSeparator />}
+            {mi.separator && index !== filterMenuItems.length - 1 && <ContextMenuSeparator />}
           </Fragment>
         ))}
       </ContextMenuContent>
