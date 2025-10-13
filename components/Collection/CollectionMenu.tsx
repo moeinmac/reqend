@@ -19,6 +19,7 @@ interface CollectionMenuProps {
 }
 
 export const CollectionMenu: FC<CollectionMenuProps> = ({ menuItems, item }) => {
+  const collectionMenuItems = menuItems.filter((mi) => mi.type.includes("collection"));
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -27,18 +28,16 @@ export const CollectionMenu: FC<CollectionMenuProps> = ({ menuItems, item }) => 
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
-        {menuItems?.map((mi) =>
-          mi.type.includes("collection") ? (
-            <Fragment key={mi.id}>
-              <DropdownMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
-                {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
-                {mi.label}
-                {mi.shortcut && <DropdownMenuShortcut>{mi.shortcut}</DropdownMenuShortcut>}
-              </DropdownMenuItem>
-              {mi.separator && <ContextMenuSeparator />}
-            </Fragment>
-          ) : null
-        )}
+        {collectionMenuItems.map((mi, index) => (
+          <Fragment key={mi.id}>
+            <DropdownMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
+              {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
+              {mi.label}
+              {mi.shortcut && <DropdownMenuShortcut>{mi.shortcut}</DropdownMenuShortcut>}
+            </DropdownMenuItem>
+            {mi.separator && index !== collectionMenuItems.length - 1 && <ContextMenuSeparator />}
+          </Fragment>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

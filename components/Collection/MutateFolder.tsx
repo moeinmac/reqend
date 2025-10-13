@@ -6,20 +6,21 @@ import { useCollectionStore } from "@/store/useCollectionStore";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 
-interface NewFolderProps {
+interface MutateFolderProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  MutateFolderInput: Omit<MutateFolderInput, "folderName">;
+  mutateFolderInput: Omit<MutateFolderInput, "folderName"> & { folderName?: string };
+  mode: "create" | "rename";
 }
 
-const NewFolder: FC<NewFolderProps> = ({ open, setOpen, MutateFolderInput }) => {
-  const [folderName, setFolderName] = useState<string>("");
-  const onNewFolderHandler = useCollectionStore((state) => state.newFolder);
+const MutateFolder: FC<MutateFolderProps> = ({ open, setOpen, mutateFolderInput, mode }) => {
+  const [folderName, setFolderName] = useState<string>(mutateFolderInput.folderName ?? "");
+  const onMutateFolderHandler = useCollectionStore((state) => state.newFolder);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>New Folder</DialogTitle>
+          <DialogTitle>{`${mode === "create" ? "New" : "Rename"}`} Folder</DialogTitle>
           <DialogDescription>Pick a name for your new folder.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
@@ -35,7 +36,7 @@ const NewFolder: FC<NewFolderProps> = ({ open, setOpen, MutateFolderInput }) => 
             type="submit"
             size={"sm"}
             onClick={async () => {
-              const updatedCollection = await onNewFolderHandler({ ...MutateFolderInput, folderName });
+              const updatedCollection = await onMutateFolderHandler({ ...mutateFolderInput, folderName });
               setOpen(false);
               if (updatedCollection) {
                 setFolderName("");
@@ -43,7 +44,7 @@ const NewFolder: FC<NewFolderProps> = ({ open, setOpen, MutateFolderInput }) => 
               }
             }}
           >
-            Create
+            {mode === "create" ? "Create" : "Rename"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -51,4 +52,4 @@ const NewFolder: FC<NewFolderProps> = ({ open, setOpen, MutateFolderInput }) => 
   );
 };
 
-export default NewFolder;
+export default MutateFolder;

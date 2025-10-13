@@ -77,8 +77,8 @@ export const useCollectionStore = create<CollectionStore>()(
         state.collections = state.collections.filter((col) => col.id !== collectionId);
       });
     },
-    newFolder: async (MutateFolderInput) => {
-      const updatedCollection = await newFolderHandler(MutateFolderInput);
+    newFolder: async (mutateFolderInput) => {
+      const updatedCollection = await newFolderHandler(mutateFolderInput);
       if (updatedCollection)
         set((state) => {
           state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));

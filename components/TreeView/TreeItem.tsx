@@ -46,13 +46,14 @@ export const TreeItem: FC<TreeItemProps> = ({
   onDropItem,
   expandedIds,
   onToggleExpand,
-  menuItems,
+  menuItems = [],
   onSaveRequest,
   collectionId,
 }) => {
   const itemRef = useRef<HTMLDivElement>(null);
-  const isFolder = Boolean(item.children && item.children.length > 0);
+  const isFolder = Boolean(item.children && item.children.length > 0) || item.type === "folder";
   const isOpen = expandedIds.has(item.id);
+  console.log(item);
   const itemType = isFolder ? "folder" : "request";
 
   const addActiveReq = useShallow(useActiveReqStore((state) => state.add));
@@ -105,6 +106,9 @@ export const TreeItem: FC<TreeItemProps> = ({
     onClick: handleToggle,
     onDoubleClick: handleSaveRequest,
   });
+
+  const filterMenuItems = menuItems.filter((mi) => mi.type.includes(itemType));
+
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger>
@@ -159,18 +163,16 @@ export const TreeItem: FC<TreeItemProps> = ({
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-56">
-        {menuItems?.map((mi) =>
-          mi.type.includes(itemType) ? (
-            <Fragment key={mi.id}>
-              <ContextMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
-                {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
-                {mi.label}
-                {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
-              </ContextMenuItem>
-              {mi.separator && <ContextMenuSeparator />}
-            </Fragment>
-          ) : null
-        )}
+        {filterMenuItems.map((mi, index) => (
+          <Fragment key={mi.id}>
+            <ContextMenuItem inset key={mi.id} onClick={() => mi.action(item)}>
+              {mi.icon && <span className="mr-2 h-4 w-4">{mi.icon}</span>}
+              {mi.label}
+              {mi.shortcut && <ContextMenuShortcut>{mi.shortcut}</ContextMenuShortcut>}
+            </ContextMenuItem>
+            {mi.separator && filterMenuItems.length - 1 !== index && <ContextMenuSeparator />}
+          </Fragment>
+        ))}
       </ContextMenuContent>
     </ContextMenu>
   );

@@ -4,15 +4,15 @@ import { treeToCollection } from "@/lib/tree/treeToCollection";
 import { useCollectionStore } from "@/store/useCollectionStore";
 import { useRequestStore } from "@/store/useRequestStore";
 import { Folder } from "lucide-react";
-import { FC, useActionState, useState } from "react";
+import { FC, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { TreeViewMenuItem } from "../TreeView/TreeItem";
 import { TreeView, TreeViewItem } from "../TreeView/TreeView";
 import MutateCollection from "./MutateCollection";
-import NewFolder from "./NewFolder";
+import MutateFolder from "./MutateFolder";
 
-import { TbHttpDelete, TbHttpGet, TbHttpPatch, TbHttpPost, TbHttpPut } from "react-icons/tb";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
+import { TbHttpDelete, TbHttpGet, TbHttpPatch, TbHttpPost, TbHttpPut } from "react-icons/tb";
 
 const customIconMap = {
   get: <TbHttpGet className={`h-4 w-4 text-[#84a98c]`} />,
@@ -78,6 +78,14 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       separator: true,
     },
     {
+      id: "0222",
+      label: "dsdsa Collection",
+      action: (item) => onRemoveCollection(item.id),
+      type: ["collection"],
+      shortcut: "⌘C",
+      separator: true,
+    },
+    {
       id: "02",
       label: "New Folder",
       action: openFolderDialog,
@@ -86,6 +94,15 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     },
     {
       id: "03",
+      label: "Rename Folder",
+      action: openFolderDialog,
+      type: ["folder", "collection"],
+      shortcut: "⌘R",
+      separator: true,
+    },
+
+    {
+      id: "04",
       label: "New Request",
       action: () => addTempRequest(),
       type: ["folder", "request"],
@@ -120,13 +137,14 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
         }
       />
       {targetItem && (
-        <NewFolder
-          MutateFolderInput={{
+        <MutateFolder
+          mutateFolderInput={{
             collectionId: data.id,
             targetId: targetItem.id,
           }}
           open={openFolder}
           setOpen={setOpenFolder}
+          mode="create"
         />
       )}
 
