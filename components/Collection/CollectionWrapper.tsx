@@ -9,7 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { TreeViewMenuItem } from "../TreeView/TreeItem";
 import { TreeView, TreeViewItem } from "../TreeView/TreeView";
 import MutateCollection from "./MutateCollection";
-import MutateFolder from "./MutateFolder";
+import MutateFolder, { MutateFolderProps } from "./MutateFolder";
 
 import { useActiveReqStore } from "@/store/useActiveReqStore";
 import { TbHttpDelete, TbHttpGet, TbHttpPatch, TbHttpPost, TbHttpPut } from "react-icons/tb";
@@ -49,16 +49,24 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     }))
   );
 
-  const [targetItem, setTargetItem] = useState<TreeViewItem | null>(null);
+  const [targetItem, setTargetItem] = useState<(TreeViewItem & { folderMode?: MutateFolderProps["mode"] }) | null>(null);
 
-  const openFolderDialog = (item: TreeViewItem) => {
-    setTargetItem(item);
+  const openFolderDialog = (item: TreeViewItem, mode: MutateFolderProps["mode"]) => {
+    setTargetItem({ ...item, folderMode: mode });
     setOpenFolder(true);
   };
 
   const openCollectionDialog = (item: TreeViewItem) => {
     setTargetItem(item);
     setOpenCollection(true);
+  };
+
+  const newFolderMenuItem: TreeViewMenuItem = {
+    id: "02",
+    label: "New Folder",
+    action: (item) => openFolderDialog(item, "create"),
+    type: ["folder", "request", "collection"],
+    shortcut: "⌘R",
   };
 
   const sidebarMenuItems: TreeViewMenuItem[] = [
@@ -77,17 +85,11 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       shortcut: "⌘C",
       separator: true,
     },
-    {
-      id: "02",
-      label: "New Folder",
-      action: openFolderDialog,
-      type: ["folder", "request", "collection"],
-      shortcut: "⌘R",
-    },
+    newFolderMenuItem,
     {
       id: "03",
       label: "Rename Folder",
-      action: openFolderDialog,
+      action: (item) => openFolderDialog(item, "rename"),
       type: ["folder"],
       shortcut: "⌘R",
       separator: true,
@@ -114,21 +116,25 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
         data={collectionToTree(data)}
         iconMap={customIconMap}
         onMove={async (newTree) => onMoveCollection(treeToCollection(newTree, data.createdAt))}
-        menuItems={
-          mode === "sidebar"
-            ? sidebarMenuItems
-            : [
-                {
-                  id: "02",
-                  label: "New Folder",
-                  action: openFolderDialog,
-                  type: ["folder", "request", "collection"],
-                  shortcut: "⌘R",
-                },
-              ]
-        }
+        menuItems={mode === "sidebar" ? sidebarMenuItems : [newFolderMenuItem]}
       />
-      {targetItem && (
+      {targetItem && targetItem.folderMode && targetItem.folderMode === "rename" && (
+        <MutateFolder
+          mutateFolderInput={{
+            collectionId: data.id,
+            targetId: targetItem.id,
+            folderName: targetItem.name,
+          }}
+          open={openFolder}
+          setOpen={(open) => {
+            if (!open) setTargetItem(null);
+            setOpenFolder(open);
+          }}
+          mode={"rename"}
+        />
+      )}
+
+      {targetItem && targetItem.folderMode && targetItem.folderMode === "create" && (
         <MutateFolder
           mutateFolderInput={{
             collectionId: data.id,
@@ -136,7 +142,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
           }}
           open={openFolder}
           setOpen={setOpenFolder}
-          mode="create"
+          mode={"create"}
         />
       )}
 

@@ -6,7 +6,7 @@ import { useCollectionStore } from "@/store/useCollectionStore";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 
-interface MutateFolderProps {
+export interface MutateFolderProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   mutateFolderInput: Omit<MutateFolderInput, "folderName"> & { folderName?: string };
@@ -15,7 +15,8 @@ interface MutateFolderProps {
 
 const MutateFolder: FC<MutateFolderProps> = ({ open, setOpen, mutateFolderInput, mode }) => {
   const [folderName, setFolderName] = useState<string>(mutateFolderInput.folderName ?? "");
-  const onMutateFolderHandler = useCollectionStore((state) => state.newFolder);
+  const onNewFolderHandler = useCollectionStore((state) => state.newFolder);
+  const onRenameFolderHandler = useCollectionStore((state) => state.renameFolder);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -36,7 +37,10 @@ const MutateFolder: FC<MutateFolderProps> = ({ open, setOpen, mutateFolderInput,
             type="submit"
             size={"sm"}
             onClick={async () => {
-              const updatedCollection = await onMutateFolderHandler({ ...mutateFolderInput, folderName });
+              const updatedCollection =
+                mode === "rename"
+                  ? await onRenameFolderHandler({ ...mutateFolderInput, folderName })
+                  : await onNewFolderHandler({ ...mutateFolderInput, folderName });
               setOpen(false);
               if (updatedCollection) {
                 setFolderName("");
