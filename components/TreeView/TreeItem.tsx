@@ -105,8 +105,6 @@ export const TreeItem: FC<TreeItemProps> = ({
 
   const filterMenuItems = menuItems.filter((mi) => mi.type.includes(itemType));
 
-  console.log(filterMenuItems);
-
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger>

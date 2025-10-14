@@ -11,6 +11,11 @@ export interface MutateFolderInput {
   targetId: string;
 }
 
+export interface NewRequestInput {
+  collectionId: string;
+  targetId: string;
+}
+
 export interface SaveRequestInput {
   collectionId: string;
   requestPrimary: RequestPrimary;

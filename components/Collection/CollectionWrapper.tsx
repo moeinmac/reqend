@@ -34,15 +34,16 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
   const [openFolder, setOpenFolder] = useState<boolean>(false);
   const [openCollection, setOpenCollection] = useState<boolean>(false);
 
-  const { onRemoveCollection, onMoveCollection, saveRequest } = useCollectionStore(
+  const { onRemoveCollection, onMoveCollection, saveRequest, addNewRequest } = useCollectionStore(
     useShallow((state) => ({
       onRemoveCollection: state.removeCollection,
       onMoveCollection: state.moveCollection,
       saveRequest: state.saveRequest,
+      addNewRequest: state.addNewRequest,
     }))
   );
 
-  const { onSaveActiveRequest, addTempRequest } = useActiveReqStore(
+  const { onSaveActiveRequest } = useActiveReqStore(
     useShallow((state) => ({
       onSaveActiveRequest: state.save,
       addTempRequest: state.addTemp,
@@ -98,7 +99,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     {
       id: "04",
       label: "New Request",
-      action: () => addTempRequest(),
+      action: async (item) => await addNewRequest({ collectionId: data.id, targetId: item.id }),
       type: ["folder", "request"],
       shortcut: "⌘N",
     },

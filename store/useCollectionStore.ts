@@ -10,11 +10,15 @@ import {
   SaveRequestInput,
   updateRequestInCollection,
   renameFolderHandler,
+  NewRequestInput,
 } from "@/db/dal/crud-collection";
 import { getAllItems } from "@/db/db";
-import { Collection } from "@/db/models.type";
+import { Collection, RequestPrimary } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { useActiveReqStore } from "./useActiveReqStore";
+import { v4 } from "uuid";
+import { DEFAULT_REQ_METHOD } from "@/db/dal/crud-activeReq";
 
 export interface CollectionStore {
   collections: Collection[];
@@ -28,10 +32,11 @@ export interface CollectionStore {
   moveCollection: (draggedCollection: Collection) => Promise<void>;
   saveRequest: (input: SaveRequestInput) => Promise<Collection | undefined>;
   updateRequestCollection: (collectionId: string, requestId: string, updates: RequestUpdate) => Promise<false | Collection>;
+  addNewRequest: (input: NewRequestInput) => Promise<void>;
 }
 
 export const useCollectionStore = create<CollectionStore>()(
-  immer((set) => ({
+  immer((set, get) => ({
     collections: [],
     fetchAllCollections: async () => {
       const allCollections = await getAllItems<Collection>("collection");
@@ -107,6 +112,14 @@ export const useCollectionStore = create<CollectionStore>()(
           state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
         });
       return updatedCollection;
+    },
+    addNewRequest: async (input) => {
+      const { id, name } = await useActiveReqStore.getState().addTemp(input.collectionId);
+      await get().saveRequest({
+        collectionId: input.collectionId,
+        requestPrimary: { id, method: DEFAULT_REQ_METHOD, name, type: "request" },
+        targetId: input.targetId,
+      });
     },
   }))
 );

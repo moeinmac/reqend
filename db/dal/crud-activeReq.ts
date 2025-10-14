@@ -10,13 +10,14 @@ export const getAllActiveRequest = async () => {
   return allRequests;
 };
 
-export const addTempActiveRequest = async () => {
+export const addTempActiveRequest = async (collectionId?: string) => {
   const tempRequest: ActiveRequest = {
     id: v4(),
     name: DEFAULT_REQ_NAME,
     method: DEFAULT_REQ_METHOD,
     type: "request",
   };
+  if (collectionId) tempRequest.collectionId = collectionId;
   await setItem<ActiveRequest>("activeReq", tempRequest.id, tempRequest);
   return tempRequest;
 };

@@ -18,7 +18,7 @@ export interface ActiveReqStore {
   add: (activeReq: ActiveRequest) => Promise<void>;
   update: (updated: ActiveRequest) => void;
   remove: (reqId: string) => Promise<void>;
-  addTemp: () => Promise<{ id: string; name: string }>;
+  addTemp: (collectionId?: string) => Promise<{ id: string; name: string }>;
   loading: boolean;
   activeReqId: string;
   setActiveReqId: (id: string) => Promise<void>;
@@ -46,8 +46,8 @@ export const useActiveReqStore = create<ActiveReqStore>()(
           state.activeReqId = allReqs[0]?.id || "";
         });
     },
-    addTemp: async () => {
-      const tempReq = await addTempActiveRequest();
+    addTemp: async (collectionId) => {
+      const tempReq = await addTempActiveRequest(collectionId);
       await newRequestHandler({
         id: tempReq.id,
         name: tempReq.name,

@@ -22,6 +22,8 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [input, setInput] = useState<boolean>(false);
   const [reqName, setReqName] = useState<string>(defaultRequestName);
 
+  console.log(defaultRequestName);
+
   const [openSaveRequest, setOpenSaveRequest] = useState<boolean>(false);
 
   const removeActiveRequest = useActiveReqStore((state) => state.remove);
