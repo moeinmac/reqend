@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TabsTrigger } from "@/components/ui/tabs";
-import { DEFAULT_REQ_NAME } from "@/db/dal/crud-activeReq";
+import { DEFAULT_REQ_NAME, MAXIMUM_REQUEST_NAME_LENGTH } from "@/db/dal/crud-activeReq";
 import { removeRequestHandler } from "@/db/dal/crud-request";
 import { ActiveRequest } from "@/db/models.type";
 import { useActiveReqStore } from "@/store/useActiveReqStore";
@@ -10,6 +10,7 @@ import { Dot, X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import SaveRequest from "../SaveRequest/SaveRequest";
 import { useCollectionStore } from "@/store/useCollectionStore";
+import { toast } from "sonner";
 
 interface TabItemProps {
   tab: ActiveRequest;
@@ -21,8 +22,6 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const [input, setInput] = useState<boolean>(false);
   const [reqName, setReqName] = useState<string>(defaultRequestName);
-
-  console.log(defaultRequestName);
 
   const [openSaveRequest, setOpenSaveRequest] = useState<boolean>(false);
 
@@ -63,15 +62,20 @@ const TabItem: FC<TabItemProps> = ({ tab }) => {
             className="rounded-sm h-auto py-0"
             onBlur={async () => {
               if (reqName.trim().length > 0 && reqName !== tab.name) {
-                await updateActiveReqName(tab.id, reqName);
-                await onChangeName(reqName);
-                if (tab.collectionId) await updateRequestCollection(tab.collectionId!, tab.id, { name: reqName });
+                if (reqName.length > MAXIMUM_REQUEST_NAME_LENGTH) {
+                  toast.error(`Request name can not be longer that ${MAXIMUM_REQUEST_NAME_LENGTH}`);
+                  setReqName(tab.name);
+                } else {
+                  await updateActiveReqName(tab.id, reqName);
+                  await onChangeName(reqName);
+                  if (tab.collectionId) await updateRequestCollection(tab.collectionId!, tab.id, { name: reqName });
+                }
               }
               setInput(false);
             }}
             value={reqName}
             autoFocus
-            onChange={(event) => reqName.length < 15 && setReqName(event.target.value)}
+            onChange={(event) => setReqName(event.target.value)}
           />
         )}
         {!tab.collectionId && !input && <Dot className="w-5 h-5 ml-2" />}

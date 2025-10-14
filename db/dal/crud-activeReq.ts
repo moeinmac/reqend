@@ -4,6 +4,7 @@ import { ActiveRequest } from "../models.type";
 
 export const DEFAULT_REQ_NAME = "untitled request";
 export const DEFAULT_REQ_METHOD = "get";
+export const MAXIMUM_REQUEST_NAME_LENGTH = 17;
 
 export const getAllActiveRequest = async () => {
   const allRequests = await getAllItems<ActiveRequest>("activeReq");
