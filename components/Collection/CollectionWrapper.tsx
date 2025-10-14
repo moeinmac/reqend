@@ -35,12 +35,13 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
   const [openCollection, setOpenCollection] = useState<boolean>(false);
   const [targetItem, setTargetItem] = useState<(TreeViewItem & { folderMode?: MutateFolderProps["mode"] }) | null>(null);
 
-  const { onRemoveCollection, onMoveCollection, saveRequest, addNewRequest } = useCollectionStore(
+  const { onRemoveCollection, onMoveCollection, saveRequest, addNewRequest, removeRequest } = useCollectionStore(
     useShallow((state) => ({
       onRemoveCollection: state.removeCollection,
       onMoveCollection: state.moveCollection,
       saveRequest: state.saveRequest,
       addNewRequest: state.addNewRequest,
+      removeRequest: state.removeRequest,
     }))
   );
 
@@ -100,6 +101,14 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       label: "New Request",
       action: async (item) => await addNewRequest({ collectionId: data.id, targetId: item.id }),
       type: ["folder", "request"],
+      shortcut: "⌘N",
+    },
+
+    {
+      id: "05",
+      label: "Remove Request",
+      action: async (item) => await removeRequest({ collectionId: data.id, targetId: item.id }),
+      type: ["request"],
       shortcut: "⌘N",
     },
   ];

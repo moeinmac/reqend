@@ -1,4 +1,4 @@
-import { SaveRequestInput } from "@/db/dal/crud-collection";
+import { RemoveRequestInput, SaveRequestInput } from "@/db/dal/crud-collection";
 import type { CollectionItem, RequestPrimary } from "@/db/models.type";
 
 export const saveRequestRecursive = (items: CollectionItem[], input: SaveRequestInput): CollectionItem[] => {
@@ -21,4 +21,17 @@ export const saveRequestRecursive = (items: CollectionItem[], input: SaveRequest
     }
   }
   return items;
+};
+
+export const removeRequestRecursive = (items: CollectionItem[], input: RemoveRequestInput): CollectionItem[] => {
+  return items.reduce<CollectionItem[]>((acc, item) => {
+    if (item.id === input.targetId) return acc;
+    if (item.type === "folder")
+      acc.push({
+        ...item,
+        items: removeRequestRecursive(item.items, input),
+      });
+    else acc.push(item);
+    return acc;
+  }, []);
 };

@@ -1,5 +1,5 @@
 import { fixTargetId, newFolderRecursive, renameFolderRecursive } from "@/lib/mutateFolderRecursive";
-import { saveRequestRecursive } from "@/lib/saveRequestRecursive";
+import { removeRequestRecursive, saveRequestRecursive } from "@/lib/actionRequestRecursive";
 import { updateRequestRecursive } from "@/lib/updateRequestRecursive";
 import { v4 } from "uuid";
 import { getItem, removeItem, setItem } from "../db";
@@ -19,6 +19,11 @@ export interface NewRequestInput {
 export interface SaveRequestInput {
   collectionId: string;
   requestPrimary: RequestPrimary;
+  targetId: string;
+}
+
+export interface RemoveRequestInput {
+  collectionId: string;
   targetId: string;
 }
 
@@ -138,4 +143,21 @@ export const updateRequestInCollection = async (collectionId: string, requestId:
   collection.modifiedAt = new Date().toISOString();
   await setItem("collection", collectionId, collection);
   return collection;
+};
+
+export const removeRequestInCollectionHandler = async (input: RemoveRequestInput) => {
+  const thisCollection = await getItem<Collection>("collection", input.collectionId);
+  if (!thisCollection) return undefined;
+  if (input.collectionId === input.targetId) return undefined;
+
+  const newItems = removeRequestRecursive(thisCollection.items, input);
+  const newCollection: Collection = {
+    createdAt: thisCollection.createdAt,
+    id: thisCollection.id,
+    items: newItems,
+    modifiedAt: new Date().toISOString(),
+    name: thisCollection.name,
+  };
+  await setItem<Collection>("collection", input.collectionId, newCollection);
+  return newCollection;
 };
