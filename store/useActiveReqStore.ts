@@ -85,6 +85,8 @@ export const useActiveReqStore = create<ActiveReqStore>()(
         state.activeRequests = state.activeRequests.map((req) => (req.id === updated.id ? updated : req));
       }),
     remove: async (reqId) => {
+      const exist = get().activeRequests.find((ac) => ac.id === reqId);
+      if (!exist) return;
       await removeActiveRequest(reqId);
       useRequestStore.getState().removeRequest();
       set((state) => {

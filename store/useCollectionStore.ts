@@ -11,6 +11,8 @@ import {
   updateRequestInCollection,
   renameFolderHandler,
   NewRequestInput,
+  removeRequestInCollectionHandler,
+  RemoveRequestInput,
 } from "@/db/dal/crud-collection";
 import { getAllItems } from "@/db/db";
 import { Collection, RequestPrimary } from "@/db/models.type";
@@ -19,6 +21,7 @@ import { immer } from "zustand/middleware/immer";
 import { useActiveReqStore } from "./useActiveReqStore";
 import { v4 } from "uuid";
 import { DEFAULT_REQ_METHOD } from "@/db/dal/crud-activeReq";
+import { removeRequestHandler } from "@/db/dal/crud-request";
 
 export interface CollectionStore {
   collections: Collection[];
@@ -33,6 +36,7 @@ export interface CollectionStore {
   saveRequest: (input: SaveRequestInput) => Promise<Collection | undefined>;
   updateRequestCollection: (collectionId: string, requestId: string, updates: RequestUpdate) => Promise<false | Collection>;
   addNewRequest: (input: NewRequestInput) => Promise<void>;
+  removeRequest: (input: RemoveRequestInput) => Promise<void>;
 }
 
 export const useCollectionStore = create<CollectionStore>()(
@@ -120,6 +124,15 @@ export const useCollectionStore = create<CollectionStore>()(
         requestPrimary: { id, method: DEFAULT_REQ_METHOD, name, type: "request" },
         targetId: input.targetId,
       });
+    },
+    removeRequest: async (input) => {
+      const updatedCollection = await removeRequestInCollectionHandler(input);
+      await useActiveReqStore.getState().remove(input.targetId);
+      await removeRequestHandler(input.targetId);
+      if (updatedCollection)
+        set((state) => {
+          state.collections = state.collections.map((col) => (col.id === updatedCollection.id ? updatedCollection : col));
+        });
     },
   }))
 );
