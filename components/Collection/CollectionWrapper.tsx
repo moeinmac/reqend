@@ -33,6 +33,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
 
   const [openFolder, setOpenFolder] = useState<boolean>(false);
   const [openCollection, setOpenCollection] = useState<boolean>(false);
+  const [targetItem, setTargetItem] = useState<(TreeViewItem & { folderMode?: MutateFolderProps["mode"] }) | null>(null);
 
   const { onRemoveCollection, onMoveCollection, saveRequest, addNewRequest } = useCollectionStore(
     useShallow((state) => ({
@@ -49,8 +50,6 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
       addTempRequest: state.addTemp,
     }))
   );
-
-  const [targetItem, setTargetItem] = useState<(TreeViewItem & { folderMode?: MutateFolderProps["mode"] }) | null>(null);
 
   const openFolderDialog = (item: TreeViewItem, mode: MutateFolderProps["mode"]) => {
     setTargetItem({ ...item, folderMode: mode });

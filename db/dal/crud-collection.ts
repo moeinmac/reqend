@@ -1,4 +1,4 @@
-import { newFolderRecursive, renameFolderRecursive } from "@/lib/mutateFolderRecursive";
+import { fixTargetId, newFolderRecursive, renameFolderRecursive } from "@/lib/mutateFolderRecursive";
 import { saveRequestRecursive } from "@/lib/saveRequestRecursive";
 import { updateRequestRecursive } from "@/lib/updateRequestRecursive";
 import { v4 } from "uuid";
@@ -54,7 +54,7 @@ export const newFolderHandler = async (input: MutateFolderInput): Promise<Collec
     await setItem<Collection>("collection", input.collectionId, thisCollection);
     return thisCollection;
   }
-  const newItems = newFolderRecursive(thisCollection.items, input);
+  const newItems = newFolderRecursive(thisCollection.items, { ...input, targetId: fixTargetId(thisCollection, input.targetId) ?? input.targetId });
   const newCollection: Collection = {
     createdAt: thisCollection.createdAt,
     id: thisCollection.id,
