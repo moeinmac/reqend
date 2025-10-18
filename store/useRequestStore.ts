@@ -1,6 +1,7 @@
 import { addNewParamsHandler, removeParamHandler, updateParamsHandler } from "@/db/dal/crud-params";
-import { fetchRequestHandler, removeRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
+import { fetchRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
 import { Method, Params, Request } from "@/db/models.type";
+import { RowSelectionState } from "@tanstack/react-table";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -13,6 +14,7 @@ export interface RequestStoreMethods {
   addNewParam: () => Promise<Params | undefined>;
   updateParams: (rowIndex: number, columnId: string, value: unknown) => Promise<Params[] | undefined>;
   deleteParam: (rowId: string) => Promise<void>;
+  updateSelectParam: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {
@@ -100,6 +102,26 @@ export const useRequestStore = create<RequestStore>()(
       const { fetched, request } = get();
       if (!fetched) return;
       const req = await removeParamHandler(rowId, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateSelectParam: async (updaterOrValue) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const currentRowSelection = request.params.reduce((acc, param, index) => {
+        if (param.selected) {
+          acc[index] = true;
+        }
+        return acc;
+      }, {} as RowSelectionState);
+      const newRowSelection = typeof updaterOrValue === "function" ? updaterOrValue(currentRowSelection) : updaterOrValue;
+      const newData = request.params.map((param, index) => ({
+        ...param,
+        selected: !!newRowSelection[index],
+      }));
+      const req = await updateParamsHandler(newData, request.id);
       if (req)
         set((state) => {
           state.request = req;

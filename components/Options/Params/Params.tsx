@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  RowSelectionState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -16,23 +17,33 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
 import { useRequestStore } from "@/store/useRequestStore";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 const Params = () => {
-  const { request, addNewParam, updateParams, deleteParam } = useRequestStore(
+  const { request, addNewParam, updateParams, deleteParam, updateSelectParam } = useRequestStore(
     useShallow((state) => ({
       request: state.request,
       addNewParam: state.addNewParam,
       updateParams: state.updateParams,
       deleteParam: state.deleteParam,
+      updateSelectParam: state.updateSelectParam,
     }))
   );
   const data = request ? request.params : [];
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
 
   const addNewParamHandler = async () => await addNewParam();
+
+  const rowSelection = useMemo(() => {
+    if (!request) return {};
+    return request.params.reduce((acc, param, index) => {
+      if (param.selected) {
+        acc[index] = true;
+      }
+      return acc;
+    }, {} as RowSelectionState);
+  }, [request]);
 
   const table = useReactTable({
     defaultColumn,
@@ -43,7 +54,7 @@ const Params = () => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: updateSelectParam,
     state: {
       columnVisibility,
       rowSelection,

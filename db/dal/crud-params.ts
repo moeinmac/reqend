@@ -1,7 +1,6 @@
-import { db } from "..";
+import { v4 as ID } from "uuid";
 import { getItem, setItem } from "../db";
 import { Params, Request } from "../models.type";
-import { v4 as ID } from "uuid";
 
 export const updateParamsHandler = async (params: Params[], reqId: string) => {
   const thisRequest = await getItem<Request>("request", reqId);
