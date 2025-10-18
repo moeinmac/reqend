@@ -1,13 +1,20 @@
 import { db } from "..";
-import { Params } from "../models.type";
+import { getItem, setItem } from "../db";
+import { Params, Request } from "../models.type";
 import { v4 as ID } from "uuid";
 
-export const writeParams = (params: Params[]) => {
-  db!.data.params = params;
-  db!.write();
+export const updateParamsHandler = async (params: Params[], reqId: string) => {
+  const thisRequest = await getItem<Request>("request", reqId);
+  if (!thisRequest) return;
+  thisRequest.params = params;
+  await setItem<Request>("request", reqId, thisRequest);
+  return thisRequest;
 };
 
-export const addNewParams = () => {
+export const addNewParamsHandler = async (reqId: string) => {
+  const thisRequest = await getItem<Request>("request", reqId);
+  if (!thisRequest) return;
+
   const newRow: Params = {
     description: "",
     key: "",
@@ -15,14 +22,18 @@ export const addNewParams = () => {
     id: ID(),
     selected: false,
   };
-  db!.data.params.push(newRow);
-  db!.write();
-  return newRow;
+  thisRequest.params = [...thisRequest.params, newRow];
+  await setItem<Request>("request", reqId, thisRequest);
+  return { updatedReq: thisRequest, newParam: newRow };
 };
 
-export const removeParam = (id: string) => {
-  const paramsAfterDelete = db!.data.params.filter((p) => p.id !== id);
-  db!.data.params = paramsAfterDelete;
-  db!.write();
+export const removeParamHandler = async (id: string, reqId: string) => {
+  const thisRequest = await getItem<Request>("request", reqId);
+  if (!thisRequest) return;
+
+  const paramsAfterDelete = thisRequest.params.filter((p) => p.id !== id);
+  thisRequest.params = paramsAfterDelete;
+  await setItem<Request>("request", reqId, thisRequest);
+
   return paramsAfterDelete;
 };

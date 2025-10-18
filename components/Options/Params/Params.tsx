@@ -18,18 +18,22 @@ import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
 import { Params as PR } from "@/db/models.type";
 import { useEffect, useState } from "react";
 import { db } from "@/db";
-import { addNewParams, removeParam, writeParams } from "@/db/dal/crud-params";
+import { useRequestStore } from "@/store/useRequestStore";
+import { useShallow } from "zustand/react/shallow";
 
 const Params = () => {
-  const [data, setData] = useState<PR[]>([]);
+  const { request, addNewParam, updateParams } = useRequestStore(
+    useShallow((state) => ({
+      request: state.request,
+      addNewParam: state.addNewParam,
+      updateParams: state.updateParams,
+    }))
+  );
+  const data = request ? request.params : [];
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  useEffect(() => {
-    setData(db!.data.params ?? []);
-  }, []);
-
-  const addNewParamHandler = () => (data.length === 0 ? setData([addNewParams()]) : setData((old) => [...old, addNewParams()]));
+  const addNewParamHandler = async () => await addNewParam();
 
   const table = useReactTable({
     defaultColumn,
@@ -46,25 +50,13 @@ const Params = () => {
       rowSelection,
     },
     meta: {
-      updateData: (rowIndex, columnId, value) => {
-        setData((prevData) => {
-          const newData = prevData.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...prevData[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          });
-          writeParams(newData);
-          return newData;
-        });
+      updateData: async (rowIndex, columnId, value) => {
+        return await updateParams(rowIndex, columnId, value);
       },
       deleteRow: (rowIndex) => {
-        const thisRow = table.getRow(`${rowIndex}`);
-        const paramsAfterDelete = removeParam(thisRow.original.id);
-        setData(paramsAfterDelete);
+        // const thisRow = table.getRow(`${rowIndex}`);
+        // const paramsAfterDelete = removeParam(thisRow.original.id);
+        // setData(paramsAfterDelete);
       },
     },
   });
