@@ -1,17 +1,33 @@
+import { addNewParamsHandler, removeParamHandler, updateParamsHandler } from "@/db/dal/crud-params";
 import { fetchRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
-import { Method, Request } from "@/db/models.type";
+import { Method, Params, Request } from "@/db/models.type";
+import { RowSelectionState } from "@tanstack/react-table";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-export interface RequestStore {
-  request: Request | null;
-  fetched: boolean;
+export interface RequestStoreMethods {
   fetchRequest: (reqId: string) => Promise<RequestStore["request"]>;
   removeRequest: () => void;
   onChangeUrl: (newUrl: string) => Promise<void>;
   onChangeMethod: (newMethod: Method) => Promise<void>;
   onChangeName: (newName: string) => Promise<void>;
+  addNewParam: () => Promise<Params | undefined>;
+  updateParams: (rowIndex: number, columnId: string, value: unknown) => Promise<Params[] | undefined>;
+  deleteParam: (rowId: string) => Promise<void>;
+  updateSelectParam: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
 }
+
+export interface RequestNotFetched extends RequestStoreMethods {
+  request: null;
+  fetched: false;
+}
+
+export interface RequestFetched extends RequestStoreMethods {
+  request: Request;
+  fetched: true;
+}
+
+export type RequestStore = RequestFetched | RequestNotFetched;
 
 export const useRequestStore = create<RequestStore>()(
   immer((set, get) => ({
@@ -51,6 +67,65 @@ export const useRequestStore = create<RequestStore>()(
       set((state) => {
         state.request = req;
       });
+    },
+    addNewParam: async () => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const result = await addNewParamsHandler(request.id);
+      if (result) {
+        set((state) => {
+          state.request = result.updatedReq;
+        });
+        return result.newParam;
+      }
+    },
+    updateParams: async (rowIndex: number, columnId: string, value: unknown) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const newData = request.params.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...request.params[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      });
+      const req = await updateParamsHandler(newData, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+      return newData;
+    },
+    deleteParam: async (rowId) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await removeParamHandler(rowId, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateSelectParam: async (updaterOrValue) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const currentRowSelection = request.params.reduce((acc, param, index) => {
+        if (param.selected) {
+          acc[index] = true;
+        }
+        return acc;
+      }, {} as RowSelectionState);
+      const newRowSelection = typeof updaterOrValue === "function" ? updaterOrValue(currentRowSelection) : updaterOrValue;
+      const newData = request.params.map((param, index) => ({
+        ...param,
+        selected: !!newRowSelection[index],
+      }));
+      const req = await updateParamsHandler(newData, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
     },
   }))
 );

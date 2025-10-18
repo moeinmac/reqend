@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  RowSelectionState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -15,21 +16,34 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
-import { Params as PR } from "@/db/models.type";
-import { useEffect, useState } from "react";
-import { db } from "@/db";
-import { addNewParams, removeParam, writeParams } from "@/db/dal/crud-params";
+import { useRequestStore } from "@/store/useRequestStore";
+import { useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 const Params = () => {
-  const [data, setData] = useState<PR[]>([]);
+  const { request, addNewParam, updateParams, deleteParam, updateSelectParam } = useRequestStore(
+    useShallow((state) => ({
+      request: state.request,
+      addNewParam: state.addNewParam,
+      updateParams: state.updateParams,
+      deleteParam: state.deleteParam,
+      updateSelectParam: state.updateSelectParam,
+    }))
+  );
+  const data = request ? request.params : [];
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
 
-  useEffect(() => {
-    setData(db!.data.params ?? []);
-  }, []);
+  const addNewParamHandler = async () => await addNewParam();
 
-  const addNewParamHandler = () => (data.length === 0 ? setData([addNewParams()]) : setData((old) => [...old, addNewParams()]));
+  const rowSelection = useMemo(() => {
+    if (!request) return {};
+    return request.params.reduce((acc, param, index) => {
+      if (param.selected) {
+        acc[index] = true;
+      }
+      return acc;
+    }, {} as RowSelectionState);
+  }, [request]);
 
   const table = useReactTable({
     defaultColumn,
@@ -40,31 +54,18 @@ const Params = () => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: updateSelectParam,
     state: {
       columnVisibility,
       rowSelection,
     },
     meta: {
-      updateData: (rowIndex, columnId, value) => {
-        setData((prevData) => {
-          const newData = prevData.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...prevData[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          });
-          writeParams(newData);
-          return newData;
-        });
+      updateData: async (rowIndex, columnId, value) => {
+        return await updateParams(rowIndex, columnId, value);
       },
-      deleteRow: (rowIndex) => {
+      deleteRow: async (rowIndex) => {
         const thisRow = table.getRow(`${rowIndex}`);
-        const paramsAfterDelete = removeParam(thisRow.original.id);
-        setData(paramsAfterDelete);
+        await deleteParam(thisRow.original.id);
       },
     },
   });
