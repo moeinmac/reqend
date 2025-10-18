@@ -1,5 +1,5 @@
-import { addNewParamsHandler, updateParamsHandler } from "@/db/dal/crud-params";
-import { fetchRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
+import { addNewParamsHandler, removeParamHandler, updateParamsHandler } from "@/db/dal/crud-params";
+import { fetchRequestHandler, removeRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
 import { Method, Params, Request } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -12,6 +12,7 @@ export interface RequestStoreMethods {
   onChangeName: (newName: string) => Promise<void>;
   addNewParam: () => Promise<Params | undefined>;
   updateParams: (rowIndex: number, columnId: string, value: unknown) => Promise<Params[] | undefined>;
+  deleteParam: (rowId: string) => Promise<void>;
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {
@@ -94,6 +95,15 @@ export const useRequestStore = create<RequestStore>()(
           state.request = req;
         });
       return newData;
+    },
+    deleteParam: async (rowId) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await removeParamHandler(rowId, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
     },
   }))
 );

@@ -35,5 +35,5 @@ export const removeParamHandler = async (id: string, reqId: string) => {
   thisRequest.params = paramsAfterDelete;
   await setItem<Request>("request", reqId, thisRequest);
 
-  return paramsAfterDelete;
+  return thisRequest;
 };
