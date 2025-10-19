@@ -117,11 +117,11 @@ export const useRequestStore = create<RequestStore>()(
         return acc;
       }, {} as RowSelectionState);
       const newRowSelection = typeof updaterOrValue === "function" ? updaterOrValue(currentRowSelection) : updaterOrValue;
-      const newData = request.params.map((param, index) => ({
+      const newParam: Params[] = request.params.map((param, index) => ({
         ...param,
         selected: !!newRowSelection[index],
       }));
-      const req = await updateParamsHandler(newData, request.id);
+      const req = await updateParamsHandler(newParam, request.id);
       if (req)
         set((state) => {
           state.request = req;
