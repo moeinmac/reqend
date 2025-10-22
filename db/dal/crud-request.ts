@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { getItem, removeItem, setItem } from "../db";
-import type { Method, Request } from "../models.type";
+import type { Auth, AuthType, Method, Request } from "../models.type";
 
 export const newRequestHandler = async (newReq: Omit<Request, "id"> & { id?: string }) => {
   const newRequest: Request = {
@@ -44,6 +44,26 @@ export const updateRequestNameHandler = async (reqId: string, newName: string) =
   const theReq = await getItem<Request>("request", reqId);
   if (theReq) {
     theReq.name = newName;
+    await setItem<Request>("request", theReq.id, theReq);
+    return theReq;
+  }
+  return null;
+};
+
+export const updateAuthTypeHandler = async (reqId: string, authType: Auth["authType"]) => {
+  const theReq = await getItem<Request>("request", reqId);
+  if (theReq) {
+    theReq.auth.authType = authType;
+    await setItem<Request>("request", theReq.id, theReq);
+    return theReq;
+  }
+  return null;
+};
+
+export const updateAuthValueHandler = async (reqId: string, authValue: Auth["value"]) => {
+  const theReq = await getItem<Request>("request", reqId);
+  if (theReq) {
+    theReq.auth.value = authValue;
     await setItem<Request>("request", theReq.id, theReq);
     return theReq;
   }

@@ -1,13 +1,24 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Auth } from "@/db/models.type";
+import { useRequestStore } from "@/store/useRequestStore";
 import { FC } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 const Authentication: FC = () => {
+  const { request, updateAuthType } = useRequestStore(
+    useShallow((state) => ({
+      request: state.request,
+      updateAuthType: state.updateAuthType,
+      fetched: state.fetched,
+    }))
+  );
+
   return (
-    <div>
-      <div>
+    <div className="flex">
+      <div className="flex flex-col gap-4">
         <h2>Auth Type</h2>
         <div>
-          <Select>
+          <Select value={request!.auth!.authType ?? "noAuth"} onValueChange={async (value) => await updateAuthType(value as Auth["authType"])}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select auth type" />
             </SelectTrigger>

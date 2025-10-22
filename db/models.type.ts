@@ -20,7 +20,10 @@ type AuthBearerToken = {
 };
 
 // TODO declare other auth here
-export type Auth = AuthBearerToken;
+export type Auth = {
+  authType: AuthType;
+  value: unknown;
+};
 
 export interface TheJSON {
   [key: string]: string | number | TheJSON | string[] | number[] | TheJSON[];

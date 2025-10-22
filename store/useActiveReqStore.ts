@@ -55,7 +55,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
         url: "",
         body: null,
         params: [],
-        auth: null,
+        auth: { authType: "noAuth", value: null },
         type: "request",
       });
       await useRequestStore.getState().fetchRequest(tempReq.id);
