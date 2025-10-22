@@ -6,6 +6,7 @@ import Loading from "../ui/loading";
 import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
+import { useShallow } from "zustand/react/shallow";
 
 interface RequestProps {
   id: RequestPrimary["id"];
@@ -13,8 +14,7 @@ interface RequestProps {
 }
 
 const Request: FC<RequestProps> = ({ id, collectionId }) => {
-  const isFetched = useRequestStore((state) => state.fetched);
-  const fetchRequest = useRequestStore((state) => state.fetchRequest);
+  const { fetchRequest, isFetched } = useRequestStore(useShallow((state) => ({ isFetched: state.fetched, fetchRequest: state.fetchRequest })));
 
   useEffect(() => {
     if (!isFetched) fetchRequest(id);

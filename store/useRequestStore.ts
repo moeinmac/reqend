@@ -15,6 +15,7 @@ export interface RequestStoreMethods {
   updateParams: (rowIndex: number, columnId: string, value: unknown) => Promise<Params[] | undefined>;
   deleteParam: (rowId: string) => Promise<void>;
   updateSelectParam: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
+  // updateAuth : ()
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {

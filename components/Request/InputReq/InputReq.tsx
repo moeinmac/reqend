@@ -9,7 +9,7 @@ const InputReq: FC = () => {
   const measureRef = useRef<HTMLSpanElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const [isBlur, setIsBlur] = useState<boolean>(false);
+  const [isBlur, setIsBlur] = useState<boolean>(true);
 
   const { onChange, params, reqUrl } = useRequestStore(
     useShallow((state) => ({

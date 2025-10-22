@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, Bookmark, Clock, Download, Upload, Users } from "lucide-react";
 import Params from "./Params/Params";
+import Authentication from "./Authentication/Authentication";
 
 const Options = () => {
   return (
@@ -23,41 +24,7 @@ const Options = () => {
             <Params />
           </TabsContent>
           <TabsContent value="authentication">
-            <div className="grid gap-4">
-              <div>
-                <h3 className="font-medium">Saved Items</h3>
-                <p className="text-muted-foreground">View and manage your saved items.</p>
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bookmark className="size-5 text-muted-foreground" />
-                    <span>Design Inspiration</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bookmark className="size-5 text-muted-foreground" />
-                    <span>Development Resources</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bookmark className="size-5 text-muted-foreground" />
-                    <span>Marketing Strategies</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <Authentication />
           </TabsContent>
           <TabsContent value="headers">
             <div className="grid gap-4">
