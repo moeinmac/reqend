@@ -12,17 +12,14 @@ export interface Params {
 
 export type AuthType = "bearerToken" | "noAuth" | "basicAuth" | "oAuth";
 
-type AuthBearerToken = {
-  authType: "bearerToken";
-  value: {
-    token: string;
-  };
+export type AuthBearerValue = {
+  token: string;
 };
 
 // TODO declare other auth here
 export type Auth = {
   authType: AuthType;
-  value: unknown;
+  value: any;
 };
 
 export interface TheJSON {

@@ -1,5 +1,12 @@
 import { addNewParamsHandler, removeParamHandler, updateParamsHandler } from "@/db/dal/crud-params";
-import { fetchRequestHandler, updateAuthTypeHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
+import {
+  fetchRequestHandler,
+  updateAuthTypeHandler,
+  updateAuthValueHandler,
+  updateRequestMethod,
+  updateRequestNameHandler,
+  updateRequestUrl,
+} from "@/db/dal/crud-request";
 import { Auth, Method, Params, Request } from "@/db/models.type";
 import { RowSelectionState } from "@tanstack/react-table";
 import { create } from "zustand";
@@ -16,6 +23,7 @@ export interface RequestStoreMethods {
   deleteParam: (rowId: string) => Promise<void>;
   updateSelectParam: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
   updateAuthType: (authType: Auth["authType"]) => Promise<void>;
+  updateAuthValue: (authValue: Auth["value"]) => Promise<void>;
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {
@@ -132,6 +140,15 @@ export const useRequestStore = create<RequestStore>()(
       const { fetched, request } = get();
       if (!fetched) return;
       const req = await updateAuthTypeHandler(request.id, authType);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateAuthValue: async (authValue) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await updateAuthValueHandler(request.id, authValue);
       if (req)
         set((state) => {
           state.request = req;
