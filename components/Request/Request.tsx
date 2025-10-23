@@ -7,6 +7,7 @@ import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
 import { useShallow } from "zustand/react/shallow";
+import FlipCard from "./FlipCard/FlipCard";
 
 interface RequestProps {
   id: RequestPrimary["id"];
@@ -29,7 +30,7 @@ const Request: FC<RequestProps> = ({ id, collectionId }) => {
         <InputReq />
         <SendButton />
       </div>
-      <Options />
+      <FlipCard />
     </div>
   );
 };

@@ -1,15 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Bookmark, Clock, Download, Upload, Users } from "lucide-react";
-import Params from "./Params/Params";
+import { ArrowRight, Download, Upload, Users } from "lucide-react";
+import { FC } from "react";
 import Authentication from "./Authentication/Authentication";
+import Params from "./Params/Params";
 
-const Options = () => {
+interface OptionsProps {
+  onFlipHandler: () => void;
+}
+
+const Options: FC<OptionsProps> = ({ onFlipHandler }) => {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between w-full">
         <CardTitle>Request Options</CardTitle>
+        <Button size={"sm"} variant={"outline"} onClick={onFlipHandler}>
+          Response
+        </Button>
       </CardHeader>
       <CardContent className="px-6">
         <Tabs defaultValue="params">
