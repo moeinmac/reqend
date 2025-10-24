@@ -1,20 +1,18 @@
 import { useHttpStore } from "@/store/useHttpStore";
 import { FC } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useShallow } from "zustand/react/shallow";
 
-import { Badge } from "@/components/ui/badge";
-
-import prettyBytes from "pretty-bytes";
 import { Spinner } from "../ui/spinner";
+import ResponseHeader from "./ResponseHeader";
 
 const Response: FC = () => {
-  const { changeCardMode, response, isSubmitting } = useHttpStore(
-    useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response, isSubmitting: state.isSubmitting }))
+  const { changeCardMode, response, isSubmitting, error } = useHttpStore(
+    useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response, isSubmitting: state.isSubmitting, error: state.error }))
   );
 
-  console.log(response);
+  console.log(error);
 
   return (
     <Card>
@@ -28,14 +26,10 @@ const Response: FC = () => {
         </Button>
       </CardHeader>
       <CardContent className="px-6">
-        {response && (
-          <div>
-            <div>
-              <span>Size : {prettyBytes(response.size)}</span>
-              <Badge variant={"default"}>{response.status}</Badge>
-            </div>
-          </div>
-        )}
+        <div>
+          {response && <ResponseHeader size={response.size} statusCode={response.status} />}
+          {error && <p>{error.message}</p>}
+        </div>
       </CardContent>
     </Card>
   );
