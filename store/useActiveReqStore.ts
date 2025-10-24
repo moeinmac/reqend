@@ -12,6 +12,7 @@ import { ActiveRequest } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useRequestStore } from "./useRequestStore";
+import { useHttpStore } from "./useHttpStore";
 
 export interface ActiveReqStore {
   activeRequests: ActiveRequest[];
@@ -34,6 +35,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
     activeReqId: "",
     setActiveReqId: async (id: string) => {
       await useRequestStore.getState().fetchRequest(id);
+      useHttpStore.getState().resetResponse();
       set((state) => {
         state.activeReqId = id;
       });

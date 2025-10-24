@@ -2,6 +2,7 @@ import { requestHandler } from "@/lib/requestHandler";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useRequestStore } from "./useRequestStore";
+import { toast } from "sonner";
 
 export interface HttpResponse {
   status: number;
@@ -19,6 +20,7 @@ export interface HttpStore {
   response: HttpResponse | null;
   error: Error | null;
   sendRequest: () => Promise<void>;
+  resetResponse: () => void;
 }
 
 export const useHttpStore = create<HttpStore>()(
@@ -31,6 +33,14 @@ export const useHttpStore = create<HttpStore>()(
     changeCardMode: (mode) => {
       set((state) => {
         state.cardMode = mode;
+      });
+    },
+    resetResponse: () => {
+      set((state) => {
+        state.cardMode = "option";
+        state.error = null;
+        state.response = null;
+        state.isSubmitting = false;
       });
     },
 
@@ -51,7 +61,8 @@ export const useHttpStore = create<HttpStore>()(
           state.response = response;
           state.cardMode = "response";
         });
-      } catch (error) {
+      } catch (error: any) {
+        toast.error(error.message);
         set((state) => {
           state.error = error as Error;
           state.cardMode = "response";

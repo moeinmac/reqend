@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useHttpStore } from "@/store/useHttpStore";
 import { FC } from "react";
 const SendButton: FC = () => {
@@ -16,7 +17,7 @@ const SendButton: FC = () => {
       type="submit"
       disabled={isSubmitting}
     >
-      Send
+      {isSubmitting ? <Spinner /> : "Send"}
     </Button>
   );
 };
