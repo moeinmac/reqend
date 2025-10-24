@@ -2,12 +2,12 @@ import {
   addActiveRequest,
   addTempActiveRequest,
   DEFAULT_REQ_METHOD,
+  getAllActiveRequest,
   removeActiveRequest,
   saveActiveReqHandler,
   updateActiveReqNameHandler,
 } from "@/db/dal/crud-activeReq";
 import { newRequestHandler } from "@/db/dal/crud-request";
-import { getAllItems } from "@/db/db";
 import { ActiveRequest } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -39,7 +39,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
       });
     },
     fetchAllActiveReqs: async () => {
-      const allReqs = await getAllItems<ActiveRequest>("activeReq");
+      const allReqs = await getAllActiveRequest();
       if (allReqs)
         set((state) => {
           state.activeRequests = allReqs;

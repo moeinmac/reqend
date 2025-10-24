@@ -28,9 +28,7 @@ export const addActiveRequest = async (activeReq: ActiveRequest) => {
   return activeReq;
 };
 
-export const removeActiveRequest = async (reqId: string) => {
-  await removeItem("activeReq", reqId);
-};
+export const removeActiveRequest = async (reqId: string) => await removeItem("activeReq", reqId);
 
 export const updateActiveReqNameHandler = async (reqId: string, newName: string) => {
   const theReq = await getItem<ActiveRequest>("activeReq", reqId);

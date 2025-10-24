@@ -1,7 +1,6 @@
-import prettyBytes from "pretty-bytes";
-
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from "axios";
 import { Request } from "@/db/models.type";
+import { HttpResponse } from "@/store/useHttpStore";
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 declare module "axios" {
   export interface InternalAxiosRequestConfig {
@@ -18,6 +17,7 @@ declare module "axios" {
     };
   }
 }
+
 axios.interceptors.request.use((request: InternalAxiosRequestConfig) => {
   request.reqendData = request.reqendData || {};
   request.reqendData.startTime = new Date().getTime();
@@ -30,33 +30,84 @@ const updateRequestTime = (response: AxiosResponse) => {
   return response;
 };
 
-axios.interceptors.response.use(updateRequestTime, (e) => Promise.reject(updateRequestTime(e.response)));
+axios.interceptors.response.use(updateRequestTime, (error) => {
+  if (error.response) updateRequestTime(error.response);
+  return Promise.reject(error);
+});
 
-// function updateResponseDetails(response) {
-//   document.querySelector("[data-status]").textContent = response.status;
-//   document.querySelector("[data-time]").textContent = response.customData.time;
-//   document.querySelector("[data-size]").textContent = prettyBytes(JSON.stringify(response.data).length + JSON.stringify(response.headers).length);
-// }
+const buildQueryParams = (params: Request["params"]) => {
+  const selectedParams = params.filter((p) => p.selected);
+  if (selectedParams.length === 0) return "";
+  const queryString = selectedParams.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+  return queryString ? `?${queryString}` : "";
+};
 
-// function updateResponseHeaders(headers) {
-//   responseHeadersContainer.innerHTML = "";
-//   Object.entries(headers).forEach(([key, value]) => {
-//     const keyElement = document.createElement("div");
-//     keyElement.textContent = key;
-//     responseHeadersContainer.append(keyElement);
-//     const valueElement = document.createElement("div");
-//     valueElement.textContent = value;
-//     responseHeadersContainer.append(valueElement);
-//   });
-// }
+const buildAuthHeaders = (auth: Request["auth"]) => {
+  const headers: Record<string, string> = {};
 
-export const requestHandler = (request: Request) => {
-  axios({
-    url: request.url,
-    method: request.method,
-  })
-    .catch((e) => e)
-    .then((response) => {
-      console.log(response);
+  switch (auth.authType) {
+    case "bearerToken":
+      if (auth.value?.token) {
+        headers["Authorization"] = `Bearer ${auth.value.token}`;
+      }
+      break;
+
+    case "basicAuth":
+      if (auth.value?.username && auth.value?.password) {
+        const encoded = btoa(`${auth.value.username}:${auth.value.password}`);
+        headers["Authorization"] = `Basic ${encoded}`;
+      }
+      break;
+
+    case "noAuth":
+    default:
+      break;
+  }
+
+  return headers;
+};
+
+const calculateResponseSize = (response: AxiosResponse): number => {
+  const dataSize = JSON.stringify(response.data).length;
+  const headersSize = JSON.stringify(response.headers).length;
+  return dataSize + headersSize;
+};
+
+export const requestHandler = async (request: Request): Promise<HttpResponse> => {
+  const queryParams = buildQueryParams(request.params);
+  const url = `${request.url}${queryParams}`;
+  const authHeaders = buildAuthHeaders(request.auth);
+
+  try {
+    const response = await axios({
+      url,
+      method: request.method,
+      headers: {
+        ...authHeaders,
+        ...(request.body?.type === "json" && { "Content-Type": "application/json" }),
+      },
     });
+
+    return {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers as Record<string, string>,
+      data: response.data,
+      time: response.reqendData?.time || 0,
+      size: calculateResponseSize(response),
+    };
+  } catch (error: any) {
+    if (error.response) {
+      // Server responded with error
+      return {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        headers: error.response.headers as Record<string, string>,
+        data: error.response.data,
+        time: error.response.reqendData?.time || 0,
+        size: calculateResponseSize(error.response),
+      };
+    }
+    throw new Error(error.message || "Network error occurred");
+  }
 };
