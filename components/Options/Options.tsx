@@ -1,21 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useHttpStore } from "@/store/useHttpStore";
 import { ArrowRight, Download, Upload, Users } from "lucide-react";
 import { FC } from "react";
 import Authentication from "./Authentication/Authentication";
 import Params from "./Params/Params";
 
-interface OptionsProps {
-  onFlipHandler: () => void;
-}
+const Options: FC = () => {
+  const changeCardMode = useHttpStore((state) => state.changeCardMode);
 
-const Options: FC<OptionsProps> = ({ onFlipHandler }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between w-full">
         <CardTitle>Request Options</CardTitle>
-        <Button size={"sm"} variant={"outline"} onClick={onFlipHandler}>
+        <Button size={"sm"} variant={"outline"} onClick={() => changeCardMode("response")}>
           Response
         </Button>
       </CardHeader>

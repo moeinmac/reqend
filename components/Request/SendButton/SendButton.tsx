@@ -1,12 +1,23 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { requestHandler } from "@/lib/requestHandler";
+import { useRequestStore } from "@/store/useRequestStore";
 import { useFormStatus } from "react-dom";
 const SendButton = () => {
-  const { pending } = useFormStatus();
+  const request = useRequestStore((state) => state.request);
+  if (!request) return;
+
   return (
-    <Button className="py-6 px-6 cursor-pointer" type="submit">
-      {pending ? "Wait" : "Send"}
+    <Button
+      onClick={(e) => {
+        e.preventDefault();
+        requestHandler(request);
+      }}
+      className="py-6 px-6 cursor-pointer"
+      type="submit"
+    >
+      Send
     </Button>
   );
 };

@@ -1,13 +1,10 @@
-import { FC, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Options from "@/components/Options/Options";
 import Response from "@/components/Response/Response";
+import { useHttpStore } from "@/store/useHttpStore";
+import { FC } from "react";
 
 const FlipCard: FC = () => {
-  const [isFlipped, setIsFlipped] = useState<boolean>(false);
-
-  const flipHandler = () => setIsFlipped(!isFlipped);
+  const cardMode = useHttpStore((state) => state.cardMode);
 
   return (
     <div className="flex items-center justify-center">
@@ -16,11 +13,11 @@ const FlipCard: FC = () => {
           className="relative w-full  transition-transform duration-700 transform-style-3d"
           style={{
             transformStyle: "preserve-3d",
-            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transform: cardMode === "response" ? "rotateY(180deg)" : "rotateY(0deg)",
           }}
         >
           <div className="absolute w-full h-full backface-hidden" style={{ backfaceVisibility: "hidden" }}>
-            <Options onFlipHandler={flipHandler} />
+            <Options />
           </div>
 
           <div
@@ -30,7 +27,7 @@ const FlipCard: FC = () => {
               transform: "rotateY(180deg)",
             }}
           >
-            <Response onFlipHandler={flipHandler} />
+            <Response />
           </div>
         </div>
       </div>

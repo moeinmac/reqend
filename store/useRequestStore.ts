@@ -42,6 +42,7 @@ export const useRequestStore = create<RequestStore>()(
   immer((set, get) => ({
     request: null,
     fetched: false,
+    cardMode: "option",
     fetchRequest: async (reqId) => {
       const request = await fetchRequestHandler(reqId);
       set((state) => {
