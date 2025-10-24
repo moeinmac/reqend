@@ -1,16 +1,18 @@
 import {
+  addActiveRequest,
   addTempActiveRequest,
   DEFAULT_REQ_METHOD,
+  getAllActiveRequest,
   removeActiveRequest,
   saveActiveReqHandler,
   updateActiveReqNameHandler,
 } from "@/db/dal/crud-activeReq";
 import { newRequestHandler } from "@/db/dal/crud-request";
-import { getAllItems } from "@/db/db";
 import { ActiveRequest } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useRequestStore } from "./useRequestStore";
+import { useHttpStore } from "./useHttpStore";
 
 export interface ActiveReqStore {
   activeRequests: ActiveRequest[];
@@ -33,12 +35,13 @@ export const useActiveReqStore = create<ActiveReqStore>()(
     activeReqId: "",
     setActiveReqId: async (id: string) => {
       await useRequestStore.getState().fetchRequest(id);
+      useHttpStore.getState().resetResponse();
       set((state) => {
         state.activeReqId = id;
       });
     },
     fetchAllActiveReqs: async () => {
-      const allReqs = await getAllItems<ActiveRequest>("activeReq");
+      const allReqs = await getAllActiveRequest();
       if (allReqs)
         set((state) => {
           state.activeRequests = allReqs;
@@ -55,7 +58,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
         url: "",
         body: null,
         params: [],
-        auth: null,
+        auth: { authType: "noAuth", value: null },
         type: "request",
       });
       await useRequestStore.getState().fetchRequest(tempReq.id);
@@ -68,6 +71,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
     add: async (activeReq) => {
       const exist = get().activeRequests.find((req) => req.id === activeReq.id);
       await useRequestStore.getState().fetchRequest(activeReq.id);
+      await addActiveRequest(activeReq);
       if (!exist) {
         set((state) => {
           state.activeRequests.push(activeReq);

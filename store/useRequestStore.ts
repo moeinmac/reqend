@@ -1,6 +1,13 @@
 import { addNewParamsHandler, removeParamHandler, updateParamsHandler } from "@/db/dal/crud-params";
-import { fetchRequestHandler, updateRequestMethod, updateRequestNameHandler, updateRequestUrl } from "@/db/dal/crud-request";
-import { Method, Params, Request } from "@/db/models.type";
+import {
+  fetchRequestHandler,
+  updateAuthTypeHandler,
+  updateAuthValueHandler,
+  updateRequestMethod,
+  updateRequestNameHandler,
+  updateRequestUrl,
+} from "@/db/dal/crud-request";
+import { Auth, Method, Params, Request } from "@/db/models.type";
 import { RowSelectionState } from "@tanstack/react-table";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -15,6 +22,8 @@ export interface RequestStoreMethods {
   updateParams: (rowIndex: number, columnId: string, value: unknown) => Promise<Params[] | undefined>;
   deleteParam: (rowId: string) => Promise<void>;
   updateSelectParam: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
+  updateAuthType: (authType: Auth["authType"]) => Promise<void>;
+  updateAuthValue: (authValue: Auth["value"]) => Promise<void>;
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {
@@ -33,6 +42,7 @@ export const useRequestStore = create<RequestStore>()(
   immer((set, get) => ({
     request: null,
     fetched: false,
+    cardMode: "option",
     fetchRequest: async (reqId) => {
       const request = await fetchRequestHandler(reqId);
       set((state) => {
@@ -117,11 +127,29 @@ export const useRequestStore = create<RequestStore>()(
         return acc;
       }, {} as RowSelectionState);
       const newRowSelection = typeof updaterOrValue === "function" ? updaterOrValue(currentRowSelection) : updaterOrValue;
-      const newData = request.params.map((param, index) => ({
+      const newParam: Params[] = request.params.map((param, index) => ({
         ...param,
         selected: !!newRowSelection[index],
       }));
-      const req = await updateParamsHandler(newData, request.id);
+      const req = await updateParamsHandler(newParam, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateAuthType: async (authType) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await updateAuthTypeHandler(request.id, authType);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateAuthValue: async (authValue) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await updateAuthValueHandler(request.id, authValue);
       if (req)
         set((state) => {
           state.request = req;

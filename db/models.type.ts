@@ -10,6 +10,18 @@ export interface Params {
   selected: boolean;
 }
 
+export type AuthType = "bearerToken" | "noAuth" | "basicAuth" | "oAuth";
+
+export type AuthBearerValue = {
+  token: string;
+};
+
+// TODO declare other auth here
+export type Auth = {
+  authType: AuthType;
+  value: any;
+};
+
 export interface TheJSON {
   [key: string]: string | number | TheJSON | string[] | number[] | TheJSON[];
 }
@@ -37,7 +49,7 @@ export interface Request extends RequestPrimary {
   url: string;
   params: Params[];
   body: Body | null;
-  auth: any;
+  auth: Auth;
 }
 
 export interface FolderItem {
