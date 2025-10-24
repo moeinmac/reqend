@@ -6,15 +6,16 @@ import { ArrowRight, Download, Upload, Users } from "lucide-react";
 import { FC } from "react";
 import Authentication from "./Authentication/Authentication";
 import Params from "./Params/Params";
+import { useShallow } from "zustand/react/shallow";
 
 const Options: FC = () => {
-  const changeCardMode = useHttpStore((state) => state.changeCardMode);
+  const { changeCardMode, response } = useHttpStore(useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response })));
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between w-full">
         <CardTitle>Request Options</CardTitle>
-        <Button size={"sm"} variant={"outline"} onClick={() => changeCardMode("response")}>
+        <Button disabled={!response} size={"sm"} variant={"outline"} onClick={() => changeCardMode("response")}>
           Response
         </Button>
       </CardHeader>

@@ -1,13 +1,12 @@
 import { Collection, RequestPrimary } from "@/db/models.type";
 import { useRequestStore } from "@/store/useRequestStore";
 import { FC, useEffect } from "react";
-import Options from "../Options/Options";
+import { useShallow } from "zustand/react/shallow";
 import Loading from "../ui/loading";
+import FlipCard from "./FlipCard/FlipCard";
 import InputReq from "./InputReq/InputReq";
 import Methods from "./Methods/Methods";
 import SendButton from "./SendButton/SendButton";
-import { useShallow } from "zustand/react/shallow";
-import FlipCard from "./FlipCard/FlipCard";
 
 interface RequestProps {
   id: RequestPrimary["id"];
