@@ -23,6 +23,11 @@ export const addTempActiveRequest = async (collectionId?: string) => {
   return tempRequest;
 };
 
+export const addActiveRequest = async (activeReq: ActiveRequest) => {
+  await setItem<ActiveRequest>("activeReq", activeReq.id, activeReq);
+  return activeReq;
+};
+
 export const removeActiveRequest = async (reqId: string) => {
   await removeItem("activeReq", reqId);
 };

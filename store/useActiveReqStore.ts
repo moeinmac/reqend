@@ -1,4 +1,5 @@
 import {
+  addActiveRequest,
   addTempActiveRequest,
   DEFAULT_REQ_METHOD,
   removeActiveRequest,
@@ -68,6 +69,7 @@ export const useActiveReqStore = create<ActiveReqStore>()(
     add: async (activeReq) => {
       const exist = get().activeRequests.find((req) => req.id === activeReq.id);
       await useRequestStore.getState().fetchRequest(activeReq.id);
+      await addActiveRequest(activeReq);
       if (!exist) {
         set((state) => {
           state.activeRequests.push(activeReq);
