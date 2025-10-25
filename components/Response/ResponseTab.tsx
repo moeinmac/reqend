@@ -1,5 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ResponseHeaders from "./ResponseHeaders";
+import { HttpResponse } from "@/store/useHttpStore";
+import { FC } from "react";
+import { headers } from "next/headers";
 
 const tabs: { name: string; value: "body" | "headers" }[] = [
   {
@@ -12,7 +15,11 @@ const tabs: { name: string; value: "body" | "headers" }[] = [
   },
 ];
 
-const ResponseTab = () => {
+interface ResponseTabProps {
+  headers: HttpResponse["headers"];
+}
+
+const ResponseTab: FC<ResponseTabProps> = ({ headers }) => {
   return (
     <div className="w-full my-4">
       <Tabs defaultValue="body">
@@ -26,7 +33,7 @@ const ResponseTab = () => {
 
         {tabs.map((tab) => (
           <TabsContent key={tab.value} value={tab.value} className="w-full">
-            <div className="w-full">{tab.value === "headers" ? <ResponseHeaders /> : ""}</div>
+            <div className="w-full">{tab.value === "headers" ? <ResponseHeaders headers={headers} /> : ""}</div>
           </TabsContent>
         ))}
       </Tabs>

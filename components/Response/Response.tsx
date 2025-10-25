@@ -31,7 +31,7 @@ const Response: FC = () => {
           {response && <ResponseInfo size={response.size} statusCode={response.status} />}
           {error && <p>{error.message}</p>}
         </div>
-        <ResponseTabs />
+        {response && <ResponseTabs headers={response.headers} />}
       </CardContent>
     </Card>
   );

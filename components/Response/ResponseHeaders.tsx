@@ -1,4 +1,5 @@
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { HttpResponse } from "@/store/useHttpStore";
 import { FC } from "react";
 
 const invoices = [
@@ -46,7 +47,11 @@ const invoices = [
   },
 ];
 
-const ResponseHeaders: FC = () => {
+interface ResponseHeadersProps {
+  headers: HttpResponse["headers"];
+}
+
+const ResponseHeaders: FC<ResponseHeadersProps> = ({ headers }) => {
   return (
     <Table className="w-full">
       <TableHeader>
@@ -56,10 +61,10 @@ const ResponseHeaders: FC = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice} className="*:border-border [&>:not(:last-child)]:border-r">
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
+        {Object.entries(headers).map(([key, value], index) => (
+          <TableRow key={index} className="*:border-border [&>:not(:last-child)]:border-r">
+            <TableCell className="font-medium">{key}</TableCell>
+            <TableCell>{value}</TableCell>
           </TableRow>
         ))}
       </TableBody>
