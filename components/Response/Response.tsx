@@ -5,14 +5,15 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 import { Spinner } from "../ui/spinner";
-import ResponseHeader from "./ResponseHeader";
+import ResponseInfo from "./ResponseInfo";
+import ResponseTabs from "./ResponseTab";
 
 const Response: FC = () => {
   const { changeCardMode, response, isSubmitting, error } = useHttpStore(
     useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response, isSubmitting: state.isSubmitting, error: state.error }))
   );
 
-  console.log(error);
+  console.log(response);
 
   return (
     <Card>
@@ -27,9 +28,10 @@ const Response: FC = () => {
       </CardHeader>
       <CardContent className="px-6">
         <div>
-          {response && <ResponseHeader size={response.size} statusCode={response.status} />}
+          {response && <ResponseInfo size={response.size} statusCode={response.status} />}
           {error && <p>{error.message}</p>}
         </div>
+        <ResponseTabs />
       </CardContent>
     </Card>
   );
