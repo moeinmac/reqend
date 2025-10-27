@@ -2,18 +2,22 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Body } from "@/db/models.type";
 import { useRequestStore } from "@/store/useRequestStore";
+import { FC } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-const BodyType = () => {
-  const { request, updateBodyType } = useRequestStore(
+interface BodyTypeProps {
+  value: Body["type"];
+}
+
+const BodyType: FC<BodyTypeProps> = ({ value }) => {
+  const { updateBodyType } = useRequestStore(
     useShallow((state) => ({
-      request: state.request,
       updateBodyType: state.updateBodyType,
     }))
   );
   return (
     <RadioGroup
-      value={request?.body?.type ?? "none"}
+      value={value}
       onValueChange={async (value: Body["type"]) => await updateBodyType(value)}
       className="flex items-center gap-4 px-4 py-1"
     >
