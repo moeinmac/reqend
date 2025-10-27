@@ -7,9 +7,13 @@ import { FC } from "react";
 import Authentication from "./Authentication/Authentication";
 import Params from "./Params/Params";
 import { useShallow } from "zustand/react/shallow";
+import Body from "../Body/Body";
+import { useRequestStore } from "@/store/useRequestStore";
 
 const Options: FC = () => {
   const { changeCardMode, response } = useHttpStore(useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response })));
+
+  const requestMethod = useRequestStore((state) => state.request?.method);
 
   return (
     <Card>
@@ -25,7 +29,9 @@ const Options: FC = () => {
             <TabsTrigger value="params">Params</TabsTrigger>
             <TabsTrigger value="authentication">Authentication</TabsTrigger>
             <TabsTrigger value="headers">Headers</TabsTrigger>
-            <TabsTrigger value="body">Body</TabsTrigger>
+            <TabsTrigger disabled={requestMethod === "get"} value="body">
+              Body
+            </TabsTrigger>
             <TabsTrigger value="setting">Setting</TabsTrigger>
           </TabsList>
           <TabsContent value="params">
@@ -72,32 +78,7 @@ const Options: FC = () => {
             </div>
           </TabsContent>
           <TabsContent value="body">
-            <div className="grid gap-4">
-              <div className="border-b pb-4">
-                <h3 className="font-medium">Comments</h3>
-                <p className="text-muted-foreground">Manage and respond to comments on your account.</p>
-              </div>
-              <div className="grid gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium">Jill Watson</div>
-                      <div className="text-xs text-muted-foreground">2 days ago</div>
-                    </div>
-                    <p className="text-muted-foreground">Great work on the new design! Really love the clean look and feel.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium">Tom Hanks</div>
-                      <div className="text-xs text-muted-foreground">1 week ago</div>
-                    </div>
-                    <p className="text-muted-foreground">Awesome job on the new features! Can&apos;t wait to try them out.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Body />
           </TabsContent>
           <TabsContent value="setting">
             <div className="grid gap-4">

@@ -13,6 +13,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useRequestStore } from "./useRequestStore";
 import { useHttpStore } from "./useHttpStore";
+import { v4 } from "uuid";
 
 export interface ActiveReqStore {
   activeRequests: ActiveRequest[];
@@ -56,7 +57,11 @@ export const useActiveReqStore = create<ActiveReqStore>()(
         name: tempReq.name,
         method: DEFAULT_REQ_METHOD,
         url: "",
-        body: null,
+        body: {
+          id: v4(),
+          content: null,
+          type: "none",
+        },
         params: [],
         auth: { authType: "noAuth", value: null },
         type: "request",

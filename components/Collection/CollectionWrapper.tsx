@@ -45,7 +45,7 @@ const CollectionWrapper: FC<CollectionWrapperProps> = ({ data, mode }) => {
     }))
   );
 
-  const { onSaveActiveRequest } = useActiveReqStore(
+  const { onSaveActiveRequest  } = useActiveReqStore(
     useShallow((state) => ({
       onSaveActiveRequest: state.save,
       addTempRequest: state.addTemp,

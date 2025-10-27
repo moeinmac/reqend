@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { getItem, removeItem, setItem } from "../db";
-import type { Auth, AuthType, Method, Request } from "../models.type";
+import type { Auth, AuthType, Body, Method, Request } from "../models.type";
 
 export const newRequestHandler = async (newReq: Omit<Request, "id"> & { id?: string }) => {
   const newRequest: Request = {
@@ -64,6 +64,26 @@ export const updateAuthValueHandler = async (reqId: string, authValue: Auth["val
   const theReq = await getItem<Request>("request", reqId);
   if (theReq) {
     theReq.auth.value = authValue;
+    await setItem<Request>("request", theReq.id, theReq);
+    return theReq;
+  }
+  return null;
+};
+
+export const updateBodyTypeHandler = async (reqId: string, bodyType: Body["type"]) => {
+  const theReq = await getItem<Request>("request", reqId);
+  if (theReq) {
+    theReq.body.type = bodyType;
+    await setItem<Request>("request", theReq.id, theReq);
+    return theReq;
+  }
+  return null;
+};
+
+export const updateBodyValueHandler = async (reqId: string, bodyValue: Body["content"]) => {
+  const theReq = await getItem<Request>("request", reqId);
+  if (theReq) {
+    theReq.body.content = bodyValue;
     await setItem<Request>("request", theReq.id, theReq);
     return theReq;
   }

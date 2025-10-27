@@ -26,17 +26,30 @@ export interface TheJSON {
   [key: string]: string | number | TheJSON | string[] | number[] | TheJSON[];
 }
 
-export interface FormDataBody {
+export interface FormData {
   id: string;
   key: string;
   value: string | number | File;
 }
 
-export interface Body {
+interface NoneBody {
   id: string;
-  type: "none" | "json" | "text" | "form-data" | "urlencoded" | "binary";
-  content: string | FormDataBody | TheJSON;
+  type: "none";
+  content: null;
 }
+
+interface JsonBody {
+  id: string;
+  type: "json";
+  content: TheJSON;
+}
+interface FormDataBody {
+  id: string;
+  type: "form-data";
+  content: FormData;
+}
+
+export type Body = NoneBody | JsonBody | FormDataBody;
 
 export interface RequestPrimary {
   id: string;
@@ -48,7 +61,7 @@ export interface RequestPrimary {
 export interface Request extends RequestPrimary {
   url: string;
   params: Params[];
-  body: Body | null;
+  body: Body;
   auth: Auth;
 }
 
