@@ -79,3 +79,13 @@ export const updateBodyTypeHandler = async (reqId: string, bodyType: Body["type"
   }
   return null;
 };
+
+export const updateBodyValueHandler = async (reqId: string, bodyValue: Body["content"]) => {
+  const theReq = await getItem<Request>("request", reqId);
+  if (theReq) {
+    theReq.body.content = bodyValue;
+    await setItem<Request>("request", theReq.id, theReq);
+    return theReq;
+  }
+  return null;
+};

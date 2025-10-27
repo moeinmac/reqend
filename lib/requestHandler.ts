@@ -67,6 +67,20 @@ const buildAuthHeaders = (auth: Request["auth"]) => {
   return headers;
 };
 
+const buildRequestBody = (body: Request["body"]) => {
+  if (!body || body.type === "none") return undefined;
+
+  switch (body.type) {
+    case "json":
+      return body.content;
+
+    case "form-data": {
+      // TODO handle form-data
+      return "";
+    }
+  }
+};
+
 const calculateResponseSize = (response: AxiosResponse): number => {
   const dataSize = JSON.stringify(response.data).length;
   const headersSize = JSON.stringify(response.headers).length;
@@ -77,6 +91,7 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
   const queryParams = buildQueryParams(request.params);
   const url = `${request.url}${queryParams}`;
   const authHeaders = buildAuthHeaders(request.auth);
+  const body = buildRequestBody(request.body);
 
   try {
     const response = await axios({
@@ -86,6 +101,7 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
         ...authHeaders,
         ...(request.body?.type === "json" && { "Content-Type": "application/json" }),
       },
+      data: body,
     });
 
     return {

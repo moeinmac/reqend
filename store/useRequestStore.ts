@@ -4,6 +4,7 @@ import {
   updateAuthTypeHandler,
   updateAuthValueHandler,
   updateBodyTypeHandler,
+  updateBodyValueHandler,
   updateRequestMethod,
   updateRequestNameHandler,
   updateRequestUrl,
@@ -26,6 +27,7 @@ export interface RequestStoreMethods {
   updateAuthType: (authType: Auth["authType"]) => Promise<void>;
   updateAuthValue: (authValue: Auth["value"]) => Promise<void>;
   updateBodyType: (bodyType: Body["type"]) => Promise<void>;
+  updateBodyValue: (bodyValue: Body["content"]) => Promise<void>;
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {
@@ -161,6 +163,15 @@ export const useRequestStore = create<RequestStore>()(
       const { fetched, request } = get();
       if (!fetched) return;
       const req = await updateBodyTypeHandler(request.id, bodyType);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateBodyValue: async (bodyValue) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await updateBodyValueHandler(request.id, bodyValue);
       if (req)
         set((state) => {
           state.request = req;
