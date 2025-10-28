@@ -40,7 +40,7 @@ const Authentication: FC = () => {
       {authType !== "noAuth" && (
         <div className="flex flex-col gap-4 w-full">
           <h2>Auth Value</h2>
-          <div>
+          <div className="flex items-center gap-4">
             {request?.auth.authType === "bearerToken" && (
               <Input
                 className="w-8/12 max-w-96"
@@ -49,6 +49,24 @@ const Authentication: FC = () => {
                 value={request.auth?.value?.token ?? ""}
                 onChange={async (event) => await updateAuthValue({ token: event.target.value })}
               />
+            )}
+            {request?.auth.authType === "basicAuth" && (
+              <>
+                <Input
+                  className="w-6/12 max-w-96"
+                  placeholder="Username"
+                  name="username"
+                  value={request.auth?.value?.username ?? ""}
+                  onChange={async (event) => await updateAuthValue({ ...request.auth?.value, username: event.target.value })}
+                />
+                <Input
+                  className="w-6/12 max-w-96"
+                  placeholder="Password"
+                  name="password"
+                  value={request.auth?.value?.password ?? ""}
+                  onChange={async (event) => await updateAuthValue({ ...request.auth?.value, password: event.target.value })}
+                />
+              </>
             )}
           </div>
         </div>
