@@ -63,6 +63,7 @@ export interface Request extends RequestPrimary {
   params: Params[];
   body: Body;
   auth: Auth;
+  headers: Params[];
 }
 
 export interface FolderItem {

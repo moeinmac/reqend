@@ -1,3 +1,4 @@
+import { addNewHeaderHandler, removeHeaderHandler, updateHeadersHandler } from "@/db/dal/crud-headers";
 import { addNewParamsHandler, removeParamHandler, updateParamsHandler } from "@/db/dal/crud-params";
 import {
   fetchRequestHandler,
@@ -28,6 +29,11 @@ export interface RequestStoreMethods {
   updateAuthValue: (authValue: Auth["value"]) => Promise<void>;
   updateBodyType: (bodyType: Body["type"]) => Promise<void>;
   updateBodyValue: (bodyValue: Body["content"]) => Promise<void>;
+
+  addNewHeader: () => Promise<Params | undefined>;
+  updateHeaders: (rowIndex: number, columnId: string, value: unknown) => Promise<Request["headers"] | undefined>;
+  deleteHeader: (rowId: string) => Promise<void>;
+  updateSelectHeader: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
 }
 
 export interface RequestNotFetched extends RequestStoreMethods {
@@ -172,6 +178,65 @@ export const useRequestStore = create<RequestStore>()(
       const { fetched, request } = get();
       if (!fetched) return;
       const req = await updateBodyValueHandler(request.id, bodyValue);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    addNewHeader: async () => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const result = await addNewHeaderHandler(request.id);
+      if (result) {
+        set((state) => {
+          state.request = result.updatedReq;
+        });
+        return result.newHeader;
+      }
+    },
+    updateHeaders: async (rowIndex: number, columnId: string, value: unknown) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const newData = request.headers.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...request.headers[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      });
+      const req = await updateHeadersHandler(newData, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+      return newData;
+    },
+    deleteHeader: async (rowId) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const req = await removeHeaderHandler(rowId, request.id);
+      if (req)
+        set((state) => {
+          state.request = req;
+        });
+    },
+    updateSelectHeader: async (updaterOrValue) => {
+      const { fetched, request } = get();
+      if (!fetched) return;
+      const currentRowSelection = request.headers.reduce((acc, header, index) => {
+        if (header.selected) {
+          acc[index] = true;
+        }
+        return acc;
+      }, {} as RowSelectionState);
+      const newRowSelection = typeof updaterOrValue === "function" ? updaterOrValue(currentRowSelection) : updaterOrValue;
+      const newHeader: Request["headers"] = request.headers.map((header, index) => ({
+        ...header,
+        selected: !!newRowSelection[index],
+      }));
+      const req = await updateHeadersHandler(newHeader, request.id);
       if (req)
         set((state) => {
           state.request = req;
