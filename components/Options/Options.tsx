@@ -7,7 +7,7 @@ import { FC } from "react";
 import Authentication from "./Authentication/Authentication";
 import Params from "./Params/Params";
 import { useShallow } from "zustand/react/shallow";
-import Body from "../Body/Body";
+import Body from "./Body/Body";
 import { useRequestStore } from "@/store/useRequestStore";
 
 const Options: FC = () => {

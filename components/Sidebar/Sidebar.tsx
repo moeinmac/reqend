@@ -5,14 +5,16 @@ import { FC, useEffect } from "react";
 import CollectionWrapper from "../Collection/CollectionWrapper";
 import MutateCollection from "../Collection/MutateCollection";
 import { cn } from "@/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 
 interface SidebarProps {
   mode: "sidebar" | "treeview";
 }
 
 const Sidebar: FC<SidebarProps> = ({ mode }) => {
-  const collections = useCollectionStore((state) => state.collections);
-  const fetchAllCollections = useCollectionStore((state) => state.fetchAllCollections);
+  const { collections, fetchAllCollections } = useCollectionStore(
+    useShallow((state) => ({ collections: state.collections, fetchAllCollections: state.fetchAllCollections }))
+  );
 
   useEffect(() => {
     fetchAllCollections();
