@@ -9,6 +9,7 @@ import Params from "./Params/Params";
 import { useShallow } from "zustand/react/shallow";
 import Body from "./Body/Body";
 import { useRequestStore } from "@/store/useRequestStore";
+import Headers from "./Headers/Headers";
 
 const Options: FC = () => {
   const { changeCardMode, response } = useHttpStore(useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response })));
@@ -41,41 +42,7 @@ const Options: FC = () => {
             <Authentication />
           </TabsContent>
           <TabsContent value="headers">
-            <div className="grid gap-4">
-              <div>
-                <h3 className="font-medium">Groups</h3>
-                <p className="text-muted-foreground">Manage your group memberships and settings.</p>
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="size-5 text-muted-foreground" />
-                    <span>Design Team</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="size-5 text-muted-foreground" />
-                    <span>Marketing Squad</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="size-5 text-muted-foreground" />
-                    <span>Engineering Crew</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <Headers />
           </TabsContent>
           <TabsContent value="body">
             <Body />
