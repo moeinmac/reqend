@@ -13,8 +13,6 @@ const Response: FC = () => {
     useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response, isSubmitting: state.isSubmitting, error: state.error }))
   );
 
-  console.log(response);
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between w-full">
@@ -28,7 +26,7 @@ const Response: FC = () => {
       </CardHeader>
       <CardContent className="px-6">
         <div>
-          {response && <ResponseInfo size={response.size} statusCode={response.status} />}
+          {response && <ResponseInfo size={response.size} statusCode={response.status} time={response.time} />}
           {error && <p>{error.message}</p>}
         </div>
         {response && <ResponseTabs headers={response.headers} data={response.data} />}

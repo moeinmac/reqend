@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, Check, RotateCcw, AlertCircle, CheckCircle2, Wand2 } from "lucide-react";
 
 interface JsonEditorProps {
-  initialValue?: any;
+  value?: any;
   onChange?: (value: any, isValid: boolean) => void;
   placeholder?: string;
 }
@@ -15,8 +15,10 @@ const defaultPlaceHolder = `{
   "key" : "value"  
 }`;
 
-const JsonEditor: React.FC<JsonEditorProps> = ({ initialValue = {}, onChange, placeholder = defaultPlaceHolder }) => {
-  const [text, setText] = useState<string>(JSON.stringify(initialValue, null, 2));
+const JsonEditor: React.FC<JsonEditorProps> = ({ value = {}, onChange, placeholder = defaultPlaceHolder }) => {
+  const initialValue = useMemo(() => value, []);
+
+  const [text, setText] = useState<string>(JSON.stringify(value, null, 2));
   const [isValid, setIsValid] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [copied, setCopied] = useState(false);

@@ -19,7 +19,7 @@ const Body: FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <BodyType value={bodyType} updateBodyType={updateBodyType} />
-      {bodyType === "json" ? <JsonEditor initialValue={bodyValue} onChange={async (value) => await updateBodyValue(value)} /> : ""}
+      {bodyType === "json" ? <JsonEditor value={bodyValue} onChange={async (value) => await updateBodyValue(value)} /> : ""}
     </div>
   );
 };

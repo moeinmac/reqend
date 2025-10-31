@@ -1,48 +1,71 @@
 import { Request } from "@/db/models.type";
 import { HttpResponse } from "@/store/useHttpStore";
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 declare module "axios" {
   export interface InternalAxiosRequestConfig {
     reqendData?: {
-      startTime?: number;
-      time?: number;
+      startTime: number;
+      time: number;
     };
   }
 
   export interface AxiosResponse {
     reqendData?: {
-      startTime?: number;
-      time?: number;
+      startTime: number;
+      time: number;
     };
   }
 }
 
-axios.interceptors.request.use((request: InternalAxiosRequestConfig) => {
-  request.reqendData = request.reqendData || {};
-  request.reqendData.startTime = new Date().getTime();
-  return request;
-});
+const createTimedAxiosInstance = (): AxiosInstance => {
+  const instance = axios.create();
 
-const updateRequestTime = (response: AxiosResponse) => {
-  response.reqendData = response.reqendData || {};
-  response.reqendData.time = new Date().getTime() - (response.reqendData.startTime || 0);
-  return response;
+  instance.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+      config.reqendData = {
+        startTime: Date.now(),
+        time: 0,
+      };
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  instance.interceptors.response.use(
+    (response: AxiosResponse) => {
+      const startTime = response.config.reqendData?.startTime || Date.now();
+      response.reqendData = {
+        startTime,
+        time: Date.now() - startTime,
+      };
+      return response;
+    },
+    (error) => {
+      if (error.response && error.config?.reqendData?.startTime) {
+        const startTime = error.config.reqendData.startTime;
+        error.response.reqendData = {
+          startTime,
+          time: Date.now() - startTime,
+        };
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  return instance;
 };
 
-axios.interceptors.response.use(updateRequestTime, (error) => {
-  if (error.response) updateRequestTime(error.response);
-  return Promise.reject(error);
-});
+const timedAxios = createTimedAxiosInstance();
 
-const buildQueryParams = (params: Request["params"]) => {
+const buildQueryParams = (params: Request["params"]): string => {
   const selectedParams = params.filter((p) => p.selected);
   if (selectedParams.length === 0) return "";
   const queryString = selectedParams.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
   return queryString ? `?${queryString}` : "";
 };
 
-const buildAuthHeaders = (auth: Request["auth"]) => {
+const buildAuthHeaders = (auth: Request["auth"]): Record<string, string> => {
   const headers: Record<string, string> = {};
 
   switch (auth.authType) {
@@ -67,7 +90,7 @@ const buildAuthHeaders = (auth: Request["auth"]) => {
   return headers;
 };
 
-const buildRequestBody = (body: Request["body"]) => {
+const buildRequestBody = (body: Request["body"]): any => {
   if (!body || body.type === "none") return undefined;
 
   switch (body.type) {
@@ -75,10 +98,29 @@ const buildRequestBody = (body: Request["body"]) => {
       return body.content;
 
     case "form-data": {
-      // TODO handle form-data
-      return "";
+      // TODO: Implement FormData handling
+      const formData = new FormData();
+      // Example: formData.append('key', 'value');
+      return formData;
     }
+
+    default:
+      return undefined;
   }
+};
+
+const buildRequestHeaders = (headers: Request["headers"]): Record<string, string> => {
+  if (!headers) return {};
+
+  const selectedHeaders = headers.filter((h) => h.selected);
+  if (selectedHeaders.length === 0) return {};
+
+  const theHeaders: Record<string, string> = {};
+  selectedHeaders.forEach((header) => {
+    theHeaders[header.key] = header.value;
+  });
+
+  return theHeaders;
 };
 
 const calculateResponseSize = (response: AxiosResponse): number => {
@@ -92,14 +134,16 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
   const url = `${request.url}${queryParams}`;
   const authHeaders = buildAuthHeaders(request.auth);
   const body = buildRequestBody(request.body);
+  const headers = buildRequestHeaders(request.headers);
 
   try {
-    const response = await axios({
+    const response = await timedAxios({
       url,
       method: request.method,
       headers: {
         ...authHeaders,
         ...(request.body?.type === "json" && { "Content-Type": "application/json" }),
+        ...headers,
       },
       data: body,
     });
@@ -114,7 +158,6 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
     };
   } catch (error: any) {
     if (error.response) {
-      // Server responded with error
       return {
         status: error.response.status,
         statusText: error.response.statusText,
@@ -124,6 +167,7 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
         size: calculateResponseSize(error.response),
       };
     }
+
     throw new Error(error.message || "Network error occurred");
   }
 };
