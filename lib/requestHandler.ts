@@ -81,6 +81,17 @@ const buildRequestBody = (body: Request["body"]) => {
   }
 };
 
+const buildRequestHeader = (headers: Request["headers"]) => {
+  if (!headers) return undefined;
+  const selectedHeaders = headers.filter((h) => h.selected);
+  if (selectedHeaders.length === 0) return undefined;
+  const theHeaders: Record<string, string> = {};
+  headers.forEach((header) => {
+    theHeaders[header.key] = header.value;
+  });
+  return theHeaders;
+};
+
 const calculateResponseSize = (response: AxiosResponse): number => {
   const dataSize = JSON.stringify(response.data).length;
   const headersSize = JSON.stringify(response.headers).length;
@@ -92,6 +103,7 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
   const url = `${request.url}${queryParams}`;
   const authHeaders = buildAuthHeaders(request.auth);
   const body = buildRequestBody(request.body);
+  const headers = buildRequestHeader(request.headers);
 
   try {
     const response = await axios({
@@ -100,6 +112,7 @@ export const requestHandler = async (request: Request): Promise<HttpResponse> =>
       headers: {
         ...authHeaders,
         ...(request.body?.type === "json" && { "Content-Type": "application/json" }),
+        ...headers,
       },
       data: body,
     });
