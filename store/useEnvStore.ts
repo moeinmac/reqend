@@ -1,12 +1,13 @@
 import { addEnvHandler, getAllEnvsHandler, removeEnvHandler } from "@/db/dal/crud-env";
 import { Environment } from "@/db/models.type";
+import { v4 } from "uuid";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 export interface EnvStore {
   envs: Environment[];
   fetchAllEnvs: () => Promise<void>;
-  add: (newEnv: Environment) => Promise<void>;
+  add: (envName: string) => Promise<Environment>;
   remove: (envId: string) => Promise<void>;
   activeEnvId: string;
 }
@@ -23,12 +24,20 @@ export const useEnvStore = create<EnvStore>()(
           state.activeEnvId = allEnvs[0].id;
         });
     },
-    add: async (newEnv: Environment) => {
+    add: async (envName) => {
+      const newEnv: Environment = {
+        createdAt: new Date().toISOString(),
+        modifiedAt: new Date().toISOString(),
+        id: v4(),
+        items: [],
+        name: envName,
+      };
       await addEnvHandler(newEnv);
       set((state) => {
         state.envs.push(newEnv);
         state.activeEnvId = newEnv.id;
       });
+      return newEnv;
     },
     remove: async (envId: string) => {
       await removeEnvHandler(envId);

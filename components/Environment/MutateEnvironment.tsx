@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
+import { useEnvStore } from "@/store/useEnvStore";
 
 interface NewEnvironmentProps {
   mode: "new";
@@ -23,10 +24,12 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [envInput, setEnvInput] = useState<string>(mode === "new" ? "" : props.value);
 
+  const addNewEnv = useEnvStore((state) => state.add);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {mode === "new" && (
-        <Button variant="secondary" size={"sm"} className="ml-auto" onClick={() => setOpen(true)}>
+        <Button variant="outline" size={"sm"} className="ml-auto" onClick={() => setOpen(true)}>
           New Environment
         </Button>
       )}
@@ -50,12 +53,14 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
             type="submit"
             size={"sm"}
             onClick={async () => {
-              if (true) {
+              const result = await addNewEnv(envInput);
+              if (result) {
                 setEnvInput("");
                 toast.success(
                   `${mode === "edit" ? "Environment" : "New Environment"} '${envInput}' ${mode === "edit" ? "edited" : "created"} successfully!`
                 );
               }
+              setOpen(false);
             }}
           >
             {mode === "edit" ? "Edit" : "Create"}
