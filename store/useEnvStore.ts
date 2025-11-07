@@ -22,7 +22,7 @@ export const useEnvStore = create<EnvStore>()(
       if (allEnvs)
         set((state) => {
           state.envs = allEnvs;
-          state.activeEnvId = allEnvs[0].id;
+          state.activeEnvId = allEnvs[0]?.id;
         });
     },
     add: async (envName) => {
