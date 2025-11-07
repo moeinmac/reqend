@@ -18,7 +18,7 @@ const Sidebar: FC<SidebarProps> = ({ mode }) => {
 
   useEffect(() => {
     fetchAllCollections();
-  }, []);
+  }, [fetchAllCollections]);
 
   return (
     <div className={cn(mode === "sidebar" && "col-span-2 p-4")}>

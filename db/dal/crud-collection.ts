@@ -48,6 +48,7 @@ export const newCollectionHandler = async (name: string) => {
 export const newFolderHandler = async (input: MutateFolderInput): Promise<Collection | undefined> => {
   const thisCollection = await getItem<Collection>("collection", input.collectionId);
   if (!thisCollection) return undefined;
+
   if (input.collectionId === input.targetId) {
     const newFolder: FolderItem = {
       id: v4(),

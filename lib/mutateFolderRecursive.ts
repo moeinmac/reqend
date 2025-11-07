@@ -15,6 +15,17 @@ export const fixTargetId = (collection: Collection, targetId: string): string | 
 };
 
 export const newFolderRecursive = (items: CollectionItem[], input: MutateFolderInput): CollectionItem[] => {
+  if (input.targetId === input.collectionId) {
+    const newFolder: FolderItem = {
+      id: v4(),
+      items: [],
+      name: input.folderName,
+      type: "folder",
+    };
+    items.unshift(newFolder);
+    return items;
+  }
+
   for (const item of items) {
     if (item.type === "request") continue;
     if (item.id === input.targetId) {
