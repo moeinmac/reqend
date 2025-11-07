@@ -10,6 +10,7 @@ export interface EnvStore {
   add: (envName: string) => Promise<Environment>;
   remove: (envId: string) => Promise<void>;
   activeEnvId: string;
+  changeActiveEnv: (envId: string) => void;
 }
 
 export const useEnvStore = create<EnvStore>()(
@@ -44,6 +45,11 @@ export const useEnvStore = create<EnvStore>()(
       set((state) => {
         state.envs = state.envs.filter((env) => env.id !== envId);
         state.activeEnvId = state.envs.length > 0 ? state.envs[state.envs.length - 1].id : "";
+      });
+    },
+    changeActiveEnv: (envId: string) => {
+      set((state) => {
+        state.activeEnvId = envId;
       });
     },
   }))
