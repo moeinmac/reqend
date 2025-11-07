@@ -1,4 +1,4 @@
-import { addEnvHandler, getAllEnvsHandler, removeEnvHandler } from "@/db/dal/crud-env";
+import { addEnvHandler, getAllEnvsHandler, removeEnvHandler, renameEnvHandler } from "@/db/dal/crud-env";
 import { Environment } from "@/db/models.type";
 import { v4 } from "uuid";
 import { create } from "zustand";
@@ -11,6 +11,7 @@ export interface EnvStore {
   remove: (envId: string) => Promise<void>;
   activeEnvId: string;
   changeActiveEnv: (envId: string) => void;
+  rename: (envId: string, newName: string) => Promise<Environment | undefined>;
 }
 
 export const useEnvStore = create<EnvStore>()(
@@ -51,6 +52,14 @@ export const useEnvStore = create<EnvStore>()(
       set((state) => {
         state.activeEnvId = envId;
       });
+    },
+    rename: async (envId: string, newName: string) => {
+      const envToRename = await renameEnvHandler(envId, newName);
+      if (!envToRename) return;
+      set((state) => {
+        state.envs = state.envs.map((env) => (env.id === envId ? envToRename : env));
+      });
+      return envToRename;
     },
   }))
 );

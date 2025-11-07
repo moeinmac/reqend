@@ -6,6 +6,8 @@ import { Button } from "../ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { useEnvStore } from "@/store/useEnvStore";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Pencil } from "lucide-react";
 
 interface NewEnvironmentProps {
   mode: "new";
@@ -25,6 +27,7 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
   const [envInput, setEnvInput] = useState<string>(mode === "new" ? "" : props.value);
 
   const addNewEnv = useEnvStore((state) => state.add);
+  const renameNewEnv = useEnvStore((state) => state.rename);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -32,6 +35,19 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
         <Button variant="outline" size={"sm"} className="ml-auto" onClick={() => setOpen(true)}>
           New Environment
         </Button>
+      )}
+
+      {mode === "edit" && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size={"sm"} className="ml-auto" onClick={() => setOpen(true)}>
+              <Pencil size={16} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Rename {`'${props.value}'`} Environment</p>
+          </TooltipContent>
+        </Tooltip>
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -53,7 +69,7 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
             type="submit"
             size={"sm"}
             onClick={async () => {
-              const result = await addNewEnv(envInput);
+              const result = mode === "new" ? await addNewEnv(envInput) : await renameNewEnv(props.environmentId, envInput);
               if (result) {
                 setEnvInput("");
                 toast.success(

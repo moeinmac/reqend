@@ -1,4 +1,4 @@
-import { getAllItems, removeItem, setItem } from "../db";
+import { getAllItems, getItem, removeItem, setItem } from "../db";
 import { Environment } from "../models.type";
 
 export const getAllEnvsHandler = async () => {
@@ -12,3 +12,12 @@ export const addEnvHandler = async (newEnv: Environment) => {
 };
 
 export const removeEnvHandler = async (envId: string) => await removeItem("env", envId);
+
+export const renameEnvHandler = async (envId: string, newName: string) => {
+  const thisEnv = await getItem<Environment>("env", envId);
+  if (!thisEnv) return;
+  thisEnv.name = newName;
+  thisEnv.modifiedAt = new Date().toISOString();
+  await setItem<Environment>("env", envId, thisEnv);
+  return thisEnv;
+};

@@ -1,13 +1,16 @@
 import { useEnvStore } from "@/store/useEnvStore";
+import { Delete, ExternalLink } from "lucide-react";
 import { FC } from "react";
 import { useShallow } from "zustand/react/shallow";
-import ChangeEnv from "./ChangeEnv";
 import { Button } from "../ui/button";
-import { Delete, ExternalLink, TrashIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import ChangeEnv from "./ChangeEnv";
+import MutateEnvironment from "./MutateEnvironment";
 
 const ActiveEnv: FC = () => {
-  const { envList, activeEnvId } = useEnvStore(useShallow((state) => ({ envList: state.envs, activeEnvId: state.activeEnvId })));
+  const { envList, activeEnvId, removeEnv } = useEnvStore(
+    useShallow((state) => ({ envList: state.envs, activeEnvId: state.activeEnvId, removeEnv: state.remove }))
+  );
 
   const selectedActiveEnv = envList.find((env) => env.id === activeEnvId);
 
@@ -23,9 +26,18 @@ const ActiveEnv: FC = () => {
               Open {`'${selectedActiveEnv.name}'`}
               <ExternalLink className="ml-3" size={16} />
             </Button>
+
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size={"sm"}>
+                <MutateEnvironment mode="edit" environmentId={selectedActiveEnv.id} value={selectedActiveEnv.name} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Delete {`'${selectedActiveEnv.name}'`} Environment</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size={"sm"} onClick={async () => await removeEnv(selectedActiveEnv.id)}>
                   <Delete size={16} />
                 </Button>
               </TooltipTrigger>
