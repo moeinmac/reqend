@@ -1,4 +1,4 @@
-export type StorageName = "collection" | "request" | "activeReq";
+export type StorageName = "collection" | "request" | "activeReq" | "env";
 
 export type Method = "get" | "post" | "patch" | "put" | "delete";
 
@@ -85,4 +85,18 @@ export type Collection = {
 
 export interface ActiveRequest extends RequestPrimary {
   collectionId?: string;
+}
+
+export interface EnvironmentItem {
+  variable: String;
+  value: string;
+  id: string;
+}
+
+export interface Environment {
+  id: string;
+  name: string;
+  createdAt: string;
+  modifiedAt: string;
+  items: EnvironmentItem[];
 }
