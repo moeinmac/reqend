@@ -57,7 +57,7 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
-          <Input value={envInput} onChange={(e) => setEnvInput(e.target.value)} type="text" placeholder="Environment Name" />
+          <Input maxLength={25} value={envInput} onChange={(e) => setEnvInput(e.target.value)} type="text" placeholder="Environment Name" />
         </div>
         <DialogFooter>
           <DialogClose asChild>
