@@ -2,7 +2,6 @@
 
 import Environment from "@/components/Environment/Environment";
 import EnvironmentWrapper from "@/components/Environment/EnvironmentWrapper";
-import EnvSidebar from "@/components/Environment/EnvSidebar";
 import RequestWrapper from "@/components/Request/RequestWrapper";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import { useEnvStore } from "@/store/useEnvStore";
@@ -12,8 +11,8 @@ const Home = () => {
 
   return (
     <div className="grid grid-cols-8 gap-2">
-      {appMode === "request" ? <Sidebar mode="sidebar" /> : <EnvSidebar />}
-      {appMode === "request" ? <RequestWrapper /> : <EnvironmentWrapper />}
+      {appMode === "request" ? <Sidebar mode="sidebar" /> : <EnvironmentWrapper />}
+      {appMode === "request" && <RequestWrapper />}
       <Environment />
     </div>
   );

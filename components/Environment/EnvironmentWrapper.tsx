@@ -9,7 +9,11 @@ const EnvironmentWrapper: FC = () => {
 
   const activeEnv = envs.find((env) => env.id === activeId)!;
 
-  return <div className="col-span-4 row-start-2 mt-10 flex flex-col gap-4 "></div>;
+  return (
+    <div className="flex flex-col gap-4 col-span-5 p-6">
+      <h1 className="font-black text-4xl">Environment -::- {`${activeEnv ? activeEnv.name : "N/A"}`}</h1>
+    </div>
+  );
 };
 
 export default EnvironmentWrapper;

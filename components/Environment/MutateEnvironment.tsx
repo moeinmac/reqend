@@ -1,13 +1,12 @@
 "use client";
 
+import { useEnvStore } from "@/store/useEnvStore";
+import { PencilLine } from "lucide-react";
 import { FC, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { useEnvStore } from "@/store/useEnvStore";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { Pencil } from "lucide-react";
 
 interface NewEnvironmentProps {
   mode: "new";
@@ -38,16 +37,9 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
       )}
 
       {mode === "edit" && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size={"sm"} className="ml-auto" onClick={() => setOpen(true)}>
-              <Pencil size={16} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Rename {`'${props.value}'`} Environment</p>
-          </TooltipContent>
-        </Tooltip>
+        <Button variant="outline" size={"sm"} onClick={() => setOpen(true)}>
+          Rename <PencilLine size={16} className="ml-3" />
+        </Button>
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
