@@ -1,5 +1,14 @@
-import { addEnvHandler, getAllEnvsHandler, removeEnvHandler, renameEnvHandler } from "@/db/dal/crud-env";
-import { Environment } from "@/db/models.type";
+import {
+  addEnvHandler,
+  addNewEnvItemHandler,
+  getAllEnvsHandler,
+  removeEnvHandler,
+  removeEnvItemHandler,
+  renameEnvHandler,
+  updateEnvItemsHandler,
+} from "@/db/dal/crud-env";
+import { Environment, EnvironmentItem } from "@/db/models.type";
+import { RowSelectionState } from "@tanstack/react-table";
 import { v4 } from "uuid";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -14,6 +23,10 @@ export interface EnvStore {
   rename: (envId: string, newName: string) => Promise<Environment | undefined>;
   appMode: "env" | "request";
   changeAppMode: (mode: EnvStore["appMode"]) => void;
+  addNewEnvItem: () => Promise<EnvironmentItem | undefined>;
+  updateEnvItems: (rowIndex: number, columnId: string, value: unknown) => Promise<EnvironmentItem[] | undefined>;
+  deleteEnvItem: (rowId: string) => Promise<void>;
+  updateSelectItem: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
 }
 
 export const useEnvStore = create<EnvStore>()(
@@ -68,6 +81,69 @@ export const useEnvStore = create<EnvStore>()(
       set((state) => {
         state.appMode = mode;
       });
+    },
+    addNewEnvItem: async () => {
+      const { activeEnvId } = get();
+      if (!activeEnvId) return;
+      const result = await addNewEnvItemHandler(activeEnvId);
+      if (result) {
+        set((state) => {
+          state.envs = state.envs.map((env) => (env.id === activeEnvId ? result.updatedEnv : env));
+        });
+        return result.newEnv;
+      }
+    },
+    updateEnvItems: async (rowIndex: number, columnId: string, value: unknown) => {
+      const { activeEnvId, envs } = get();
+      if (!activeEnvId) return;
+      const thisEnv = envs.find((env) => env.id === activeEnvId);
+      if (!thisEnv) return;
+      const newData = thisEnv.items.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...thisEnv.items[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      });
+      const updatedEnv = await updateEnvItemsHandler(newData, activeEnvId);
+      if (updatedEnv)
+        set((state) => {
+          state.envs = state.envs.map((env) => (env.id === activeEnvId ? updatedEnv : env));
+        });
+      return newData;
+    },
+    deleteEnvItem: async (rowId) => {
+      const { activeEnvId } = get();
+      if (!activeEnvId) return;
+      const updatedEnv = await removeEnvItemHandler(rowId, activeEnvId);
+      if (updatedEnv)
+        set((state) => {
+          state.envs = state.envs.map((env) => (env.id === activeEnvId ? updatedEnv : env));
+        });
+    },
+    updateSelectItem: async (updaterOrValue) => {
+      const { activeEnvId, envs } = get();
+      if (!activeEnvId) return;
+      const thisEnv = envs.find((env) => env.id === activeEnvId);
+      if (!thisEnv) return;
+      const currentRowSelection = thisEnv.items.reduce((acc, param, index) => {
+        if (param.selected) {
+          acc[index] = true;
+        }
+        return acc;
+      }, {} as RowSelectionState);
+      const newRowSelection = typeof updaterOrValue === "function" ? updaterOrValue(currentRowSelection) : updaterOrValue;
+      const newEnv: EnvironmentItem[] = thisEnv.items.map((param, index) => ({
+        ...param,
+        selected: !!newRowSelection[index],
+      }));
+      const updatedEnv = await updateEnvItemsHandler(newEnv, activeEnvId);
+      if (updatedEnv)
+        set((state) => {
+          state.envs = state.envs.map((env) => (env.id === activeEnvId ? updatedEnv : env));
+        });
     },
   }))
 );

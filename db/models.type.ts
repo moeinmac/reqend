@@ -91,6 +91,7 @@ export interface EnvironmentItem {
   variable: String;
   value: string;
   id: string;
+  selected: boolean;
 }
 
 export interface Environment {
