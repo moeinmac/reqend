@@ -1,6 +1,8 @@
 import localForage from "localforage";
 import { StorageName } from "./models.type";
 
+type StorageMap = Record<StorageName, LocalForage>;
+
 const collectionStorage = localForage.createInstance({
   name: "reqend",
   storeName: "collection",
@@ -19,8 +21,20 @@ const activeRequestStorage = localForage.createInstance({
   driver: [localForage.INDEXEDDB, localForage.LOCALSTORAGE],
 });
 
-const storage = (storageName: StorageName) =>
-  storageName === "collection" ? collectionStorage : storageName === "activeReq" ? activeRequestStorage : requestStorage;
+const envStorage = localForage.createInstance({
+  name: "reqend",
+  storeName: "env",
+  driver: [localForage.INDEXEDDB, localForage.LOCALSTORAGE],
+});
+
+const storageMap: StorageMap = {
+  activeReq: activeRequestStorage,
+  collection: collectionStorage,
+  env: envStorage,
+  request: requestStorage,
+};
+
+const storage = (storageName: StorageName) => storageMap[storageName];
 
 export const getItem = async <T>(storageName: StorageName, key: string): Promise<T | null> => {
   try {

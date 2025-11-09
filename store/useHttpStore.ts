@@ -14,8 +14,8 @@ export interface HttpResponse {
 }
 
 export interface HttpStore {
-  changeCardMode: (mode: "option" | "response") => void;
-  cardMode: "option" | "response";
+  changeCardMode: (mode: HttpStore["cardMode"]) => void;
+  cardMode: "option" | "response" | "env";
   isSubmitting: boolean;
   response: HttpResponse | null;
   error: Error | null;

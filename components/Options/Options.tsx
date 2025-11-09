@@ -2,14 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHttpStore } from "@/store/useHttpStore";
-import { ArrowRight, Download, Upload, Users } from "lucide-react";
-import { FC } from "react";
-import Authentication from "./Authentication/Authentication";
-import Params from "./Params/Params";
-import { useShallow } from "zustand/react/shallow";
-import Body from "./Body/Body";
 import { useRequestStore } from "@/store/useRequestStore";
+import { FC } from "react";
+import { useShallow } from "zustand/react/shallow";
+import Authentication from "./Authentication/Authentication";
+import Body from "./Body/Body";
 import Headers from "./Headers/Headers";
+import Params from "./Params/Params";
 
 const Options: FC = () => {
   const { changeCardMode, response } = useHttpStore(useShallow((state) => ({ changeCardMode: state.changeCardMode, response: state.response })));
@@ -33,7 +32,6 @@ const Options: FC = () => {
             <TabsTrigger disabled={requestMethod === "get"} value="body">
               Body
             </TabsTrigger>
-            <TabsTrigger value="setting">Setting</TabsTrigger>
           </TabsList>
           <TabsContent value="params">
             <Params />
@@ -46,34 +44,6 @@ const Options: FC = () => {
           </TabsContent>
           <TabsContent value="body">
             <Body />
-          </TabsContent>
-          <TabsContent value="setting">
-            <div className="grid gap-4">
-              <div>
-                <h3 className="font-medium">Backup & Restore</h3>
-                <p className="text-muted-foreground">Manage your account backups and restore points.</p>
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Download className="size-5 text-muted-foreground" />
-                    <span>Backup Account</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Upload className="size-5 text-muted-foreground" />
-                    <span>Restore Account</span>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ArrowRight className="size-4 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
-            </div>
           </TabsContent>
         </Tabs>
       </CardContent>

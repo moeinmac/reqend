@@ -1,27 +1,26 @@
+import { DEFAULT_REQ_METHOD } from "@/db/dal/crud-activeReq";
 import {
   draggedCollectionHandler,
+  MutateFolderInput,
   newCollectionHandler,
   newFolderHandler,
-  MutateFolderInput,
+  NewRequestInput,
   removeCollectionHandler,
+  removeRequestInCollectionHandler,
+  RemoveRequestInput,
   renameCollectionHandler,
+  renameFolderHandler,
   RequestUpdate,
   saveRequestHandler,
   SaveRequestInput,
   updateRequestInCollection,
-  renameFolderHandler,
-  NewRequestInput,
-  removeRequestInCollectionHandler,
-  RemoveRequestInput,
 } from "@/db/dal/crud-collection";
+import { removeRequestHandler } from "@/db/dal/crud-request";
 import { getAllItems } from "@/db/db";
-import { Collection, RequestPrimary } from "@/db/models.type";
+import { Collection } from "@/db/models.type";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useActiveReqStore } from "./useActiveReqStore";
-import { v4 } from "uuid";
-import { DEFAULT_REQ_METHOD } from "@/db/dal/crud-activeReq";
-import { removeRequestHandler } from "@/db/dal/crud-request";
 
 export interface CollectionStore {
   collections: Collection[];
