@@ -2,12 +2,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { BsTrash } from "react-icons/bs";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Params } from "@/db/models.type";
-import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { EnvironmentItem } from "@/db/models.type";
+import { useEffect, useState } from "react";
 
-export const defaultColumn: Partial<ColumnDef<Params>> = {
+export const defaultColumn: Partial<ColumnDef<EnvironmentItem>> = {
   cell: ({ getValue, row: { index }, column: { id }, table }) => {
     const initialValue = getValue();
     // We need to keep and update the state of the cell normally
@@ -24,7 +24,7 @@ export const defaultColumn: Partial<ColumnDef<Params>> = {
   },
 };
 
-export const envColumns: ColumnDef<Params>[] = [
+export const envColumns: ColumnDef<EnvironmentItem>[] = [
   {
     id: "select",
     header: ({ table }) => (

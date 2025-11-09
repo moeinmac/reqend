@@ -15,66 +15,70 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { defaultColumn, paramsColumns } from "@/constant/paramsColumns";
-import { useRequestStore } from "@/store/useRequestStore";
+import { useEnvStore } from "@/store/useEnvStore";
 import { FC, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { envColumns, defaultColumn } from "@/constant/envColumns";
+import { Card } from "../ui/card";
 
 const EnvTable: FC = () => {
-  const { request, addNewParam, updateParams, deleteParam, updateSelectParam } = useRequestStore(
+  const { activeEnvId, addNewEnvItem, deleteEnvItem, updateEnvItems, updateSelectItem, envs } = useEnvStore(
     useShallow((state) => ({
-      request: state.request,
-      addNewParam: state.addNewParam,
-      updateParams: state.updateParams,
-      deleteParam: state.deleteParam,
-      updateSelectParam: state.updateSelectParam,
+      activeEnvId: state.activeEnvId,
+      addNewEnvItem: state.addNewEnvItem,
+      updateEnvItems: state.updateEnvItems,
+      deleteEnvItem: state.deleteEnvItem,
+      updateSelectItem: state.updateSelectItem,
+      envs: state.envs,
     }))
   );
-  const data = request ? request.params : [];
+  const thisEnv = envs.find((env) => env.id === activeEnvId);
+  if (!thisEnv) return;
+  const data = thisEnv.items;
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const addNewParamHandler = async () => await addNewParam();
+  const addNewEnvHandler = async () => await addNewEnvItem();
 
   const rowSelection = useMemo(() => {
-    if (!request) return {};
-    return request.params.reduce((acc, param, index) => {
-      if (param.selected) {
+    if (!activeEnvId) return {};
+    return thisEnv.items.reduce((acc, item, index) => {
+      if (item.selected) {
         acc[index] = true;
       }
       return acc;
     }, {} as RowSelectionState);
-  }, [request]);
+  }, [envs]);
 
   const table = useReactTable({
     defaultColumn,
     data,
-    columns: paramsColumns,
+    columns: envColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: updateSelectParam,
+    onRowSelectionChange: updateSelectItem,
     state: {
       columnVisibility,
       rowSelection,
     },
     meta: {
       updateData: async (rowIndex, columnId, value) => {
-        return await updateParams(rowIndex, columnId, value);
+        return await updateEnvItems(rowIndex, columnId, value);
       },
       deleteRow: async (rowIndex) => {
         const thisRow = table.getRow(`${rowIndex}`);
-        await deleteParam(thisRow.original.id);
+        await deleteEnvItem(thisRow.original.id);
       },
     },
   });
 
   return (
-    <div className="w-full">
+    <Card className="px-4 w-full">
       <div className="flex items-center py-4">
-        <Button size={"sm"} className="cursor-pointer" disabled={data.length > 0 && data[data.length - 1].key === ""} onClick={addNewParamHandler}>
-          Add Param
+        <Button size={"sm"} className="cursor-pointer" disabled={data.length > 0 && data[data.length - 1].variable === ""} onClick={addNewEnvHandler}>
+          Add New Variable
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -108,7 +112,7 @@ const EnvTable: FC = () => {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead style={{ width: header.id === "select" ? "25px" : header.getSize() + "%" }} key={header.id}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
@@ -127,8 +131,8 @@ const EnvTable: FC = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={paramsColumns.length} className="h-24 text-center">
-                  No Params Detected.
+                <TableCell colSpan={envColumns.length} className="h-24 text-center">
+                  No Variable Found.
                 </TableCell>
               </TableRow>
             )}
@@ -140,7 +144,7 @@ const EnvTable: FC = () => {
           {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
