@@ -5,6 +5,7 @@ import {
   removeEnvHandler,
   removeEnvItemHandler,
   renameEnvHandler,
+  secretlyCreateGlobalEnv,
   updateEnvItemsHandler,
 } from "@/db/dal/crud-env";
 import { Environment, EnvironmentItem } from "@/db/models.type";
@@ -36,6 +37,7 @@ export const useEnvStore = create<EnvStore>()(
     activeEnvId: "",
     fetchAllEnvs: async () => {
       const allEnvs = await getAllEnvsHandler();
+      await secretlyCreateGlobalEnv();
       if (allEnvs)
         set((state) => {
           state.envs = allEnvs;
