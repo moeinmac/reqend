@@ -37,7 +37,7 @@ const MutateEnvironment: FC<MutateEnvironmentProps> = (props) => {
       )}
 
       {mode === "edit" && (
-        <Button variant="outline" size={"sm"} onClick={() => setOpen(true)}>
+        <Button variant="outline" disabled={props.environmentId === "global"} size={"sm"} onClick={() => setOpen(true)}>
           Rename <PencilLine size={16} className="ml-3" />
         </Button>
       )}

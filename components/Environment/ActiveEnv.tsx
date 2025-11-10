@@ -50,7 +50,12 @@ const ActiveEnv: FC = () => {
         <div className="flex mt-4 gap-4 ml-auto flex-col">
           <MutateEnvironment mode="edit" environmentId={selectedActiveEnv.id} value={selectedActiveEnv.name} />
 
-          <Button variant="outline" size={"sm"} onClick={async () => await removeEnv(selectedActiveEnv.id)}>
+          <Button
+            disabled={selectedActiveEnv.id === "global"}
+            variant="outline"
+            size={"sm"}
+            onClick={async () => await removeEnv(selectedActiveEnv.id)}
+          >
             Delete <Delete className="ml-3" size={16} />
           </Button>
         </div>

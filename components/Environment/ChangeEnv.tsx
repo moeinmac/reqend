@@ -1,13 +1,14 @@
 "use client";
 
-import { Check, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+import { Check, ChevronsUpDownIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { FC, useState } from "react";
+import { cn } from "@/lib/utils";
 import { useEnvStore } from "@/store/useEnvStore";
+import { FC, useState } from "react";
+import { toast } from "sonner";
 
 interface ChangeEnvProps {
   envList: { value: string; title: string }[];
@@ -41,12 +42,13 @@ const ChangeEnv: FC<ChangeEnvProps> = ({ activeEnvId, envList }) => {
                   key={env.value}
                   value={env.value}
                   onSelect={(currentValue) => {
+                    if (currentValue === "global" && currentValue === activeEnvId) return toast.error("can't deActive global environment");
                     changeActiveEnv(currentValue === activeEnvId ? "" : currentValue);
                     setOpen(false);
                   }}
                 >
                   {env.title}
-                  <Check className={cn("ml-auto", activeEnv?.value === env.value ? "opacity-100" : "opacity-0")} />
+                  <Check className={cn("ml-auto", activeEnv?.value === env.value || env?.value === "global" ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               ))}
             </CommandGroup>

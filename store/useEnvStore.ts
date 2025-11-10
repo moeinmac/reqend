@@ -38,11 +38,14 @@ export const useEnvStore = create<EnvStore>()(
     fetchAllEnvs: async () => {
       const allEnvs = await getAllEnvsHandler();
       await secretlyCreateGlobalEnv();
-      if (allEnvs)
+      if (allEnvs) {
+        const withNoGlobal = allEnvs.filter((env) => env.id !== "global");
+        const activeEnvId = withNoGlobal.length === 0 ? allEnvs[0].id : withNoGlobal[withNoGlobal.length - 1].id;
         set((state) => {
           state.envs = allEnvs;
-          state.activeEnvId = allEnvs[0]?.id;
+          state.activeEnvId = activeEnvId;
         });
+      }
     },
     add: async (envName) => {
       const newEnv: Environment = {

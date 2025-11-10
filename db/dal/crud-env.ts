@@ -65,6 +65,6 @@ export const secretlyCreateGlobalEnv = async () => {
     modifiedAt: new Date().toISOString(),
     id: "global",
     items: [],
-    name: "global",
+    name: "Global",
   });
 };
