@@ -77,6 +77,6 @@ export const getAllItems = async <T>(storageName: StorageName) => {
     });
     return items;
   } catch (err) {
-    console.error("Storage clear error:", err);
+    console.error("Storage getAll error:", err);
   }
 };

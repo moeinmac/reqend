@@ -56,3 +56,15 @@ export const removeEnvItemHandler = async (id: string, envId: string) => {
 
   return thisEnv;
 };
+
+export const secretlyCreateGlobalEnv = async () => {
+  const isExitsGlobal = await getItem<Environment>("env", "global");
+  if (isExitsGlobal) return;
+  await setItem<Environment>("env", "global", {
+    createdAt: new Date().toISOString(),
+    modifiedAt: new Date().toISOString(),
+    id: "global",
+    items: [],
+    name: "Global",
+  });
+};
