@@ -88,7 +88,7 @@ export interface ActiveRequest extends RequestPrimary {
 }
 
 export interface EnvironmentItem {
-  variable: String;
+  variable: string;
   value: string;
   id: string;
   selected: boolean;
