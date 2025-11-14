@@ -1,13 +1,22 @@
-import React, { FC, InputHTMLAttributes, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { Environment } from "@/db/models.type";
+import { useEnvStore } from "@/store/useEnvStore";
+import {
+  ChangeEvent,
+  forwardRef,
+  InputHTMLAttributes,
+  MouseEvent as ReactMouseEvent,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
 
 interface UltimateInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
   value?: string;
   onChange?: (value: string) => void;
-  activeEnvironment?: Environment | null;
-  globalEnvironment?: Environment | null;
 }
 
 interface Variable {
@@ -32,9 +41,19 @@ interface State {
 
 type Action =
   | { type: "SET_INPUT_VALUE"; payload: string }
-  | { type: "SHOW_SUGGESTIONS"; payload: { position: { top: number; left: number }; filterText: string; cursorPosition: number } }
+  | {
+      type: "SHOW_SUGGESTIONS";
+      payload: {
+        position: { top: number; left: number };
+        filterText: string;
+        cursorPosition: number;
+      };
+    }
   | { type: "HIDE_SUGGESTIONS" }
-  | { type: "SET_TOOLTIP"; payload: { name: string; value: string; x: number; y: number } | null }
+  | {
+      type: "SET_TOOLTIP";
+      payload: { name: string; value: string; x: number; y: number } | null;
+    }
   | { type: "SYNC_VALUE"; payload: string };
 
 const reducer = (state: State, action: Action): State => {
@@ -60,7 +79,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const UltimateInput: FC<UltimateInputProps> = ({ value = "", onChange, activeEnvironment, globalEnvironment, ...props }) => {
+const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value = "", onChange, ...props }, ref) => {
   const [state, dispatch] = useReducer(reducer, {
     inputValue: value,
     showSuggestions: false,
@@ -70,8 +89,19 @@ const UltimateInput: FC<UltimateInputProps> = ({ value = "", onChange, activeEnv
     tooltip: null,
   });
 
+  const envs = useEnvStore((state) => state.getCurrentEnvs)();
+
+  const activeEnvironment = envs?.activeEnv;
+  const globalEnvironment = envs?.globalEnv;
+
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref) return;
+    if (typeof ref === "function") ref(inputRef.current);
+    else (ref as RefObject<HTMLInputElement | null>).current = inputRef.current;
+  }, [ref]);
 
   useEffect(() => {
     if (value !== state.inputValue) dispatch({ type: "SYNC_VALUE", payload: value || "" });
@@ -129,7 +159,7 @@ const UltimateInput: FC<UltimateInputProps> = ({ value = "", onChange, activeEnv
     return matches;
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     const cursorPos = e.target.selectionStart || 0;
 
@@ -187,7 +217,7 @@ const UltimateInput: FC<UltimateInputProps> = ({ value = "", onChange, activeEnv
   };
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: ReactMouseEvent<HTMLDivElement>) => {
       const input = inputRef.current;
       if (!input) return;
 
@@ -299,6 +329,6 @@ const UltimateInput: FC<UltimateInputProps> = ({ value = "", onChange, activeEnv
       )}
     </div>
   );
-};
+});
 
 export default UltimateInput;
