@@ -1,9 +1,8 @@
+import UltimateInput from "@/components/UltimateInput/UltimateInput";
 import { cn } from "@/lib/utils";
 import { useRequestStore } from "@/store/useRequestStore";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Input } from "../../ui/input";
-import UltimateInput from "@/components/ui/ultimate-input";
 
 const InputReq: FC = () => {
   const [textWidth, setTextWidth] = useState(0);
@@ -17,7 +16,7 @@ const InputReq: FC = () => {
       reqUrl: state.request?.url ?? "",
       onChange: state.onChangeUrl,
       params: state.request?.params ?? [],
-    }))
+    })),
   );
 
   const paramsInput = useMemo(() => {
@@ -48,8 +47,8 @@ const InputReq: FC = () => {
       <UltimateInput
         type="text"
         name="url"
-        value={reqUrl}
-        onChange={async (value) => await onChange(value)}
+        baseValue={reqUrl}
+        onResolvedChange={async (value) => await onChange(value)}
         placeholder={paramsInput.length === 0 ? "Enter URL or paste text" : ""}
         className="py-6 w-ful"
         ref={inputRef}

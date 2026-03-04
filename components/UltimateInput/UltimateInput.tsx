@@ -1,85 +1,20 @@
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
+import { ComponentProps, FC, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { reducer } from "./utils";
 import { useEnvStore } from "@/store/useEnvStore";
-import {
-  ChangeEvent,
-  forwardRef,
-  InputHTMLAttributes,
-  MouseEvent as ReactMouseEvent,
-  RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-} from "react";
+import { useShallow } from "zustand/react/shallow";
+import { Variable } from "./index.type";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "../ui/command";
+import { Input } from "../ui/input";
 
-interface UltimateInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
-  value?: string;
-  onChange?: (value: string) => void;
+interface UltimateInputProps extends ComponentProps<"input"> {
+  onResolvedChange: (resolvedValue: string) => void;
+  baseValue?: string;
 }
 
-interface Variable {
-  variable: string;
-  value: string;
-  source: "Global" | "Environment";
-}
+const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, ...props }) => {
+  const { ref: outputRef, baseValue, ...otherProps } = props;
 
-interface State {
-  inputValue: string;
-  showSuggestions: boolean;
-  suggestionPosition: { top: number; left: number };
-  filterText: string;
-  cursorPosition: number;
-  tooltip: {
-    name: string;
-    value: string;
-    x: number;
-    y: number;
-  } | null;
-}
-
-type Action =
-  | { type: "SET_INPUT_VALUE"; payload: string }
-  | {
-      type: "SHOW_SUGGESTIONS";
-      payload: {
-        position: { top: number; left: number };
-        filterText: string;
-        cursorPosition: number;
-      };
-    }
-  | { type: "HIDE_SUGGESTIONS" }
-  | {
-      type: "SET_TOOLTIP";
-      payload: { name: string; value: string; x: number; y: number } | null;
-    }
-  | { type: "SYNC_VALUE"; payload: string };
-
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "SET_INPUT_VALUE":
-      return { ...state, inputValue: action.payload };
-    case "SHOW_SUGGESTIONS":
-      return {
-        ...state,
-        showSuggestions: true,
-        suggestionPosition: action.payload.position,
-        filterText: action.payload.filterText,
-        cursorPosition: action.payload.cursorPosition,
-      };
-    case "HIDE_SUGGESTIONS":
-      return { ...state, showSuggestions: false };
-    case "SET_TOOLTIP":
-      return { ...state, tooltip: action.payload };
-    case "SYNC_VALUE":
-      return { ...state, inputValue: action.payload };
-    default:
-      return state;
-  }
-};
-
-const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value = "", onChange, ...props }, ref) => {
+  const [value, onChange] = useState(baseValue ?? "");
   const [state, dispatch] = useReducer(reducer, {
     inputValue: value,
     showSuggestions: false,
@@ -89,19 +24,18 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
     tooltip: null,
   });
 
-  const envs = useEnvStore((state) => state.getCurrentEnvs)();
+  const insideRef = useRef<HTMLInputElement>(null);
 
-  const activeEnvironment = envs?.activeEnv;
-  const globalEnvironment = envs?.globalEnv;
-
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = (outputRef ?? insideRef) as React.RefObject<HTMLInputElement | null>;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!ref) return;
-    if (typeof ref === "function") ref(inputRef.current);
-    else (ref as RefObject<HTMLInputElement | null>).current = inputRef.current;
-  }, [ref]);
+  const { envs, activeEnvId } = useEnvStore(useShallow((state) => ({ envs: state.envs, activeEnvId: state.activeEnvId })));
+
+  const { activeEnv, globalEnv } = useMemo(() => {
+    const globalEnv = envs.find((env) => env.id === "global");
+    let activeEnv = envs.find((env) => env.id === activeEnvId);
+    return { globalEnv, activeEnv };
+  }, [envs]);
 
   useEffect(() => {
     if (value !== state.inputValue) dispatch({ type: "SYNC_VALUE", payload: value || "" });
@@ -110,7 +44,7 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
   const availableVariables = useMemo(() => {
     const variables: Variable[] = [];
 
-    activeEnvironment?.items.forEach((item) => {
+    activeEnv?.items.forEach((item) => {
       if (item.selected) {
         variables.push({
           variable: item.variable,
@@ -120,7 +54,7 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
       }
     });
 
-    globalEnvironment?.items.forEach((item) => {
+    globalEnv?.items.forEach((item) => {
       if (item.selected) {
         variables.push({
           variable: item.variable,
@@ -131,11 +65,20 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
     });
 
     return variables;
-  }, [activeEnvironment, globalEnvironment]);
+  }, [activeEnv, globalEnv]);
 
   const variableMap = useMemo(() => {
     return new Map(availableVariables.map((v) => [v.variable, v.value]));
   }, [availableVariables]);
+
+  const resolveVariables = useCallback(
+    (text: string): string => {
+      return text.replace(/<<([^>]+)>>/g, (match, varName) => {
+        return variableMap.get(varName) || match;
+      });
+    },
+    [variableMap],
+  );
 
   const filteredVariables = useMemo(() => {
     if (!state.filterText) return availableVariables;
@@ -159,12 +102,13 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
     return matches;
   }, []);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     const cursorPos = e.target.selectionStart || 0;
 
     dispatch({ type: "SET_INPUT_VALUE", payload: newValue });
-    onChange?.(newValue);
+    onChange(newValue);
+    onResolvedChange(resolveVariables(newValue));
 
     const beforeCursor = newValue.substring(0, cursorPos);
     const lastDoubleBracket = beforeCursor.lastIndexOf("<<");
@@ -206,6 +150,12 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
 
       dispatch({ type: "SET_INPUT_VALUE", payload: newValue });
       onChange?.(newValue);
+
+      if (onResolvedChange) {
+        const resolved = resolveVariables(newValue);
+        onResolvedChange(resolved);
+      }
+
       dispatch({ type: "HIDE_SUGGESTIONS" });
 
       setTimeout(() => {
@@ -217,7 +167,7 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
   };
 
   const handleMouseMove = useCallback(
-    (e: ReactMouseEvent<HTMLDivElement>) => {
+    (e: React.MouseEvent<HTMLDivElement>) => {
       const input = inputRef.current;
       if (!input) return;
 
@@ -249,7 +199,7 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
 
       dispatch({ type: "SET_TOOLTIP", payload: null });
     },
-    [state.inputValue, variableMap, extractVariables]
+    [state.inputValue, variableMap, extractVariables],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -258,9 +208,8 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && !inputRef.current?.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && !inputRef.current?.contains(event.target as Node))
         dispatch({ type: "HIDE_SUGGESTIONS" });
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -270,7 +219,7 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
   return (
     <div className="relative w-full">
       <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative">
-        <Input ref={inputRef} value={state.inputValue} onChange={handleInputChange} {...props} />
+        <Input ref={inputRef} value={state.inputValue} onChange={handleInputChange} {...otherProps} />
       </div>
 
       {state.tooltip && (
@@ -289,10 +238,7 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
         <div
           ref={dropdownRef}
           className="fixed z-50 w-72 bg-white border rounded-md shadow-md"
-          style={{
-            top: state.suggestionPosition.top,
-            left: state.suggestionPosition.left,
-          }}
+          style={{ top: state.suggestionPosition.top, left: state.suggestionPosition.left }}
         >
           <Command className="rounded-md">
             <CommandList className="max-h-64">
@@ -309,8 +255,8 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
                       <div
                         className={`flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded ${
                           v.source === "Global"
-                            ? "bg-blue-900 text-blue-200 border border-blue-300"
-                            : "bg-green-900 text-green-200 border border-green-300"
+                            ? "bg-blue-100 text-blue-700 border border-blue-300"
+                            : "bg-green-100 text-green-700 border border-green-300"
                         }`}
                       >
                         {v.source === "Global" ? "G" : "E"}
@@ -329,6 +275,6 @@ const UltimateInput = forwardRef<HTMLInputElement, UltimateInputProps>(({ value 
       )}
     </div>
   );
-});
+};
 
 export default UltimateInput;
