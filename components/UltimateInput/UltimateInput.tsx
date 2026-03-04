@@ -1,20 +1,19 @@
-import { ComponentProps, FC, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { reducer } from "./utils";
 import { useEnvStore } from "@/store/useEnvStore";
+import { ComponentProps, FC, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Variable } from "./index.type";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "../ui/command";
 import { Input } from "../ui/input";
+import { createAvailableVariables, createVariablesMap, reducer, resolveVariables } from "./utils";
 
-interface UltimateInputProps extends ComponentProps<"input"> {
-  onResolvedChange: (resolvedValue: string) => void;
-  baseValue?: string;
+interface UltimateInputProps extends Omit<ComponentProps<"input">, "value" | "onChange"> {
+  onResolvedChange?: (resolvedValue: string) => void;
+  onRawValueChange: (rawValue: string) => void;
+  value: string;
 }
 
-const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, ...props }) => {
-  const { ref: outputRef, baseValue, ...otherProps } = props;
+const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, onRawValueChange, ...props }) => {
+  const { ref: outputRef, value, ...otherProps } = props;
 
-  const [value, onChange] = useState(baseValue ?? "");
   const [state, dispatch] = useReducer(reducer, {
     inputValue: value,
     showSuggestions: false,
@@ -35,50 +34,17 @@ const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, ...props }) =
     const globalEnv = envs.find((env) => env.id === "global");
     let activeEnv = envs.find((env) => env.id === activeEnvId);
     return { globalEnv, activeEnv };
-  }, [envs]);
+  }, [envs, activeEnvId]);
 
   useEffect(() => {
-    if (value !== state.inputValue) dispatch({ type: "SYNC_VALUE", payload: value || "" });
+    if (value !== state.inputValue) dispatch({ type: "SYNC_VALUE", payload: value });
   }, [value, state.inputValue]);
 
-  const availableVariables = useMemo(() => {
-    const variables: Variable[] = [];
+  const availableVariables = useMemo(() => createAvailableVariables(globalEnv, activeEnv), [activeEnv, globalEnv]);
 
-    activeEnv?.items.forEach((item) => {
-      if (item.selected) {
-        variables.push({
-          variable: item.variable,
-          value: item.value,
-          source: "Environment",
-        });
-      }
-    });
+  const variableMap = useMemo(() => createVariablesMap(availableVariables), [availableVariables]);
 
-    globalEnv?.items.forEach((item) => {
-      if (item.selected) {
-        variables.push({
-          variable: item.variable,
-          value: item.value,
-          source: "Global",
-        });
-      }
-    });
-
-    return variables;
-  }, [activeEnv, globalEnv]);
-
-  const variableMap = useMemo(() => {
-    return new Map(availableVariables.map((v) => [v.variable, v.value]));
-  }, [availableVariables]);
-
-  const resolveVariables = useCallback(
-    (text: string): string => {
-      return text.replace(/<<([^>]+)>>/g, (match, varName) => {
-        return variableMap.get(varName) || match;
-      });
-    },
-    [variableMap],
-  );
+  const resolveVariablesFn = useCallback((text: string) => resolveVariables(variableMap, text), [variableMap]);
 
   const filteredVariables = useMemo(() => {
     if (!state.filterText) return availableVariables;
@@ -107,8 +73,8 @@ const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, ...props }) =
     const cursorPos = e.target.selectionStart || 0;
 
     dispatch({ type: "SET_INPUT_VALUE", payload: newValue });
-    onChange(newValue);
-    onResolvedChange(resolveVariables(newValue));
+    onResolvedChange?.(resolveVariablesFn(newValue));
+    onRawValueChange(newValue);
 
     const beforeCursor = newValue.substring(0, cursorPos);
     const lastDoubleBracket = beforeCursor.lastIndexOf("<<");
@@ -149,13 +115,13 @@ const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, ...props }) =
       const newValue = `${before}<<${variable}>>${afterCursor}`;
 
       dispatch({ type: "SET_INPUT_VALUE", payload: newValue });
-      onChange?.(newValue);
 
       if (onResolvedChange) {
-        const resolved = resolveVariables(newValue);
+        const resolved = resolveVariablesFn(newValue);
         onResolvedChange(resolved);
       }
 
+      onRawValueChange(newValue);
       dispatch({ type: "HIDE_SUGGESTIONS" });
 
       setTimeout(() => {
@@ -170,7 +136,6 @@ const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, ...props }) =
     (e: React.MouseEvent<HTMLDivElement>) => {
       const input = inputRef.current;
       if (!input) return;
-
       const rect = input.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const relativeX = x + input.scrollLeft;

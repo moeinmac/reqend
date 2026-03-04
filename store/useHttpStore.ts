@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useRequestStore } from "./useRequestStore";
 import { toast } from "sonner";
+import { useEnvStore } from "./useEnvStore";
 
 export interface HttpResponse {
   status: number;
@@ -24,7 +25,7 @@ export interface HttpStore {
 }
 
 export const useHttpStore = create<HttpStore>()(
-  immer((set, get) => ({
+  immer((set) => ({
     isSubmitting: false,
     cardMode: "option",
     response: null,
@@ -73,5 +74,5 @@ export const useHttpStore = create<HttpStore>()(
         });
       }
     },
-  }))
+  })),
 );

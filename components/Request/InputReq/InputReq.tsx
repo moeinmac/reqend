@@ -47,8 +47,8 @@ const InputReq: FC = () => {
       <UltimateInput
         type="text"
         name="url"
-        baseValue={reqUrl}
-        onResolvedChange={async (value) => await onChange(value)}
+        value={reqUrl}
+        onRawValueChange={async (value) => await onChange(value)}
         placeholder={paramsInput.length === 0 ? "Enter URL or paste text" : ""}
         className="py-6 w-ful"
         ref={inputRef}

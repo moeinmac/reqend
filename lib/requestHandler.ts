@@ -29,7 +29,7 @@ const createTimedAxiosInstance = (): AxiosInstance => {
       };
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   instance.interceptors.response.use(
@@ -50,7 +50,7 @@ const createTimedAxiosInstance = (): AxiosInstance => {
         };
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return instance;
