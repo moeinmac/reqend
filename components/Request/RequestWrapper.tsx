@@ -8,18 +8,17 @@ import NoActiveRequest from "./NoActiveRequest";
 import RequestTabs from "./Tabs/RequestTabs";
 
 const RequestWrapper: FC = () => {
-  const activeRequests = useActiveReqStore((state) => state.activeRequests);
-  const loading = useActiveReqStore((state) => state.loading);
-
-  const { fetchAllActiveReqs } = useActiveReqStore(
+  const { fetchAllActiveReqs, activeRequests, loading } = useActiveReqStore(
     useShallow((state) => ({
       fetchAllActiveReqs: state.fetchAllActiveReqs,
-    }))
+      activeRequests: state.activeRequests,
+      loading: state.loading,
+    })),
   );
 
   useEffect(() => {
-    fetchAllActiveReqs();
-  }, []);
+    if (activeRequests.length === 0) fetchAllActiveReqs();
+  }, [loading]);
 
   return (
     <div className="col-span-4 mt-10 flex flex-col gap-4 ">

@@ -28,7 +28,7 @@ const Params = () => {
       updateParams: state.updateParams,
       deleteParam: state.deleteParam,
       updateSelectParam: state.updateSelectParam,
-    }))
+    })),
   );
   const data = request ? request.params : [];
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -38,9 +38,7 @@ const Params = () => {
   const rowSelection = useMemo(() => {
     if (!request) return {};
     return request.params.reduce((acc, param, index) => {
-      if (param.selected) {
-        acc[index] = true;
-      }
+      if (param.selected) acc[index] = true;
       return acc;
     }, {} as RowSelectionState);
   }, [request]);

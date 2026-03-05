@@ -1,7 +1,7 @@
 import { Request } from "@/db/models.type";
 import { HttpResponse } from "@/store/useHttpStore";
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { urlResolver } from "./variables/resolvers";
+import { paramsResolver, urlResolver } from "./variables/resolvers";
 
 declare module "axios" {
   export interface InternalAxiosRequestConfig {
@@ -59,11 +59,12 @@ const createTimedAxiosInstance = (): AxiosInstance => {
 
 const timedAxios = createTimedAxiosInstance();
 
-const buildQueryParams = (params: Request["params"]): string => {
+const buildQueryParams = (params: Request["params"], variablesMap: Map<string, string>): string => {
   const selectedParams = params.filter((p) => p.selected);
   if (selectedParams.length === 0) return "";
+  const resolvedParams = paramsResolver(selectedParams, variablesMap);
 
-  const queryString = selectedParams.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+  const queryString = resolvedParams.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
   return queryString ? `?${queryString}` : "";
 };
 
@@ -132,7 +133,7 @@ const calculateResponseSize = (response: AxiosResponse): number => {
 };
 
 export const requestHandler = async (request: Request, variablesMap: Map<string, string>): Promise<HttpResponse> => {
-  const queryParams = buildQueryParams(request.params);
+  const queryParams = buildQueryParams(request.params, variablesMap);
   const url = `${urlResolver(request.url, variablesMap)}${queryParams}`;
 
   const authHeaders = buildAuthHeaders(request.auth);
