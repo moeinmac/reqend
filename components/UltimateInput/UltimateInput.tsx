@@ -3,7 +3,7 @@ import { ComponentProps, FC, useCallback, useEffect, useMemo, useReducer, useRef
 import { useShallow } from "zustand/react/shallow";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "../ui/command";
 import { Input } from "../ui/input";
-import { createAvailableVariables, createVariablesMap, reducer, resolveVariables } from "./utils";
+import { createAvailableVariables, createVariablesMap, reducer, resolveVariables } from "@/lib/variables/envToVariableHandler";
 
 interface UltimateInputProps extends Omit<ComponentProps<"input">, "value" | "onChange"> {
   onResolvedChange?: (resolvedValue: string) => void;
@@ -32,7 +32,7 @@ const UltimateInput: FC<UltimateInputProps> = ({ onResolvedChange, onRawValueCha
 
   const { activeEnv, globalEnv } = useMemo(() => {
     const globalEnv = envs.find((env) => env.id === "global");
-    let activeEnv = envs.find((env) => env.id === activeEnvId);
+    const activeEnv = envs.find((env) => env.id === activeEnvId);
     return { globalEnv, activeEnv };
   }, [envs, activeEnvId]);
 

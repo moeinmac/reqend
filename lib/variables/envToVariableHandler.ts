@@ -1,5 +1,5 @@
 import { Environment } from "@/db/models.type";
-import { Action, State, Variable } from "./index.type";
+import { Action, State, Variable } from "@/types/variables.type";
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
