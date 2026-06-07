@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Params } from "@/db/models.type";
 import { useEffect, useState } from "react";
+import UltimateInput from "@/components/UltimateInput/UltimateInput";
 
 export const defaultColumn: Partial<ColumnDef<Params>> = {
   cell: ({ getValue, row: { index }, column: { id }, table }) => {
@@ -20,7 +21,7 @@ export const defaultColumn: Partial<ColumnDef<Params>> = {
 
     // If the initialValue is changed external, sync it up with our state
     useEffect(() => setValue(initialValue), [initialValue]);
-    return <Input value={value as string} onChange={(e) => setValue(e.target.value)} onBlur={onBlur} />;
+    return <UltimateInput value={value as string} onRawValueChange={(value) => setValue(value)} onBlur={onBlur} />;
   },
 };
 

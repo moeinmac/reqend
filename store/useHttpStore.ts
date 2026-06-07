@@ -1,8 +1,10 @@
 import { requestHandler } from "@/lib/requestHandler";
+import { createAvailableVariables, createVariablesMap } from "@/lib/variables/envToVariableHandler";
+import { toast } from "sonner";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { useEnvStore } from "./useEnvStore";
 import { useRequestStore } from "./useRequestStore";
-import { toast } from "sonner";
 
 export interface HttpResponse {
   status: number;
@@ -24,7 +26,7 @@ export interface HttpStore {
 }
 
 export const useHttpStore = create<HttpStore>()(
-  immer((set, get) => ({
+  immer((set) => ({
     isSubmitting: false,
     cardMode: "option",
     response: null,
@@ -54,8 +56,16 @@ export const useHttpStore = create<HttpStore>()(
         state.response = null;
       });
 
+      const envs = useEnvStore.getState().envs;
+      const activeEnvId = useEnvStore.getState().activeEnvId;
+      const globalEnv = envs.find((env) => env.id === "global");
+      const activeEnv = envs.find((env) => env.id === activeEnvId);
+
+      const availableVariables = createAvailableVariables(globalEnv, activeEnv);
+      const variablesMap = createVariablesMap(availableVariables);
+
       try {
-        const response = await requestHandler(currentRequest);
+        const response = await requestHandler(currentRequest, variablesMap);
 
         set((state) => {
           state.response = response;
@@ -73,5 +83,5 @@ export const useHttpStore = create<HttpStore>()(
         });
       }
     },
-  }))
+  })),
 );

@@ -1,6 +1,7 @@
 import { Request } from "@/db/models.type";
 import { HttpResponse } from "@/store/useHttpStore";
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { paramsResolver, urlResolver } from "./variables/resolvers";
 
 declare module "axios" {
   export interface InternalAxiosRequestConfig {
@@ -29,7 +30,7 @@ const createTimedAxiosInstance = (): AxiosInstance => {
       };
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   instance.interceptors.response.use(
@@ -50,7 +51,7 @@ const createTimedAxiosInstance = (): AxiosInstance => {
         };
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return instance;
@@ -58,10 +59,12 @@ const createTimedAxiosInstance = (): AxiosInstance => {
 
 const timedAxios = createTimedAxiosInstance();
 
-const buildQueryParams = (params: Request["params"]): string => {
+const buildQueryParams = (params: Request["params"], variablesMap: Map<string, string>): string => {
   const selectedParams = params.filter((p) => p.selected);
   if (selectedParams.length === 0) return "";
-  const queryString = selectedParams.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+  const resolvedParams = paramsResolver(selectedParams, variablesMap);
+
+  const queryString = resolvedParams.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
   return queryString ? `?${queryString}` : "";
 };
 
@@ -129,9 +132,10 @@ const calculateResponseSize = (response: AxiosResponse): number => {
   return dataSize + headersSize;
 };
 
-export const requestHandler = async (request: Request): Promise<HttpResponse> => {
-  const queryParams = buildQueryParams(request.params);
-  const url = `${request.url}${queryParams}`;
+export const requestHandler = async (request: Request, variablesMap: Map<string, string>): Promise<HttpResponse> => {
+  const queryParams = buildQueryParams(request.params, variablesMap);
+  const url = `${urlResolver(request.url, variablesMap)}${queryParams}`;
+
   const authHeaders = buildAuthHeaders(request.auth);
   const body = buildRequestBody(request.body);
   const headers = buildRequestHeaders(request.headers);

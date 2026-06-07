@@ -15,7 +15,7 @@ const ActiveEnv: FC = () => {
       removeEnv: state.remove,
       changeAppMode: state.changeAppMode,
       appMode: state.appMode,
-    }))
+    })),
   );
 
   const selectedActiveEnv = envList.find((env) => env.id === activeEnvId);

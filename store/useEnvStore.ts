@@ -28,6 +28,7 @@ export interface EnvStore {
   updateEnvItems: (rowIndex: number, columnId: string, value: unknown) => Promise<EnvironmentItem[] | undefined>;
   deleteEnvItem: (rowId: string) => Promise<void>;
   updateSelectItem: (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => Promise<void>;
+  getCurrentEnvs: () => { globalEnv?: Environment; activeEnv?: Environment };
 }
 
 export const useEnvStore = create<EnvStore>()(
@@ -40,7 +41,7 @@ export const useEnvStore = create<EnvStore>()(
       await secretlyCreateGlobalEnv();
       if (allEnvs) {
         const withNoGlobal = allEnvs.filter((env) => env.id !== "global");
-        const activeEnvId = withNoGlobal.length === 0 ? allEnvs[0].id : withNoGlobal[withNoGlobal.length - 1].id;
+        const activeEnvId = withNoGlobal.length === 0 ? allEnvs[0]?.id : withNoGlobal[withNoGlobal.length - 1].id;
         set((state) => {
           state.envs = allEnvs;
           state.activeEnvId = activeEnvId;
@@ -149,6 +150,18 @@ export const useEnvStore = create<EnvStore>()(
         set((state) => {
           state.envs = state.envs.map((env) => (env.id === activeEnvId ? updatedEnv : env));
         });
+    },
+    getCurrentEnvs: () => {
+      const activeEnvId = get().activeEnvId;
+      const envs = get().envs;
+      if (!activeEnvId) {
+        if (envs.length === 0) return {};
+        const globalEnv = envs.find((e) => e.id === "global");
+        return { globalEnv };
+      }
+      const activeEnv = envs.find((e) => e.id === activeEnvId);
+      const globalEnv = envs.find((e) => e.id === "global");
+      return { activeEnv, globalEnv };
     },
   }))
 );
