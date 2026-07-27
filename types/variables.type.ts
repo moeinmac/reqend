@@ -4,23 +4,39 @@ export type Variable = {
   source: "Global" | "Environment";
 };
 
+export type SuggestionPosition = { top: number; left: number };
+
+export type VariableTooltip = {
+  name: string;
+  value: string;
+  /** Horizontal center of the token in viewport coords */
+  x: number;
+  /** Bottom of the input in viewport coords */
+  y: number;
+};
+
 export type State = {
   inputValue: string;
   showSuggestions: boolean;
-  suggestionPosition: { top: number; left: number };
+  suggestionPosition: SuggestionPosition;
   filterText: string;
   cursorPosition: number;
-  tooltip: {
-    name: string;
-    value: string;
-    x: number;
-    y: number;
-  } | null;
+  selectedIndex: number;
+  tooltip: VariableTooltip | null;
 };
 
 export type Action =
   | { type: "SET_INPUT_VALUE"; payload: string }
-  | { type: "SHOW_SUGGESTIONS"; payload: { position: { top: number; left: number }; filterText: string; cursorPosition: number } }
+  | {
+      type: "SHOW_SUGGESTIONS";
+      payload: {
+        position: SuggestionPosition;
+        filterText: string;
+        cursorPosition: number;
+      };
+    }
+  | { type: "UPDATE_SUGGESTION_POSITION"; payload: SuggestionPosition }
   | { type: "HIDE_SUGGESTIONS" }
-  | { type: "SET_TOOLTIP"; payload: { name: string; value: string; x: number; y: number } | null }
+  | { type: "SET_SELECTED_INDEX"; payload: number }
+  | { type: "SET_TOOLTIP"; payload: VariableTooltip | null }
   | { type: "SYNC_VALUE"; payload: string };
