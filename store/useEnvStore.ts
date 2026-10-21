@@ -22,8 +22,6 @@ export interface EnvStore {
   activeEnvId: string;
   changeActiveEnv: (envId: string) => void;
   rename: (envId: string, newName: string) => Promise<Environment | undefined>;
-  appMode: "env" | "request";
-  changeAppMode: (mode: EnvStore["appMode"]) => void;
   addNewEnvItem: () => Promise<EnvironmentItem | undefined>;
   updateEnvItems: (rowIndex: number, columnId: string, value: unknown) => Promise<EnvironmentItem[] | undefined>;
   deleteEnvItem: (rowId: string) => Promise<void>;
@@ -34,7 +32,6 @@ export interface EnvStore {
 export const useEnvStore = create<EnvStore>()(
   immer((set, get) => ({
     envs: [],
-    appMode: "request",
     activeEnvId: "",
     fetchAllEnvs: async () => {
       const allEnvs = await getAllEnvsHandler();
@@ -82,11 +79,6 @@ export const useEnvStore = create<EnvStore>()(
         state.envs = state.envs.map((env) => (env.id === envId ? envToRename : env));
       });
       return envToRename;
-    },
-    changeAppMode: (mode) => {
-      set((state) => {
-        state.appMode = mode;
-      });
     },
     addNewEnvItem: async () => {
       const { activeEnvId } = get();

@@ -1,5 +1,8 @@
+"use client";
+
 import { useEnvStore } from "@/store/useEnvStore";
 import { Delete, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { FC } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "../ui/button";
@@ -7,29 +10,34 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import ChangeEnv from "./ChangeEnv";
 import MutateEnvironment from "./MutateEnvironment";
 
-const ActiveEnv: FC = () => {
-  const { envList, activeEnvId, removeEnv, changeAppMode, appMode } = useEnvStore(
+type ActiveEnvProps = {
+  variant?: "compact" | "expanded";
+};
+
+const ActiveEnv: FC<ActiveEnvProps> = ({ variant = "compact" }) => {
+  const { envList, activeEnvId, removeEnv } = useEnvStore(
     useShallow((state) => ({
       envList: state.envs,
       activeEnvId: state.activeEnvId,
       removeEnv: state.remove,
-      changeAppMode: state.changeAppMode,
-      appMode: state.appMode,
     })),
   );
 
   const selectedActiveEnv = envList.find((env) => env.id === activeEnvId);
+  const isExpanded = variant === "expanded";
 
   return (
     <div className="flex flex-col gap-2">
       {envList.length > 0 ? (
         <div className="flex items-center justify-between gap-3">
           <ChangeEnv envList={envList.map((env) => ({ title: env.name, value: env.id }))} activeEnvId={activeEnvId} />
-          {selectedActiveEnv && appMode === "request" && (
+          {selectedActiveEnv && !isExpanded && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button onClick={() => changeAppMode("env")}>
-                  <ExternalLink size={16} />
+                <Button asChild>
+                  <Link href="/environment">
+                    <ExternalLink size={16} />
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -37,16 +45,18 @@ const ActiveEnv: FC = () => {
               </TooltipContent>
             </Tooltip>
           )}
-          {appMode === "env" && (
-            <Button onClick={() => changeAppMode("request")}>
-              Collections <ExternalLink className="ml-2" size={16} />
+          {isExpanded && (
+            <Button asChild>
+              <Link href="/request">
+                Collections <ExternalLink className="ml-2" size={16} />
+              </Link>
             </Button>
           )}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">No environment variables found. Please create one.</p>
       )}
-      {envList.length > 0 && selectedActiveEnv && appMode === "env" && (
+      {envList.length > 0 && selectedActiveEnv && isExpanded && (
         <div className="flex mt-4 gap-4 ml-auto flex-col">
           <MutateEnvironment mode="edit" environmentId={selectedActiveEnv.id} value={selectedActiveEnv.name} />
 
