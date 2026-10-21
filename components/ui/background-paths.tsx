@@ -43,7 +43,7 @@ function FloatingPaths({ position }: { position: number }) {
   );
 }
 
-export function BackgroundPaths({ title, subTitle }: { title: string; subTitle: string }) {
+export function BackgroundPaths({ title, subTitle, path }: { title: string; subTitle: string; path: string }) {
   const words = title.split(" ");
   const words2 = subTitle.split(" ");
 
@@ -119,7 +119,7 @@ export function BackgroundPaths({ title, subTitle }: { title: string; subTitle: 
                             group-hover:-translate-y-0.5 border border-black/10 dark:border-white/10
                             hover:shadow-md dark:hover:shadow-neutral-800/50"
             >
-              <Link href={"/home"} className="flex items-center">
+              <Link href={path} className="flex items-center">
                 <span className="opacity-90 group-hover:opacity-100 transition-opacity">Start Free</span>
                 <span
                   className="ml-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-1.5 

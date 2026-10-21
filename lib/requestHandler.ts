@@ -126,10 +126,20 @@ const buildRequestHeaders = (headers: Request["headers"]): Record<string, string
   return theHeaders;
 };
 
-const calculateResponseSize = (response: AxiosResponse): number => {
-  const dataSize = JSON.stringify(response.data).length;
-  const headersSize = JSON.stringify(response.headers).length;
-  return dataSize + headersSize;
+type ProxiedHttpResponse = {
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  data: unknown;
+  time: number;
+  size: number;
+  error?: string;
+};
+
+const isProxiedHttpResponse = (value: unknown): value is ProxiedHttpResponse => {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<ProxiedHttpResponse>;
+  return typeof candidate.status === "number" && !!candidate.headers && typeof candidate.time === "number" && typeof candidate.size === "number";
 };
 
 export const requestHandler = async (request: Request, variablesMap: Map<string, string>): Promise<HttpResponse> => {
@@ -141,7 +151,9 @@ export const requestHandler = async (request: Request, variablesMap: Map<string,
   const headers = buildRequestHeaders(request.headers);
 
   try {
-    const response = await timedAxios({
+    // Browser calls stay on this origin. The route forwards them server-side,
+    // so third-party APIs do not need to allow reqend.vercel.app via CORS.
+    const response = await timedAxios.post<ProxiedHttpResponse>("/api/proxy", {
       url,
       method: request.method,
       headers: {
@@ -149,29 +161,21 @@ export const requestHandler = async (request: Request, variablesMap: Map<string,
         ...(request.body?.type === "json" && { "Content-Type": "application/json" }),
         ...headers,
       },
-      data: body,
+      body,
     });
 
+    if (!isProxiedHttpResponse(response.data)) throw new Error("Unexpected proxy response");
+
     return {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers as Record<string, string>,
-      data: response.data,
-      time: response.reqendData?.time || 0,
-      size: calculateResponseSize(response),
+      status: response.data.status,
+      statusText: response.data.statusText,
+      headers: response.data.headers,
+      data: response.data.data,
+      time: response.data.time,
+      size: response.data.size,
     };
   } catch (error: any) {
-    if (error.response) {
-      return {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        headers: error.response.headers as Record<string, string>,
-        data: error.response.data,
-        time: error.response.reqendData?.time || 0,
-        size: calculateResponseSize(error.response),
-      };
-    }
-
-    throw new Error(error.message || "Network error occurred");
+    const proxyError = error?.response?.data?.error;
+    throw new Error((typeof proxyError === "string" && proxyError) || error.message || "Network error occurred");
   }
 };
